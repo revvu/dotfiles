@@ -43,8 +43,9 @@
     casks = [
       "wezterm"
       "claude-code"
+      "brave-browser"  # personal browser
       "codex"          # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
-      "google-chrome"  # chrome-devtools-axi and Playwright drive it
+      "google-chrome"  # automation browser only: chrome-devtools-axi launches it isolated+headless
     ];
   };
 }
