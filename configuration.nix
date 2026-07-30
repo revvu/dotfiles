@@ -34,6 +34,9 @@
     onActivation.cleanup = "zap";  # remove anything not listed here
     onActivation.autoUpdate = true;
     onActivation.extraFlags = [ "--force" ];
+    # Skip the quarantine xattr on casks: quarantined CLI-installed apps get
+    # Gatekeeper-translocated to a random path on every launch.
+    caskArgs.no_quarantine = true;
     brews = [
       "gh"     # GitHub CLI (gh-axi and no-mistakes call into it)
       "herdr"
