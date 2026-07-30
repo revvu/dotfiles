@@ -36,7 +36,6 @@
   },
   "enabledPlugins": {
     "vercel@claude-plugins-official": false,
-    "warp@claude-code-warp": true,
     "supabase@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
@@ -50,12 +49,6 @@
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
-      }
-    },
-    "claude-code-warp": {
-      "source": {
-        "source": "github",
-        "repo": "warpdotdev/claude-code-warp"
       }
     }
   },
