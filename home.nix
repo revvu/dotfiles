@@ -85,10 +85,12 @@ in
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.claude/settings.json";
 
-  # One global agent policy, linked into each agent's own discovery location:
+  # One global agent policy (home/global-agents.md — named distinctly from the
+  # repo-root AGENTS.md, which holds project notes for agents editing this repo),
+  # linked into each agent's own discovery location:
   # Claude reads ~/.claude/CLAUDE.md; Codex reads ~/.codex/AGENTS.md.
   home.file.".claude/CLAUDE.md".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/AGENTS.md";
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
   home.file.".codex/AGENTS.md".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/AGENTS.md";
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
 }

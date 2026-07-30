@@ -21,6 +21,11 @@
 - A diagnosis may only be closed with positive evidence.
   "Most likely X" without a captured error, log line, or reproduction stays open as undetermined — and missing observability is itself the first finding to fix.
 
+## Linear
+
+All Linear work — creating, editing, or commenting on issues — runs from `~/github/gallopify_playground/linear`.
+Start Linear tasks from that directory so its style rules (CLAUDE.md) and skills (style-check, new-issue, sync-issue, groundwork, and the rest) are loaded; do not push text to Linear from anywhere else.
+
 ## For Complex Tasks
 
 
