@@ -35,11 +35,14 @@
     onActivation.autoUpdate = true;
     onActivation.extraFlags = [ "--force" ];
     brews = [
+      "gh"     # GitHub CLI (gh-axi and no-mistakes call into it)
       "herdr"
+      "nvm"    # node lives under nvm; the axi tools are npm globals there
     ];
     casks = [
       "wezterm"
       "claude-code"
+      "codex"  # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
     ];
   };
 }

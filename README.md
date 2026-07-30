@@ -21,7 +21,7 @@ Running the switch builds:
 - Shell (zsh, aliases, starship prompt)
 - Editor (Neovim config with the rose-pine moon theme)
 - Terminal (WezTerm config with the rose-pine moon theme)
-- Agent configs (Claude, Codex, opencode all share one AGENTS.md)
+- Agent configs (Claude and Codex share one AGENTS.md)
 
 ## Prerequisites
 
