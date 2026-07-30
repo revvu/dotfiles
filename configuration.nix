@@ -38,10 +38,12 @@
     # Gatekeeper-translocated to a random path on every launch.
     caskArgs.no_quarantine = true;
     brews = [
-      "gh"     # GitHub CLI (gh-axi and no-mistakes call into it)
+      "doppler"  # gallopify secrets: doppler run --project ... wraps every service
+      "gh"       # GitHub CLI (gh-axi and no-mistakes call into it)
       "herdr"
-      "nvm"    # node lives under nvm; the axi tools are npm globals there
-      "uv"     # python tooling; uv-managed tool shims live in ~/.local/bin
+      "nvm"      # node lives under nvm; the axi tools are npm globals there
+      "pnpm"     # gallopify frontend package manager (no corepack packageManager pins)
+      "uv"       # python tooling; uv-managed tool shims live in ~/.local/bin
     ];
     casks = [
       "wezterm"

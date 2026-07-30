@@ -47,7 +47,7 @@ in
       m = "git switch main";
       cc = "claude --dangerously-skip-permissions";
       co = "codex --full-auto";
-      publish-md = "${config.home.homeDirectory}/projects/gallopify_playground/tools/markdown_publish/publish-md";
+      publish-md = "${config.home.homeDirectory}/github/gallopify_playground/tools/markdown_publish/publish-md";
     };
   };
 
