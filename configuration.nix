@@ -38,11 +38,13 @@
       "gh"     # GitHub CLI (gh-axi and no-mistakes call into it)
       "herdr"
       "nvm"    # node lives under nvm; the axi tools are npm globals there
+      "uv"     # python tooling; uv-managed tool shims live in ~/.local/bin
     ];
     casks = [
       "wezterm"
       "claude-code"
-      "codex"  # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
+      "codex"          # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
+      "google-chrome"  # chrome-devtools-axi and Playwright drive it
     ];
   };
 }

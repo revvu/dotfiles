@@ -36,13 +36,8 @@ in
     initContent = ''
       bindkey '^f' autosuggest-accept
 
-      # uv-managed tools (uv, uvx, no-mistakes) live in ~/.local/bin
-      . "$HOME/.local/bin/env"
-
-      # bun
-      export BUN_INSTALL="$HOME/.bun"
-      export PATH="$BUN_INSTALL/bin:$PATH"
-      [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+      # uv tool shims and gallopify-internal binaries (no-mistakes, treehouse)
+      export PATH="$HOME/.local/bin:$PATH"
     '';
     shellAliases = {
       ".." = "cd ..";
