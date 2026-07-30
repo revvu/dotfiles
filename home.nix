@@ -57,6 +57,9 @@ in
       name = "revvu";
       email = "reevu.adakroy@gmail.com";
     };
+    # gh serves credentials; the empty first entry resets the helper list so
+    # the system osxkeychain helper can't hang headless pushes on a GUI prompt.
+    settings.credential."https://github.com".helper = [ "" "!gh auth git-credential" ];
   };
 
   programs.starship = {
