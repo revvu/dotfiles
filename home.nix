@@ -1,7 +1,18 @@
-{ config, pkgs, user, ... }:
+{ config, lib, pkgs, user, ... }:
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  # CLIs that ship only on npm, so `brews` can't declare them. Same rule as
+  # Homebrew: declared here, never installed ad-hoc. Keyed by the binary each
+  # package provides, which is what the activation below tests for.
+  npmGlobals = {
+    "pi" = "@earendil-works/pi-coding-agent";  # Pi coding agent
+    "gh-axi" = "gh-axi";
+    "chrome-devtools-axi" = "chrome-devtools-axi";
+    "lavish-axi" = "lavish-axi";
+    "tasks-axi" = "tasks-axi";
+    "quota-axi" = "quota-axi";
+  };
 in
 
 {
@@ -21,6 +32,17 @@ in
   ];
   fonts.fontconfig.enable = true;
   home.sessionVariables.EDITOR = "nvim";
+
+  # Installs anything in npmGlobals that isn't already on PATH. Steady-state
+  # switches do no network work; a fresh machine gets the whole set. nvm comes
+  # from Homebrew, which nix-darwin activates before this, so it is present.
+  home.activation.npmGlobals = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    export NVM_DIR="$HOME/.nvm"
+    . /opt/homebrew/opt/nvm/nvm.sh
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList
+      (bin: pkg: ''command -v ${bin} > /dev/null || npm install -g ${pkg}'')
+      npmGlobals)}
+  '';
 
   programs.zsh = {
     enable = true;
