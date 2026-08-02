@@ -124,6 +124,10 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr";
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.claude/settings.json";
+  # settings.json's statusLine runs this by absolute path, so it has to land in
+  # ~/.claude rather than only existing in the repo.
+  home.file.".claude/statusline.py".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.claude/statusline.py";
 
   # One global agent policy (home/global-agents.md — named distinctly from the
   # repo-root AGENTS.md, which holds project notes for agents editing this repo),
