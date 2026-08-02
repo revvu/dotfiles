@@ -33,15 +33,33 @@ in
   fonts.fontconfig.enable = true;
   home.sessionVariables.EDITOR = "nvim";
 
-  # Installs anything in npmGlobals that isn't already on PATH. Steady-state
-  # switches do no network work; a fresh machine gets the whole set. nvm comes
-  # from Homebrew, which nix-darwin activates before this, so it is present.
+  # Installs anything in npmGlobals that isn't already present, so a steady-state
+  # switch does no network work. Activation runs on a nix-only PATH with no awk
+  # and no /usr/bin, so nvm.sh cannot be sourced here; read nvm's default-version
+  # alias instead, which needs nothing beyond coreutils. No usable Node yet (a
+  # first switch, before Homebrew has installed nvm) warns and skips rather than
+  # failing the whole switch; the next ./rebuild.sh picks it up.
   home.activation.npmGlobals = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export NVM_DIR="$HOME/.nvm"
-    . /opt/homebrew/opt/nvm/nvm.sh
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList
-      (bin: pkg: ''command -v ${bin} > /dev/null || npm install -g ${pkg}'')
-      npmGlobals)}
+    nodeBin=""
+    if [ -r "$HOME/.nvm/alias/default" ]; then
+      nodeBin="$HOME/.nvm/versions/node/v$(cat "$HOME/.nvm/alias/default")/bin"
+    fi
+    # Fallback for a default alias that points at another alias rather than a version.
+    # Pure globbing: activation runs under `set -e -o pipefail`, where a pipeline
+    # that finds nothing would abort the whole switch.
+    if [ ! -x "$nodeBin/npm" ]; then
+      for candidate in "$HOME"/.nvm/versions/node/*/bin; do
+        if [ -x "$candidate/npm" ]; then nodeBin="$candidate"; fi
+      done
+    fi
+    if [ ! -x "$nodeBin/npm" ]; then
+      echo "npmGlobals: no nvm-managed npm found, skipping; re-run ./rebuild.sh once Node is installed" >&2
+    else
+      export PATH="$nodeBin:$PATH"
+      ${lib.concatStringsSep "\n      " (lib.mapAttrsToList
+        (bin: pkg: ''command -v ${bin} > /dev/null || npm install -g ${pkg}'')
+        npmGlobals)}
+    fi
   '';
 
   programs.zsh = {
