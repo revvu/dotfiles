@@ -17,10 +17,11 @@ Running the switch builds:
 
 - System settings (dark mode, key repeat, dock, Finder, trackpad)
 - Homebrew apps (casks and CLI tools)
-- Nix user packages (ripgrep, fd, fzf, jq, lazygit, Neovim, Hack Nerd Font)
-- npm-only CLIs (`npmGlobals` in `home.nix`), installed into the nvm-managed Node
+- Nix user packages (ripgrep, fd, fzf, jq, lazygit, Helix, Node LTS, gh, pnpm, uv, Hack Nerd Font)
+- npm-only CLIs (`npmGlobals` in `home.nix`), installed into `~/.npm-global` by the nix-managed Node
+- PyPI-only CLIs (`uvTools` in `home.nix`), installed as isolated `uv tool` shims in `~/.local/bin`
 - Shell (zsh, aliases, starship prompt)
-- Editor (Neovim config with the rose-pine moon theme)
+- Editor (Helix config with the rose-pine moon theme)
 - Terminal (WezTerm config with the rose-pine moon theme)
 - Agent configs (Claude and Codex share one AGENTS.md)
 
@@ -129,20 +130,19 @@ If you don't use it, just remove it from `brews` in your copy.
 - `home.nix` - user-level config: shell, packages, prompt, and the symlinks described below.
 - `rebuild.sh` - re-applies the config after the first switch.
   Run this every time you make a change.
-- `home/` - the actual config files that get symlinked into place (Neovim, WezTerm, herdr, Claude settings, the shared `AGENTS.md`).
+- `home/` - the actual config files that get symlinked into place (Helix, WezTerm, herdr, Claude settings, the shared `AGENTS.md`).
 
 ## How the symlinks work
 
 The files under `home/` are the real files - editing them here is editing your live config, no rebuild needed to see the change in your editor.
-`home.nix` uses `mkOutOfStoreSymlink` to point paths like `~/.config/nvim` straight at `home/.config/nvim` in this repo, so the two never drift out of sync.
+`home.nix` uses `mkOutOfStoreSymlink` to point paths like `~/.config/helix` straight at `home/.config/helix` in this repo, so the two never drift out of sync.
 You only run `./rebuild.sh` when you change something that isn't just a symlinked file, like a package list or a system default.
 
 ## Notes
 
-The first time you launch `nvim`, it bootstraps [lazy.nvim](https://github.com/folke/lazy.nvim) by cloning plugins from GitHub.
-That needs network access once; after that it's offline.
-Neovim and WezTerm both use the rose-pine moon theme.
-Neovim keeps italics off and uses a transparent background on macOS, Windows, and WSL so it matches the terminal setup.
+Helix and WezTerm both use the rose-pine moon theme.
+Helix keeps italics off and uses a transparent background (a small theme override in `home/.config/helix/themes/`) so it matches the terminal setup.
+No plugin bootstrap needed: Helix ships its language support, pickers, and themes built in.
 
 ## License
 

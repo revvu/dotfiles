@@ -1,0 +1,6 @@
+# rose-pine moon with a transparent background (matches the WezTerm setup)
+# and italics off, same as the old Neovim config.
+inherits = "rose_pine_moon"
+
+"ui.background" = {}
+"comment" = { fg = "muted" }

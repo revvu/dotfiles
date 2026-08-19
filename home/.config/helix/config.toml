@@ -1,0 +1,13 @@
+theme = "rose_pine_moon_transparent"
+
+[editor]
+line-number = "relative"       # relative line numbers for fast jumps
+scrolloff = 16                 # keep cursor away from the screen edge
+mouse = false                  # no mouse; also lets Herdr keep host mouse capture off so Escape isn't swallowed
+default-yank-register = "+"    # share the system clipboard
+
+[keys.normal]
+# save by pressing Escape (also collapses the selection, helix's default esc behavior)
+esc = ["collapse_selection", "keep_primary_selection", ":write"]
+# select all (shadows helix's default increment-number, which I never use)
+C-a = "select_all"

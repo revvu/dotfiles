@@ -34,16 +34,17 @@
     onActivation.cleanup = "zap";  # remove anything not listed here
     onActivation.autoUpdate = true;
     onActivation.extraFlags = [ "--force" ];
-    # Skip the quarantine xattr on casks: quarantined CLI-installed apps get
-    # Gatekeeper-translocated to a random path on every launch.
-    caskArgs.no_quarantine = true;
+    # No caskArgs.no_quarantine: Homebrew 6 dropped --no-quarantine from
+    # `brew install`, so passing it fails every cask. It was never needed —
+    # brew's own quarantine code sets the no-translocation bit (bit 8) on the
+    # xattr it writes, so cask apps launch from /Applications, not from a
+    # random AppTranslocation path.
+    taps = [
+      "my-monkeys/tap"  # OpenSuperWhisper's cask lives here, not in homebrew-cask
+    ];
     brews = [
       "doppler"  # gallopify secrets: doppler run --project ... wraps every service
-      "gh"       # GitHub CLI (gh-axi and no-mistakes call into it)
       "herdr"
-      "nvm"      # node lives under nvm; the axi tools are npm globals there
-      "pnpm"     # gallopify frontend package manager (no corepack packageManager pins)
-      "uv"       # python tooling; uv-managed tool shims live in ~/.local/bin
     ];
     casks = [
       "wezterm"
@@ -51,6 +52,7 @@
       "brave-browser"  # personal browser
       "codex"          # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
       "google-chrome"  # automation browser only: chrome-devtools-axi launches it isolated+headless
+      "my-monkeys/tap/opensuperwhisper"  # local dictation, from the tap above
     ];
   };
 }

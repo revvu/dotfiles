@@ -13,6 +13,12 @@ let
     "tasks-axi" = "tasks-axi";
     "quota-axi" = "quota-axi";
   };
+  # Python CLIs that ship only on PyPI, installed as isolated uv tools. Same
+  # rule as Homebrew and npm: declared here, never installed ad-hoc. Keyed by
+  # a binary each tool puts in ~/.local/bin, which is what the activation tests.
+  uvTools = {
+    "claude-swap" = "claude-swap";  # multi-account switcher for Claude Code
+  };
 in
 
 {
@@ -26,58 +32,57 @@ in
     fzf       # fuzzy finder
     jq        # json on the command line
     lazygit
-    neovim
+    helix     # editor; config is the edit-in-place symlink below
+    nodejs    # current LTS; npm globals land in ~/.npm-global (prefix below)
+    gh        # GitHub CLI (gh-axi and no-mistakes call into it)
+    pnpm      # gallopify frontend package manager (no corepack packageManager pins)
+    uv        # python tooling; the uvTools activation below installs its shims
     # the font everything renders in
     nerd-fonts.hack
   ];
   fonts.fontconfig.enable = true;
-  home.sessionVariables.EDITOR = "nvim";
+  home.sessionVariables.EDITOR = "hx";
+  # The nix store is read-only, so `npm install -g` needs a writable prefix.
+  home.sessionVariables.NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
+  home.sessionPath = [
+    "${config.home.homeDirectory}/.npm-global/bin"
+    # uv tool shims and gallopify-internal binaries (no-mistakes, treehouse)
+    "${config.home.homeDirectory}/.local/bin"
+  ];
 
   # Installs anything in npmGlobals that isn't already present, so a steady-state
-  # switch does no network work. Activation runs on a nix-only PATH with no awk
-  # and no /usr/bin, so nvm.sh cannot be sourced here; read nvm's default-version
-  # alias instead, which needs nothing beyond coreutils. No usable Node yet (a
-  # first switch, before Homebrew has installed nvm) warns and skips rather than
-  # failing the whole switch; the next ./rebuild.sh picks it up.
+  # switch does no network work. Node is the nix package above, addressed by
+  # store path because activation runs on a minimal PATH; the same switch that
+  # runs this script installs it, so it's always available here.
   home.activation.npmGlobals = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    nodeBin=""
-    if [ -r "$HOME/.nvm/alias/default" ]; then
-      nodeBin="$HOME/.nvm/versions/node/v$(cat "$HOME/.nvm/alias/default")/bin"
-    fi
-    # Fallback for a default alias that points at another alias rather than a version.
-    # Pure globbing: activation runs under `set -e -o pipefail`, where a pipeline
-    # that finds nothing would abort the whole switch.
-    if [ ! -x "$nodeBin/npm" ]; then
-      for candidate in "$HOME"/.nvm/versions/node/*/bin; do
-        if [ -x "$candidate/npm" ]; then nodeBin="$candidate"; fi
-      done
-    fi
-    if [ ! -x "$nodeBin/npm" ]; then
-      echo "npmGlobals: no nvm-managed npm found, skipping; re-run ./rebuild.sh once Node is installed" >&2
-    else
-      export PATH="$nodeBin:$PATH"
-      ${lib.concatStringsSep "\n      " (lib.mapAttrsToList
-        (bin: pkg: ''command -v ${bin} > /dev/null || npm install -g ${pkg}'')
-        npmGlobals)}
-    fi
+    export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+    export PATH="${pkgs.nodejs}/bin:$PATH"
+    ${lib.concatStringsSep "\n    " (lib.mapAttrsToList
+      (bin: pkg: ''[ -x "$HOME/.npm-global/bin/${bin}" ] || npm install -g ${pkg}'')
+      npmGlobals)}
+  '';
+
+  # Same contract as npmGlobals: install only what's missing, so a steady-state
+  # switch does no network work. uv is the nix package above, addressed by store
+  # path because activation runs on a minimal PATH; the same switch that runs
+  # this script installs it, so it's always available here. The shims land in
+  # ~/.local/bin, which home.sessionPath puts on PATH.
+  home.activation.uvTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    ${lib.concatStringsSep "\n    " (lib.mapAttrsToList
+      (bin: pkg: ''[ -x "$HOME/.local/bin/${bin}" ] || ${pkgs.uv}/bin/uv tool install ${pkg}'')
+      uvTools)}
   '';
 
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;      # ghost text from history
     syntaxHighlighting.enable = true;  # commands turn green when valid
-    # Login-shell env: brew, then nvm (node + the npm-global axi tools live under ~/.nvm).
+    # Login-shell env: brew (node comes from nix, npm globals from ~/.npm-global).
     profileExtra = ''
       eval "$(/opt/homebrew/bin/brew shellenv zsh)"
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && . "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
-      [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && . "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
     '';
     initContent = ''
       bindkey '^f' autosuggest-accept
-
-      # uv tool shims and gallopify-internal binaries (no-mistakes, treehouse)
-      export PATH="$HOME/.local/bin:$PATH"
     '';
     shellAliases = {
       ".." = "cd ..";
@@ -118,8 +123,8 @@ in
   # Edit-in-place: the real file stays in my repo, ~/.config just points at it.
   home.file.".config/wezterm".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/wezterm";
-  home.file.".config/nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/nvim";
+  home.file.".config/helix".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/helix";
   home.file.".config/herdr".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr";
   home.file.".claude/settings.json".source =
