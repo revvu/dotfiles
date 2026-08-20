@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "gh-axi",
+            "command": "\"$HOME/.npm-global/bin/gh-axi\"",
             "timeout": 10
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "chrome-devtools-axi",
+            "command": "\"$HOME/.npm-global/bin/chrome-devtools-axi\"",
             "timeout": 10
           }
         ]
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "lavish-axi",
+            "command": "\"$HOME/.npm-global/bin/lavish-axi\"",
             "timeout": 10
           }
         ]
