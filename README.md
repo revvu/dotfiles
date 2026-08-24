@@ -10,6 +10,7 @@ The structure is his; read his README for the full design rationale.
 
 - **Dev toolchain from nix, not Homebrew.**
   Node LTS, `gh`, `pnpm`, `uv`, and a pinned `no-mistakes` release are nix packages, so the activation scripts that need them can never hit a bootstrap-ordering gap.
+  Home Manager keeps both the `no-mistakes` CLI and daemon on that pinned release, including when migrating a machine that used the upstream installer.
   npm-only CLIs (`npmGlobals` in `home.nix`) install into `~/.npm-global`; PyPI-only CLIs (`uvTools`) install as `uv tool` shims in `~/.local/bin`.
   Both install only what's missing, so a steady-state switch does no network work.
 - **Helix instead of Neovim.**
