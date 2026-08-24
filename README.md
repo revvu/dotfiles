@@ -9,7 +9,7 @@ The structure is his; read his README for the full design rationale.
 ## How this fork differs
 
 - **Dev toolchain from nix, not Homebrew.**
-  Node LTS, `gh`, `pnpm`, and `uv` are nix packages, so the activation scripts that need them can never hit a bootstrap-ordering gap.
+  Node LTS, `gh`, `pnpm`, `uv`, and a pinned `no-mistakes` release are nix packages, so the activation scripts that need them can never hit a bootstrap-ordering gap.
   npm-only CLIs (`npmGlobals` in `home.nix`) install into `~/.npm-global`; PyPI-only CLIs (`uvTools`) install as `uv tool` shims in `~/.local/bin`.
   Both install only what's missing, so a steady-state switch does no network work.
 - **Helix instead of Neovim.**
@@ -18,7 +18,7 @@ The structure is his; read his README for the full design rationale.
 - **Browsers.**
   Brave for personal use; Chrome installed only as an automation target (`chrome-devtools-axi` launches it isolated and headless).
 - **More tools.**
-  `doppler` (secrets), Codex (second agent for the no-mistakes pipeline), OpenSuperWhisper (local dictation, from the `my-monkeys` tap).
+  `doppler` (secrets), `no-mistakes` (AI-driven pre-PR gate), Codex (its second-agent reviewer), OpenSuperWhisper (local dictation, from the `my-monkeys` tap).
 - **One agent policy file.**
   `home/global-agents.md` is symlinked to both `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`, so Claude and Codex share one set of instructions.
   Claude's `settings.json` and status line script are tracked too.

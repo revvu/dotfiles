@@ -19,6 +19,21 @@ let
   uvTools = {
     "claude-swap" = "claude-swap";  # multi-account switcher for Claude Code
   };
+  # Not in nixpkgs/Homebrew. Pin the upstream release and checksum rather than
+  # running its network installer during every machine activation.
+  noMistakes = pkgs.stdenvNoCC.mkDerivation {
+    pname = "no-mistakes";
+    version = "1.57.0";
+    src = pkgs.fetchurl {
+      url = "https://github.com/kunchenguid/no-mistakes/releases/download/v1.57.0/no-mistakes-v1.57.0-darwin-arm64.tar.gz";
+      hash = "sha256-tiFjdXivzWK8Do3b6CnQjuCTB50OX7ue3R8V98//5jU=";
+    };
+    unpackPhase = ''tar -xzf "$src"'';
+    installPhase = ''
+      mkdir -p "$out/bin"
+      install -m755 no-mistakes "$out/bin/no-mistakes"
+    '';
+  };
 in
 
 {
@@ -37,6 +52,7 @@ in
     gh        # GitHub CLI (gh-axi and no-mistakes call into it)
     pnpm      # gallopify frontend package manager (no corepack packageManager pins)
     uv        # python tooling; the uvTools activation below installs its shims
+    noMistakes # AI-driven pre-PR validation gate
     # the font everything renders in
     nerd-fonts.hack
   ];
@@ -46,7 +62,7 @@ in
   home.sessionVariables.NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
   home.sessionPath = [
     "${config.home.homeDirectory}/.npm-global/bin"
-    # uv tool shims and gallopify-internal binaries (no-mistakes, treehouse)
+    # uv tool shims and gallopify-internal binaries
     "${config.home.homeDirectory}/.local/bin"
   ];
 
