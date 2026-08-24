@@ -65,6 +65,8 @@ in
     # uv tool shims and gallopify-internal binaries
     "${config.home.homeDirectory}/.local/bin"
   ];
+  home.file.".local/bin/no-mistakes".source =
+    "${noMistakes}/bin/no-mistakes";
 
   # Installs anything in npmGlobals that isn't already present, so a steady-state
   # switch does no network work. Node is the nix package above, addressed by
