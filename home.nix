@@ -67,6 +67,20 @@ in
   ];
   home.file.".local/bin/no-mistakes".source =
     "${noMistakes}/bin/no-mistakes";
+  home.activation.noMistakesDaemon = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    expected="${noMistakes}/bin/no-mistakes"
+    current=
+    for service in "$HOME"/Library/LaunchAgents/com.kunchenguid.no-mistakes.daemon*.plist; do
+      [ -f "$service" ] || continue
+      root=$(/usr/bin/plutil -extract ProgramArguments.4 raw -o - "$service" 2>/dev/null || true)
+      [ "$root" = "$HOME/.no-mistakes" ] || continue
+      current=$(/usr/bin/plutil -extract ProgramArguments.0 raw -o - "$service" 2>/dev/null || true)
+      break
+    done
+    if [ "$current" != "$expected" ]; then
+      "$expected" daemon restart
+    fi
+  '';
 
   # Installs anything in npmGlobals that isn't already present, so a steady-state
   # switch does no network work. Node is the nix package above, addressed by
