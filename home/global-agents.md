@@ -21,6 +21,15 @@
 - A diagnosis may only be closed with positive evidence.
   "Most likely X" without a captured error, log line, or reproduction stays open as undetermined — and missing observability is itself the first finding to fix.
 
+## Lavish skins
+
+Every project has its own Lavish skin so its artifacts are on-brand and easy to tell apart at a glance.
+Before authoring any Lavish artifact, walk up from the artifact's project directory and use the nearest `.lavish-shared/lavish-skin.css`.
+Set `<html lang="en" data-theme="<name>">` using the `theme-name:` declared in the skin's header comment, and inline the entire skin file into the artifact's `<style>` block — inline, never `<link>`, so the artifact stays portable when opened or exported outside Lavish.
+Skins are DaisyUI 5 custom themes, so keep using the standard Tailwind v4 browser + DaisyUI CDN runtime for structure and components.
+Never invent brand colors inside an individual artifact — if the brand needs adjusting, change the skin file, deriving from the token source of truth named in its header.
+When starting artifact work in a project that has no skin yet, offer to create one: derive it from the project's real design system if it has one, otherwise design a distinctive theme and record the rationale in the skin's header.
+
 ## Linear
 
 All Linear work — creating, editing, or commenting on issues — runs from `~/github/gallopify_playground/linear`.
