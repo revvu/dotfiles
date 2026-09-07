@@ -35,6 +35,51 @@ When starting artifact work in a project that has no skin yet, offer to create o
 All Linear work — creating, editing, or commenting on issues — runs from `~/github/gallopify_playground/linear`.
 Start Linear tasks from that directory so its style rules (CLAUDE.md) and skills (style-check, new-issue, sync-issue, groundwork, and the rest) are loaded; do not push text to Linear from anywhere else.
 
+## Model routing (Explore vs Execute)
+
+Standing matrix (Fable for judgment/design, Codex for frontier implement/review, Cursor for speed implement) lives in firstmate when you are in a firstmate home: `docs/routing-policy.md`, `config/crew-dispatch.json`, `/plan-to-fleet`.
+
+**Crew-dispatch is not ambient magic.**
+It only chooses harnesses when First Mate spawns crewmates.
+A normal Claude (or Codex) chat does **not** automatically hand Lavish/Paper edits to Cursor unless you follow the Explore rules below.
+
+### Explore (single chat, decisions still open)
+
+Stay on the current strong model (prefer Fable when available) for:
+
+- clarifying questions and framing
+- architecture and product judgment
+- critiquing Lavish/Paper and deciding which variant wins
+- taste and layout calls
+
+Delegate to **Cursor** for mechanical speed work so Claude quota stays on judgment:
+
+- generating several rough Lavish or Paper variants to compare
+- applying an already-decided bulk edit to Lavish HTML
+- other fast, low-ambiguity artifact edits where quality-good-enough beats frontier reasoning
+
+How to delegate:
+
+1. Keep this conversation as the judgment surface.
+2. Run Cursor non-interactively against the artifact workspace, for example:
+   `agent --yolo --trust --workspace <dir> -p "<precise edit brief>"`
+   (`cursor-agent` is fine if that is the binary on PATH.)
+3. Re-read the artifact here, then continue questioning or converging.
+
+Do **not** delegate:
+
+- tiny one-line fixes cheaper to do inline
+- pure discussion turns with no file edit
+- final taste/layout convergence (stay on Fable)
+- when the human explicitly wants you to edit
+
+When intent locks and work should parallelize, switch to First Mate Execute (`/plan-to-fleet`) instead of improvising an ad-hoc Cursor fleet from this chat.
+
+### Execute (First Mate fleet)
+
+Use crew-dispatch and quota-axi for harness choice.
+When spawning Claude, prefer multi-account selection via `config/claude-cswap-auto` and `bin/fm-cswap-pick.sh` (see firstmate `docs/multi-account-quota.md`).
+
 ## For Complex Tasks
 
 
