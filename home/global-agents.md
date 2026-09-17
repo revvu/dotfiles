@@ -13,6 +13,9 @@
   If you see one, even if it is not caused by what you are working on right now, still get it fixed. 
 
 - Avoid custom solutions when there are mature products and components that already exist. Prefer leveraging what's proven to work well.
+- Whenever you decide to write custom code, challenge that decision: is a custom solution really needed, or is there a well-tested existing library that's better to use instead?
+  These problems have almost always been solved before — survey the established options (including engines from other ecosystems with official ports) and weigh licensing and maintenance cost before writing your own.
+  Custom code that survives the challenge should be small, justified in writing (what it's for, and why no library covers it), and frozen by a test that proves it.
 - When integrating with an external service, pin specs to observed behavior, not documentation.
   SDK types and vendor docs describe what is possible across all configurations; only a live capture (network response, real API call) shows what your instance actually returns.
   Never let a documented target state override a primary observation you already have.
