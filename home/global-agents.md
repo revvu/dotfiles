@@ -122,4 +122,4 @@ Treat `outcome: checks-passed` as done: report the PR link and hand the merge to
 A launchd babysitter (`com.gallopify.no-mistakes-babysitter`) is the session-independent backstop for a run nobody is actively driving; never disable it, and read `~/.no-mistakes/logs/babysitter.log` when you suspect a run is stuck.
 It self-heals a hung ci-fix agent (the run retries automatically) and flags the two cases that need you: a stuck non-ci step — recover with `no-mistakes axi abort` then rerun — and a parked gate, meaning a run is awaiting a `respond` nobody gave, so pick it up and drive it.
 
-After the task is completed and the code, its plan and implementation files should be saved as an artifact to a docs/ folder for future reference.
+The plan and implementation files are working scratch for the task: they die with the task's workspace, and nothing archives them - the project-completion sweep captures how the system now works in the wiki instead.
