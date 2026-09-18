@@ -111,7 +111,9 @@ If that agent hits an unanticipated problem, error, or gap, stop implementation 
 
 ### no-mistakes pipeline
 
-Run no-mistakes on every non-markdown-only PR you produce — the pre-share correctness gate (nine serial steps, each a fresh agent; GitHub branch protection is the separate merge gate).
+Run no-mistakes only on PRs with substantial changes — new features, behavior changes, non-trivial refactors — as the pre-share correctness gate (nine serial steps, each a fresh agent; GitHub branch protection is the separate merge gate).
+Skip it for simple changes: docs, generated artifacts, config tweaks, and small mechanical edits ship without a run.
+An adversarial review pointed at a simple change invents patches for esoteric, obscure bugs; those defensive patches complicate the code and are worse than the risk the simple change carried.
 It is expensive but agent-agnostic: if you are Claude run it with Codex, and vice versa; initialize an unconfigured repo with `no-mistakes init`.
 
 Start a branch's first run with `git push no-mistakes <branch>` (the only way to start a never-pushed branch), then drive every gate with `no-mistakes axi respond` from a checkout on the run's branch.
