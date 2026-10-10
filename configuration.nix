@@ -34,25 +34,15 @@
     onActivation.cleanup = "none";  # applying never removes an installed item
     onActivation.autoUpdate = true;
     onActivation.extraFlags = [ "--force" ];
-    # No caskArgs.no_quarantine: Homebrew 6 dropped --no-quarantine from
-    # `brew install`, so passing it fails every cask. It was never needed —
-    # brew's own quarantine code sets the no-translocation bit (bit 8) on the
-    # xattr it writes, so cask apps launch from /Applications, not from a
-    # random AppTranslocation path.
-    taps = [
-      "my-monkeys/tap"  # OpenSuperWhisper's cask lives here, not in homebrew-cask
-    ];
     brews = [
       "doppler"  # gallopify secrets: doppler run --project ... wraps every service
       "herdr"
     ];
+    # CLI tools that Homebrew ships as casks. GUI apps are not declared here;
+    # the README lists them.
     casks = [
-      "wezterm"
       "claude-code@latest"
-      "brave-browser"  # personal browser
-      "codex"          # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
-      "google-chrome"  # automation browser only: chrome-devtools-axi launches it isolated+headless
-      "my-monkeys/tap/opensuperwhisper"  # local dictation, from the tap above
+      "codex"  # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
     ];
   };
 

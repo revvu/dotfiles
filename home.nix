@@ -59,12 +59,16 @@ in
   # Self-updating tools: the repo guarantees presence, never a version.
   # Updates are run by hand (no-mistakes update, treehouse update) when the
   # weekly audit says a release is out.
+  # Runs in a subshell: the PATH it needs (/usr/bin for the installers) must
+  # not leak into later activation steps, which rely on GNU coreutils.
   home.activation.selfUpdatingTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    mkdir -p "$HOME/.local/bin"
-    export PATH="$HOME/.local/bin:${pkgs.curl}/bin:/usr/bin:/bin:$PATH"
-    [ -x "$HOME/.no-mistakes/bin/no-mistakes" ] || curl -fsSL https://raw.githubusercontent.com/kunchenguid/no-mistakes/main/docs/install.sh | NO_MISTAKES_LINK_DIR="$HOME/.local/bin" sh
-    [ -x "$HOME/.local/bin/treehouse" ] || curl -fsSL https://kunchenguid.github.io/treehouse/install.sh | sh
-    [ -x "$HOME/.local/bin/cursor-agent" ] || curl -fsS https://cursor.com/install | bash
+    (
+      mkdir -p "$HOME/.local/bin"
+      export PATH="$HOME/.local/bin:${pkgs.curl}/bin:/usr/bin:/bin:$PATH"
+      [ -x "$HOME/.no-mistakes/bin/no-mistakes" ] || curl -fsSL https://raw.githubusercontent.com/kunchenguid/no-mistakes/main/docs/install.sh | NO_MISTAKES_LINK_DIR="$HOME/.local/bin" sh
+      [ -x "$HOME/.local/bin/treehouse" ] || curl -fsSL https://kunchenguid.github.io/treehouse/install.sh | sh
+      [ -x "$HOME/.local/bin/cursor-agent" ] || curl -fsS https://cursor.com/install | bash
+    )
   '';
 
 
@@ -173,4 +177,20 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
   home.file.".pi/agent/AGENTS.md".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
+
+  # bin/doctor compares the live machine with what this evaluation declared,
+  # so the declared sets are written out by the same evaluation. Brew items
+  # are not listed here: the doctor reads the Brewfile the system activates.
+  home.file.".config/doctor/declared.json".text = builtins.toJSON {
+    npm = builtins.attrNames npmGlobals;
+    uv = builtins.attrNames uvTools;
+    # self-updating tools (installed above) and their aliases
+    localBin = [ "agent" "cursor" "cursor-agent" "cswap" "no-mistakes" "treehouse" ];
+    # installed by hand, listed in the README, never declared
+    exempt = {
+      brews = [ ];
+      casks = [ "wezterm" "brave-browser" "google-chrome" "opensuperwhisper" ];
+      taps = [ "my-monkeys/tap" "automic-vault/isotopes" ];
+    };
+  };
 }
