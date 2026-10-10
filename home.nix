@@ -60,7 +60,8 @@ in
   # Updates are run by hand (no-mistakes update, treehouse update) when the
   # weekly audit says a release is out.
   home.activation.selfUpdatingTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export PATH="${pkgs.curl}/bin:/usr/bin:/bin:$PATH"
+    mkdir -p "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:${pkgs.curl}/bin:/usr/bin:/bin:$PATH"
     [ -x "$HOME/.no-mistakes/bin/no-mistakes" ] || curl -fsSL https://raw.githubusercontent.com/kunchenguid/no-mistakes/main/docs/install.sh | NO_MISTAKES_LINK_DIR="$HOME/.local/bin" sh
     [ -x "$HOME/.local/bin/treehouse" ] || curl -fsSL https://kunchenguid.github.io/treehouse/install.sh | sh
     [ -x "$HOME/.local/bin/cursor-agent" ] || curl -fsS https://cursor.com/install | bash
