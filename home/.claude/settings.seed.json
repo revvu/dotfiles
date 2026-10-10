@@ -1,5 +1,5 @@
 {
-  "model": "claude-fable-5[1m]",
+  "model": "opus",
   "hooks": {
     "SessionStart": [
       {
@@ -39,14 +39,17 @@
     "command": "python3 \"$HOME/.claude/statusline.py\""
   },
   "enabledPlugins": {
-    "vercel@claude-plugins-official": false,
+    "vercel@claude-plugins-official": true,
     "supabase@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
     "playwright@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": false,
     "code-simplifier@claude-plugins-official": true,
-    "linear@claude-plugins-official": true
+    "linear@claude-plugins-official": true,
+    "posthog@claude-plugins-official": true,
+    "paper-desktop@paper": true,
+    "slack@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -54,8 +57,15 @@
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
       }
+    },
+    "paper": {
+      "source": {
+        "source": "github",
+        "repo": "paper-design/agent-plugins"
+      }
     }
   },
+  "autoCompactWindow": 300000,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,

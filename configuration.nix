@@ -31,7 +31,7 @@
   };
   homebrew = {
     enable = true;
-    onActivation.cleanup = "zap";  # remove anything not listed here
+    onActivation.cleanup = "none";  # applying never removes an installed item
     onActivation.autoUpdate = true;
     onActivation.extraFlags = [ "--force" ];
     # No caskArgs.no_quarantine: Homebrew 6 dropped --no-quarantine from
@@ -48,11 +48,22 @@
     ];
     casks = [
       "wezterm"
-      "claude-code"
+      "claude-code@latest"
       "brave-browser"  # personal browser
       "codex"          # no-mistakes is agent-agnostic: Claude-authored PRs run the Codex leg
       "google-chrome"  # automation browser only: chrome-devtools-axi launches it isolated+headless
       "my-monkeys/tap/opensuperwhisper"  # local dictation, from the tap above
     ];
   };
+
+  # Codex's lowest-priority config layer. Codex writes ~/.codex/config.toml
+  # itself, so that file stays app-owned and untracked.
+  environment.etc."codex/config.toml".text = ''
+    model = "gpt-6-astra"
+    model_reasoning_effort = "medium"
+
+    [marketplaces.posthog]
+    source_type = "git"
+    source = "https://github.com/PostHog/ai-plugin.git"
+  '';
 }

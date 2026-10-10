@@ -19,21 +19,6 @@ let
   uvTools = {
     "claude-swap" = "claude-swap";  # multi-account switcher for Claude Code
   };
-  # Not in nixpkgs/Homebrew. Pin the upstream release and checksum rather than
-  # running its network installer during every machine activation.
-  noMistakes = pkgs.stdenvNoCC.mkDerivation {
-    pname = "no-mistakes";
-    version = "1.57.0";
-    src = pkgs.fetchurl {
-      url = "https://github.com/kunchenguid/no-mistakes/releases/download/v1.57.0/no-mistakes-v1.57.0-darwin-arm64.tar.gz";
-      hash = "sha256-tiFjdXivzWK8Do3b6CnQjuCTB50OX7ue3R8V98//5jU=";
-    };
-    unpackPhase = ''tar -xzf "$src"'';
-    installPhase = ''
-      mkdir -p "$out/bin"
-      install -m755 no-mistakes "$out/bin/no-mistakes"
-    '';
-  };
 in
 
 {
@@ -52,7 +37,12 @@ in
     gh        # GitHub CLI (gh-axi and no-mistakes call into it)
     pnpm      # gallopify frontend package manager (no corepack packageManager pins)
     uv        # python tooling; the uvTools activation below installs its shims
-    noMistakes # AI-driven pre-PR validation gate
+    postgresql_17  # psql and the other clients the gallopify backend calls
+    mupdf     # mutool
+    qpdf
+    tree
+    actionlint
+    shellcheck
     # the font everything renders in
     nerd-fonts.hack
   ];
@@ -65,22 +55,18 @@ in
     # uv tool shims and gallopify-internal binaries
     "${config.home.homeDirectory}/.local/bin"
   ];
-  home.file.".local/bin/no-mistakes".source =
-    "${noMistakes}/bin/no-mistakes";
-  home.activation.noMistakesDaemon = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    expected="${noMistakes}/bin/no-mistakes"
-    current=
-    for service in "$HOME"/Library/LaunchAgents/com.kunchenguid.no-mistakes.daemon*.plist; do
-      [ -f "$service" ] || continue
-      root=$(/usr/bin/plutil -extract ProgramArguments.4 raw -o - "$service" 2>/dev/null || true)
-      [ "$root" = "$HOME/.no-mistakes" ] || continue
-      current=$(/usr/bin/plutil -extract ProgramArguments.0 raw -o - "$service" 2>/dev/null || true)
-      break
-    done
-    if [ "$current" != "$expected" ]; then
-      "$expected" daemon restart
-    fi
+
+  # Self-updating tools: the repo guarantees presence, never a version.
+  # Updates are run by hand (no-mistakes update, treehouse update) when the
+  # weekly audit says a release is out.
+  home.activation.selfUpdatingTools = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:${pkgs.curl}/bin:/usr/bin:/bin:$PATH"
+    [ -x "$HOME/.no-mistakes/bin/no-mistakes" ] || curl -fsSL https://raw.githubusercontent.com/kunchenguid/no-mistakes/main/docs/install.sh | NO_MISTAKES_LINK_DIR="$HOME/.local/bin" sh
+    [ -x "$HOME/.local/bin/treehouse" ] || curl -fsSL https://kunchenguid.github.io/treehouse/install.sh | sh
+    [ -x "$HOME/.local/bin/cursor-agent" ] || curl -fsS https://cursor.com/install | bash
   '';
+
 
   # Installs anything in npmGlobals that isn't already present, so a steady-state
   # switch does no network work. Node is the nix package above, addressed by
@@ -124,7 +110,6 @@ in
       m = "git switch main";
       cc = "claude --dangerously-skip-permissions";
       co = "codex --full-auto";
-      publish-md = "${config.home.homeDirectory}/github/gallopify_playground/tools/markdown_publish/publish-md";
     };
   };
 
@@ -137,6 +122,7 @@ in
     # gh serves credentials; the empty first entry resets the helper list so
     # the system osxkeychain helper can't hang headless pushes on a GUI prompt.
     settings.credential."https://github.com".helper = [ "" "!gh auth git-credential" ];
+    ignores = [ "**/.claude/settings.local.json" ];
   };
 
   programs.starship = {
@@ -157,10 +143,20 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/wezterm";
   home.file.".config/helix".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/helix";
-  home.file.".config/herdr".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr";
-  home.file.".claude/settings.json".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.claude/settings.json";
+
+  # Only the config file: herdr keeps its sockets, logs and sessions next to it.
+  home.file.".config/herdr/config.toml".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr/config.toml";
+  # Claude Code writes settings.json itself, so the repo only seeds it once.
+  home.activation.claudeSettings = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    settings="$HOME/.claude/settings.json"
+    if [ -L "$settings" ] || [ ! -e "$settings" ]; then
+      rm -f "$settings"
+      install -m 644 ${./home/.claude/settings.seed.json} "$settings"
+    fi
+  '';
+
+
   # settings.json's statusLine runs this by absolute path, so it has to land in
   # ~/.claude rather than only existing in the repo.
   home.file.".claude/statusline.py".source =
@@ -169,9 +165,12 @@ in
   # One global agent policy (home/global-agents.md — named distinctly from the
   # repo-root AGENTS.md, which holds project notes for agents editing this repo),
   # linked into each agent's own discovery location:
-  # Claude reads ~/.claude/CLAUDE.md; Codex reads ~/.codex/AGENTS.md.
+  # Claude reads ~/.claude/CLAUDE.md; Codex reads ~/.codex/AGENTS.md; Pi reads
+  # ~/.pi/agent/AGENTS.md. Cursor has no file location: its User Rules are pasted by hand.
   home.file.".claude/CLAUDE.md".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
   home.file.".codex/AGENTS.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
+  home.file.".pi/agent/AGENTS.md".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
 }

@@ -33,9 +33,16 @@ Skins are DaisyUI 5 custom themes, so keep using the standard Tailwind v4 browse
 Never invent brand colors inside an individual artifact — if the brand needs adjusting, change the skin file, deriving from the token source of truth named in its header.
 When starting artifact work in a project that has no skin yet, offer to create one: derive it from the project's real design system if it has one, otherwise design a distinctive theme and record the rationale in the skin's header.
 
+### Lavish inbox
+
+In-progress Lavish docs for Gallopify work live in `~/github/gallopify-playground/inbox/`, not inside any project repo.
+Its `README.md` lists each doc with its next step; keep that table current.
+Work sessions start by opening the inbox docs.
+When a project moves from planning to implementation, move its doc into that project's scaffold repo and remove its row from the inbox.
+
 ## Linear
 
-All Linear work — creating, editing, or commenting on issues — runs from `~/github/gallopify_playground/linear`.
+All Linear work — creating, editing, or commenting on issues — runs from `~/github/gallopify-playground/linear-skills`.
 Start Linear tasks from that directory so its style rules (CLAUDE.md) and skills (style-check, new-issue, sync-issue, groundwork, and the rest) are loaded; do not push text to Linear from anywhere else.
 
 ## Model routing (Explore vs Execute)
@@ -121,7 +128,7 @@ The `axi` call blocks until the next gate, `checks-passed`, or `outcome:` — th
 Fix findings you can judge (`--action fix --findings <ids>`) and escalate `ask-user` findings to the human.
 Treat `outcome: checks-passed` as done: report the PR link and hand the merge to the human — never wait or poll for the merge.
 
-A launchd babysitter (`com.gallopify.no-mistakes-babysitter`) is the session-independent backstop for a run nobody is actively driving; never disable it, and read `~/.no-mistakes/logs/babysitter.log` when you suspect a run is stuck.
-It self-heals a hung ci-fix agent (the run retries automatically) and flags the two cases that need you: a stuck non-ci step — recover with `no-mistakes axi abort` then rerun — and a parked gate, meaning a run is awaiting a `respond` nobody gave, so pick it up and drive it.
+Nothing watches a run in the background, so never leave one undriven.
+If a step is stuck, inspect it with `no-mistakes axi logs`, recover with `no-mistakes axi abort`, then rerun.
 
 The plan and implementation files are working scratch for the task: they die with the task's workspace, and nothing archives them - the project-completion sweep captures how the system now works in the wiki instead.

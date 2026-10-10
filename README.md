@@ -9,8 +9,8 @@ The structure is his; read his README for the full design rationale.
 ## How this fork differs
 
 - **Dev toolchain from nix, not Homebrew.**
-  Node LTS, `gh`, `pnpm`, `uv`, and a pinned `no-mistakes` release are nix packages, so the activation scripts that need them can never hit a bootstrap-ordering gap.
-  Home Manager keeps both the `no-mistakes` CLI and daemon on that pinned release, including when migrating a machine that used the upstream installer.
+  Node LTS, `gh`, `pnpm`, and `uv` are nix packages, so the activation scripts that need them can never hit a bootstrap-ordering gap.
+  `no-mistakes`, `treehouse`, and `cursor-agent` update themselves, so they are never pinned: activation installs each one only if it is missing.
   npm-only CLIs (`npmGlobals` in `home.nix`) install into `~/.npm-global`; PyPI-only CLIs (`uvTools`) install as `uv tool` shims in `~/.local/bin`.
   Both install only what's missing, so a steady-state switch does no network work.
 - **Helix instead of Neovim.**
@@ -21,8 +21,8 @@ The structure is his; read his README for the full design rationale.
 - **More tools.**
   `doppler` (secrets), `no-mistakes` (AI-driven pre-PR gate), Codex (its second-agent reviewer), OpenSuperWhisper (local dictation, from the `my-monkeys` tap).
 - **One agent policy file.**
-  `home/global-agents.md` is symlinked to both `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`, so Claude and Codex share one set of instructions.
-  Claude's `settings.json` and status line script are tracked too.
+  `home/global-agents.md` is symlinked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and `~/.pi/agent/AGENTS.md`, so Claude, Codex, and Pi share one set of instructions.
+  Claude's status line script is tracked too; its `settings.json` is seeded once from `settings.seed.json` and then owned by the app.
 - **Small fixes.**
   `rebuild.sh` calls `darwin-rebuild` by absolute path (sudo's `secure_path` doesn't include nix-darwin's bin).
   Git identity is set declaratively.
@@ -39,7 +39,7 @@ cd dotfiles
 
 `bootstrap.sh` installs Determinate Nix, symlinks the repo to `~/.dotfiles`, checks the `user` in `flake.nix` against your macOS username, and runs the first `darwin-rebuild switch`.
 
-Heads-up: `homebrew.onActivation.cleanup = "zap"` removes any brew package or cask not declared in `configuration.nix`, starting with the first switch.
+`homebrew.onActivation.cleanup = "none"`: applying never removes anything, so brew packages or casks not declared in `configuration.nix` stay installed.
 
 ## Daily use
 
@@ -49,7 +49,8 @@ Edit the config files in place, then apply:
 ./rebuild.sh
 ```
 
-Files under `home/` (Helix, WezTerm, herdr, Claude, the shared agent policy) are symlinked into place with `mkOutOfStoreSymlink`, so editing them here edits the live config — no rebuild needed.
+Files under `home/` (Helix, WezTerm, herdr's `config.toml`, Claude's status line, the shared agent policy) are symlinked into place with `mkOutOfStoreSymlink`, so editing them here edits the live config — no rebuild needed.
+Only herdr's `config.toml` is linked; its runtime files stay outside the repo.
 Rebuild only for changes to package lists or system defaults.
 
 Validate without applying:
