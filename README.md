@@ -21,7 +21,7 @@ The structure is his; read his README for the full design rationale.
 - **More tools.**
   `doppler` (secrets), `no-mistakes` (AI-driven pre-PR gate), Codex (its second-agent reviewer), OpenSuperWhisper (local dictation, from the `my-monkeys` tap).
 - **One agent policy file.**
-  `home/global-agents.md` is symlinked to both `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`, so Claude and Codex share one set of instructions.
+  `home/global-agents.md` is symlinked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and `~/.pi/agent/AGENTS.md`, so Claude, Codex, and Pi share one set of instructions.
   Claude's status line script is tracked too; its `settings.json` is seeded once from `settings.seed.json` and then owned by the app.
 - **Small fixes.**
   `rebuild.sh` calls `darwin-rebuild` by absolute path (sudo's `secure_path` doesn't include nix-darwin's bin).
