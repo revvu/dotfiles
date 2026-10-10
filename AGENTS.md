@@ -3,6 +3,7 @@
 Deliberate decisions in this repo - do NOT silently revert them:
 
 - `homebrew.onActivation.cleanup = "none"` in `configuration.nix` is intentional: applying never removes an installed item. Undeclared Homebrew items are reported, not deleted. Do not tighten it back to `uninstall` or `zap`, which once threatened to delete in-use tools and app data.
+- This repo defines the environment only: tools, shell, prompt, agent policy, macOS defaults. GUI apps and app-owned state (Claude's settings, herdr's runtime files) live outside it and are listed in the README, not declared. `bin/doctor` reports anything the machine has that the repo does not own.
 - Never commit `.no-mistakes/` validation evidence to this public repo. `.no-mistakes/` is gitignored; if a validation pipeline stages evidence into a branch, drop it before merging.
 
 ## Maintaining this file

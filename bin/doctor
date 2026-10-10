@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Reports everything this machine has that the repo does not declare.
+#
+# Why this exists: `brew bundle cleanup --dry-run` covers Homebrew only.
+# Nothing reports stray npm globals, uv tools, ~/.local/bin binaries or
+# tracked files an app has rewritten, so this script does, and does nothing
+# else: it never installs or removes anything.
+#
+# Declared sets come from two places the system itself produced:
+#   - the Brewfile named in /run/current-system/activate (brews, casks, taps)
+#   - ~/.config/doctor/declared.json, written by home.nix (npm, uv, localBin,
+#     and the exempt lists for hand-installed items)
+#
+# Every live input can be overridden for tests:
+#   DOCTOR_DECLARED   path to declared.json
+#   DOCTOR_BREWFILE   path to the Brewfile
+#   DOCTOR_BREW_LEAVES, DOCTOR_BREW_CASKS, DOCTOR_BREW_TAPS
+#                     files holding one name per line (instead of running brew)
+#   DOCTOR_UV_TOOLS   file holding one tool name per line (instead of uv tool list)
+#   DOCTOR_NPM_BIN    directory (default ~/.npm-global/bin)
+#   DOCTOR_LOCAL_BIN  directory (default ~/.local/bin)
+#   DOCTOR_REPO       git checkout to inspect (default ~/.dotfiles)
+#
+# Output: one "<class>\t<item>" line per unowned item, then a summary line.
+# Exit 0 when clean, 1 when anything is unowned, 2 when an input is missing.
+set -euo pipefail
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  awk 'NR == 1 { next } !/^#/ { exit } { sub(/^# ?/, ""); print }' "$0"
+  exit 0
+fi
+
+declared="${DOCTOR_DECLARED:-$HOME/.config/doctor/declared.json}"
+[ -r "$declared" ] || { echo "doctor: missing $declared (run ./rebuild.sh first)" >&2; exit 2; }
+
+brewfile="${DOCTOR_BREWFILE:-}"
+if [ -z "$brewfile" ]; then
+  brewfile="$(grep -o "brew bundle --file='[^']*'" /run/current-system/activate 2>/dev/null | head -n1 | sed "s/.*--file='\([^']*\)'.*/\1/")"
+fi
+[ -n "$brewfile" ] && [ -r "$brewfile" ] || { echo "doctor: cannot find the Brewfile the system activates" >&2; exit 2; }
+
+# Brewfile entries are quoted names after a keyword: tap "x", brew "x", cask "x".
+brewfile_names() { # $1 = keyword
+  sed -n "s/^[[:space:]]*$1[[:space:]]*\"\([^\"]*\)\".*/\1/p" "$brewfile"
+}
+# brew prints tap formulas and casks as owner/tap/name; the Brewfile may use
+# either form. Compare on the final path segment.
+basename_each() { sed 's#.*/##'; }
+json_list() { jq -r "$1 // [] | .[]" "$declared"; }
+lines_or_cmd() { # $1 = override file, rest = command
+  if [ -n "$1" ]; then cat "$1"; else shift; "$@"; fi
+}
+
+unowned=0
+report() { # $1 = class, $2 = item
+  printf '%s\t%s\n' "$1" "$2"
+  unowned=$((unowned + 1))
+}
+# $1 = class, $2 = owned names (newline-separated), $3 = live names
+diff_sets() {
+  local live
+  while IFS= read -r live; do
+    [ -n "$live" ] || continue
+    grep -qxF -- "$live" <<<"$2" || report "$1" "$live"
+  done <<<"$3"
+}
+
+owned_brews="$( { brewfile_names brew | basename_each; json_list '.exempt.brews'; } )"
+owned_casks="$( { brewfile_names cask | basename_each; json_list '.exempt.casks'; } )"
+owned_taps="$( { brewfile_names tap; json_list '.exempt.taps'; } )"
+live_brews="$(lines_or_cmd "${DOCTOR_BREW_LEAVES:-}" brew leaves | basename_each)"
+live_casks="$(lines_or_cmd "${DOCTOR_BREW_CASKS:-}" brew list --cask | basename_each)"
+live_taps="$(lines_or_cmd "${DOCTOR_BREW_TAPS:-}" brew tap)"
+diff_sets "brew formula" "$owned_brews" "$live_brews"
+diff_sets "brew cask" "$owned_casks" "$live_casks"
+diff_sets "brew tap" "$owned_taps" "$live_taps"
+
+npm_bin="${DOCTOR_NPM_BIN:-$HOME/.npm-global/bin}"
+if [ -d "$npm_bin" ]; then
+  diff_sets "npm global" "$(json_list '.npm')" "$(ls -1 "$npm_bin")"
+fi
+
+uv_live="$(lines_or_cmd "${DOCTOR_UV_TOOLS:-}" sh -c "uv tool list 2>/dev/null | sed -n 's/^\([^ ]*\) v.*/\1/p'")"
+diff_sets "uv tool" "$(json_list '.uv')" "$uv_live"
+
+local_bin="${DOCTOR_LOCAL_BIN:-$HOME/.local/bin}"
+if [ -d "$local_bin" ]; then
+  # uv tools put their shims here too, so the uv set owns those names
+  diff_sets "local bin" "$( { json_list '.localBin'; json_list '.uv'; } )" "$(ls -1 "$local_bin")"
+fi
+
+repo="${DOCTOR_REPO:-$HOME/.dotfiles}"
+if [ -d "$repo" ]; then
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    report "changed tracked file" "${line#?? }"
+  done <<<"$(git -C "$repo" status --short --untracked-files=no)"
+fi
+
+if [ "$unowned" -eq 0 ]; then
+  echo "clean: everything on this machine is declared or exempt"
+  exit 0
+fi
+echo "$unowned unowned item(s)"
+exit 1
