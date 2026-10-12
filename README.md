@@ -14,6 +14,7 @@ The repo defines the environment and nothing else.
 - GUI apps are not declared. They are installed by hand once and listed below.
 - App-owned state stays out of the repo. Claude Code's `settings.json` is seeded once from `settings.seed.json` and then belongs to the app; herdr's sockets, logs and sessions live next to its linked `config.toml`.
 - herdr's server is a launchd user agent (`launchd.agents.herdr` in `home.nix`), started at login inside the GUI session so the agents it spawns can read the login keychain, which macOS unlocks per session and never for ssh. It restarts after a crash; `herdr server stop` keeps it stopped until the next login. launchd's own output lands in `~/Library/Logs/herdr-server.log`.
+- claude-swap's auto-switch runs the same way (`launchd.agents.cswap-auto`): every minute it checks the active Claude login and rotates to the account with most headroom at 90 percent of the 5h, 7d or Fable window. Its log is `~/Library/Logs/cswap-auto.log`; stop it for a session with `launchctl bootout gui/$(id -u)/org.nix-community.home.cswap-auto`.
 - Applying never removes anything: `homebrew.onActivation.cleanup = "none"`.
   Anything the machine has that the repo does not own is reported by `bin/doctor`, not deleted.
 

@@ -19,6 +19,20 @@ let
   uvTools = {
     "claude-swap" = "claude-swap";  # multi-account switcher for Claude Code
   };
+  # launchd starts jobs with /usr/bin:/bin:/usr/sbin:/sbin; the agents below
+  # get the same PATH a login shell has, so the tools they spawn resolve.
+  launchdPath = lib.concatStringsSep ":" [
+    "/Users/${user}/.npm-global/bin"
+    "/Users/${user}/.local/bin"
+    "/etc/profiles/per-user/${user}/bin"
+    "/run/current-system/sw/bin"
+    "/nix/var/nix/profiles/default/bin"
+    "/opt/homebrew/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
 in
 
 {
@@ -166,22 +180,27 @@ in
       ProgramArguments = [ "/opt/homebrew/bin/herdr" "server" ];
       RunAtLoad = true;
       KeepAlive.SuccessfulExit = false;
-      # launchd starts jobs with /usr/bin:/bin:/usr/sbin:/sbin; give herdr the
-      # same PATH a login shell has, so the panes and tools it spawns resolve.
-      EnvironmentVariables.PATH = lib.concatStringsSep ":" [
-        "${config.home.homeDirectory}/.npm-global/bin"
-        "${config.home.homeDirectory}/.local/bin"
-        "/etc/profiles/per-user/${user}/bin"
-        "/run/current-system/sw/bin"
-        "/nix/var/nix/profiles/default/bin"
-        "/opt/homebrew/bin"
-        "/usr/bin"
-        "/bin"
-        "/usr/sbin"
-        "/sbin"
-      ];
+      EnvironmentVariables.PATH = launchdPath;
       StandardOutPath = "${config.home.homeDirectory}/Library/Logs/herdr-server.log";
       StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/herdr-server.log";
+    };
+  };
+  # claude-swap's auto-switch, for the same reason: it reads and rewrites
+  # Claude Code's login in the keychain, so it has to live in the GUI session.
+  # It polls every minute and moves the default login to the account with most
+  # headroom when the active one reaches 90% of its 5h or 7d window, or of the
+  # Fable weekly window (the limit hit most). firstmate's per-spawn slot pick
+  # is separate and composes with this: it launches crewmates isolated on their
+  # own slot without touching the default login.
+  launchd.agents.cswap-auto = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "/Users/${user}/.local/bin/cswap" "auto" "--model" "Fable" ];
+      RunAtLoad = true;
+      KeepAlive.SuccessfulExit = false;
+      EnvironmentVariables.PATH = launchdPath;
+      StandardOutPath = "${config.home.homeDirectory}/Library/Logs/cswap-auto.log";
+      StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/cswap-auto.log";
     };
   };
   # Claude Code writes settings.json itself, so the repo only seeds it once.
