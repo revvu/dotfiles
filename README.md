@@ -13,6 +13,7 @@ The repo defines the environment and nothing else.
 - Everything it declares has exactly one owner: a nix package, a Homebrew formula or cask, an npm global, a uv tool, or a self-updating tool that activation installs only when it is missing.
 - GUI apps are not declared. They are installed by hand once and listed below.
 - App-owned state stays out of the repo. Claude Code's `settings.json` is seeded once from `settings.seed.json` and then belongs to the app; herdr's sockets, logs and sessions live next to its linked `config.toml`.
+- herdr's server is a launchd user agent (`launchd.agents.herdr` in `home.nix`), started at login inside the GUI session so the agents it spawns can read the login keychain, which macOS unlocks per session and never for ssh. It restarts after a crash; `herdr server stop` keeps it stopped until the next login. launchd's own output lands in `~/Library/Logs/herdr-server.log`.
 - Applying never removes anything: `homebrew.onActivation.cleanup = "none"`.
   Anything the machine has that the repo does not own is reported by `bin/doctor`, not deleted.
 
