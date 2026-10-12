@@ -151,6 +151,39 @@ in
   # Only the config file: herdr keeps its sockets, logs and sessions next to it.
   home.file.".config/herdr/config.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr/config.toml";
+  # herdr's server is a launchd user agent so it starts at login inside the GUI
+  # session, where the login keychain is unlocked. Claude Code, Doppler and
+  # cursor-agent keep their credentials in that keychain, and macOS unlocks it
+  # per security session: a process started over ssh is locked out, so on a
+  # headless machine every agent has to descend from this job.
+  # Exit codes drive KeepAlive: a crash (non-zero) is restarted, `herdr server
+  # stop` (zero) stays stopped until the next login. A server already started
+  # by hand makes this one exit 1, and launchd retries every ten seconds until
+  # that one exits.
+  launchd.agents.herdr = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "/opt/homebrew/bin/herdr" "server" ];
+      RunAtLoad = true;
+      KeepAlive.SuccessfulExit = false;
+      # launchd starts jobs with /usr/bin:/bin:/usr/sbin:/sbin; give herdr the
+      # same PATH a login shell has, so the panes and tools it spawns resolve.
+      EnvironmentVariables.PATH = lib.concatStringsSep ":" [
+        "${config.home.homeDirectory}/.npm-global/bin"
+        "${config.home.homeDirectory}/.local/bin"
+        "/etc/profiles/per-user/${user}/bin"
+        "/run/current-system/sw/bin"
+        "/nix/var/nix/profiles/default/bin"
+        "/opt/homebrew/bin"
+        "/usr/bin"
+        "/bin"
+        "/usr/sbin"
+        "/sbin"
+      ];
+      StandardOutPath = "${config.home.homeDirectory}/Library/Logs/herdr-server.log";
+      StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/herdr-server.log";
+    };
+  };
   # Claude Code writes settings.json itself, so the repo only seeds it once.
   home.activation.claudeSettings = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     settings="$HOME/.claude/settings.json"
