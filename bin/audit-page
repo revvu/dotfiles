@@ -21,6 +21,7 @@
 #      the judgement is missing
 #   3. writes drift/drift-<date>.html into the inbox checkout, replaces any
 #      older drift row in its README table with this week's, commits and pushes
+#      unless either output path has local changes after pulling
 #
 # Every live input can be overridden, which is how the tests run it:
 #   AUDIT_INBOX           the inbox checkout (default ~/github/gallopify-playground/inbox)
@@ -32,8 +33,8 @@
 #
 # Every line it prints is a log line; the launchd agent sends them to
 # ~/Library/Logs/audit.log. Exit 0 when the page is pushed (or --scheduled
-# skipped it on another host), 1 when the push failed after the page was
-# written, 2 when it could not build the page at all.
+# skipped it on another host), 1 when local changes prevent writing or the
+# push failed after the page was written, 2 when it could not build the page.
 set -euo pipefail
 
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
@@ -71,7 +72,6 @@ fi
 
 command -v jq >/dev/null || die "jq is not on PATH"
 [ -d "$inbox/.git" ] || die "$inbox is not a git checkout"
-[ -f "$inbox/README.md" ] || die "$inbox has no README.md to add the row to"
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
@@ -190,7 +190,6 @@ if [ "$n_errors" -gt 0 ]; then
 fi
 generated_at="$(jq -r .generated_at "$json")"
 
-mkdir -p "$inbox/drift"
 cat >"$tmp/page.html" <<EOF
 <!doctype html>
 <html lang="en" data-theme="gallopify">
@@ -252,6 +251,15 @@ row="| \`drift/drift-$date.html\` | $summary | Run the update lines it lists. Th
 
 cd "$inbox"
 git pull -q --rebase --autostash || log "pull failed, continuing with the local checkout"
+for output_path in README.md "drift/drift-$date.html"; do
+  local_changes="$(git status --porcelain -- "$output_path")"
+  if [ -n "$local_changes" ]; then
+    log "inbox has local changes to $output_path"
+    exit 1
+  fi
+done
+[ -f README.md ] || die "$inbox has no README.md to add the row to"
+mkdir -p "$inbox/drift"
 cp "$tmp/page.html" "$page"
 # Older drift rows go; this week's lands after the last table row.
 awk -v row="$row" '

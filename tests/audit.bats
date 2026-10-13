@@ -206,6 +206,41 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
 }
 
+@test "audit-page: uncommitted README edits prevent publishing and remain intact" {
+  printf '\nPrivate README edit.\n' >>"$INBOX/README.md"
+  cp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+  for state in unstaged staged; do
+    if [ "$state" = staged ]; then git -C "$INBOX" add README.md; fi
+    before="$(git -C "$INBOX" status --porcelain)"
+    run "$BIN/audit-page"
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"inbox has local changes to README.md"* ]]
+    cmp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+    [ ! -e "$INBOX/drift" ]
+    [ "$(git -C "$INBOX" status --porcelain)" = "$before" ]
+    [ "$(git -C "$INBOX" rev-list --count HEAD)" -eq 1 ]
+    [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  done
+}
+
+@test "audit-page: uncommitted audit pages are preserved without publishing" {
+  mkdir -p "$INBOX/drift"
+  printf 'Private audit draft.\n' >"$INBOX/drift/drift-2026-11-01.html"
+  cp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+  for state in untracked staged; do
+    if [ "$state" = staged ]; then git -C "$INBOX" add drift/drift-2026-11-01.html; fi
+    before="$(git -C "$INBOX" status --porcelain)"
+    run "$BIN/audit-page"
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"inbox has local changes to drift/drift-2026-11-01.html"* ]]
+    [ "$(page)" = 'Private audit draft.' ]
+    cmp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+    [ "$(git -C "$INBOX" status --porcelain)" = "$before" ]
+    [ "$(git -C "$INBOX" rev-list --count HEAD)" -eq 1 ]
+    [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  done
+}
+
 @test "audit-page: Claude timing out ships the page without the judgement" {
   AUDIT_CLAUDE="$BATS_TEST_TMPDIR/slow-claude" AUDIT_CLAUDE_TIMEOUT=1 run "$BIN/audit-page"
   [ "$status" -eq 0 ]
