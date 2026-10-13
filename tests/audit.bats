@@ -79,6 +79,61 @@ MD
   echo "$output" | jq -e '.doctor.status == 1 and (.doctor.output | test("stray"))'
 }
 
+@test "audit: failed npm requests leave every npm latest unknown" {
+  for failure in missing empty error invalid status; do
+    cp "$BATS_TEST_DIRNAME/fixtures/audit/npm-outdated" "$FX/npm-outdated"
+    printf '0\n' >"$FX/npm-outdated.status"
+    case "$failure" in
+      missing) rm "$FX/npm-outdated" ;;
+      empty) : >"$FX/npm-outdated" ;;
+      error) printf '{"error":{"code":"E401"}}\n' >"$FX/npm-outdated" ;;
+      invalid) printf 'not JSON\n' >"$FX/npm-outdated" ;;
+      status) printf '2\n' >"$FX/npm-outdated.status" ;;
+    esac
+    run "$BIN/audit"
+    [ "$status" -eq 1 ]
+    echo "$output" | jq -e '[.errors[] | select(startswith("npm-outdated:"))] | length == 1'
+    echo "$output" | jq -e '[.versions[] | select(.kind == "npm")] | length == 6 and all(.latest == null and .installed != null)'
+  done
+}
+
+@test "audit: npm exit 1 with outdated results succeeds" {
+  printf '1\n' >"$FX/npm-outdated.status"
+  run "$BIN/audit"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.errors == []'
+  echo "$output" | jq -e '.versions[] | select(.name == "lavish-axi") | .latest == "0.1.87"'
+}
+
+@test "audit: an empty npm result object means installed versions are current" {
+  printf '{}\n' >"$FX/npm-outdated"
+  run "$BIN/audit"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '[.versions[] | select(.kind == "npm")] | length == 6 and all(.latest == .installed)'
+}
+
+@test "audit-page: failed npm requests render no feed for every npm row" {
+  printf '{"error":{"code":"E401"}}\n' >"$FX/npm-outdated"
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  page | grep -q 'npm-outdated:'
+  [ "$(page | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 14 ]
+  ! page | grep -q 'npm install -g'
+}
+
+@test "audit-page: both GitHub releases retain flags beyond 4000 characters" {
+  for source in nm-release th-release; do
+    jq '.body = (("x" * 4100) + " SECURITY")' "$FX/$source" >"$FX/release.json"
+    mv "$FX/release.json" "$FX/$source"
+  done
+  "$BIN/audit" >"$BATS_TEST_TMPDIR/audit.json"
+  jq -e '[.versions[] | select(.kind == "github")] | all(.notes | endswith(" SECURITY"))' "$BATS_TEST_TMPDIR/audit.json"
+  run "$BIN/audit-page" "$BATS_TEST_TMPDIR/audit.json"
+  [ "$status" -eq 0 ]
+  [ "$(page | grep -c 'notes: breaking or security')" -eq 2 ]
+  grep -q '2 with breaking or security notes' "$INBOX/README.md"
+}
+
 # --- bin/audit-page -----------------------------------------------------------
 
 page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
@@ -134,6 +189,21 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$status" -eq 0 ]
   [[ "$output" == *"nothing changed since the last push"* ]]
   [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
+}
+
+@test "audit-page: unrelated staged drafts are excluded from publishing and reruns" {
+  printf 'private draft\n' >"$INBOX/draft.md"
+  git -C "$INBOX" add draft.md
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" diff-tree --no-commit-id --name-only -r HEAD)" = $'README.md\ndrift/drift-2026-11-01.html' ]
+  [ -z "$(git -C "$BATS_TEST_TMPDIR/bare" ls-tree --name-only HEAD draft.md)" ]
+  [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nothing changed since the last push"* ]]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
+  [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
 }
 
 @test "audit-page: Claude timing out ships the page without the judgement" {
