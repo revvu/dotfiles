@@ -8,7 +8,7 @@
 # nothing else: it is read-only, never installs, removes or updates anything,
 # and writes only to stdout. bin/audit-page turns the JSON into a page.
 #
-# Sections of the output (see tests/fixtures/audit for a full example):
+# Sections of the output (source fixtures live in tests/fixtures/audit):
 #   doctor    bin/doctor's output and exit status
 #   versions  installed against latest for no-mistakes and treehouse (GitHub
 #             releases, with the latest release's notes), claude-swap (PyPI),
@@ -48,8 +48,8 @@ trap 'rm -rf "$tmp"' EXIT
 : >"$tmp/versions"; : >"$tmp/forks"; : >"$tmp/policy"; : >"$tmp/errors"
 
 # Every source is "source <name> <command...>": the command's stdout, or the
-# fixture file of that name. Prints nothing and returns 1 when the command
-# fails or the fixture is missing, so callers can record the gap.
+# fixture file of that name. Preserves the command's output and exit status
+# (or the fixture's optional .status), so callers can record failures.
 source_() {
   local name="$1"; shift
   if [ -n "$fx" ]; then
