@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": {
+      "version": "0.85.1"
+    },
+    "chrome-devtools-axi": {
+      "version": "0.1.32"
+    },
+    "gh-axi": {
+      "version": "0.1.30"
+    },
+    "lavish-axi": {
+      "version": "0.1.63"
+    },
+    "quota-axi": {
+      "version": "0.1.29"
+    },
+    "tasks-axi": {
+      "version": "0.2.5"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "casks": [
+    {
+      "token": "claude-code@latest",
+      "version": "2.1.296",
+      "installed": "2.1.296"
+    },
+    {
+      "token": "codex",
+      "version": "0.162.1",
+      "installed": "0.154.0"
+    }
+  ]
+}

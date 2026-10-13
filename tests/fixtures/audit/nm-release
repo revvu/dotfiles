@@ -1,0 +1,6 @@
+{
+  "tag_name": "v1.84.0",
+  "published_at": "2026-09-26T08:31:52Z",
+  "html_url": "https://github.com/kunchenguid/no-mistakes/releases/tag/v1.84.0",
+  "body": "## [1.84.0] (2026-09-26)\n\n### BREAKING CHANGES\n\n* **cli:** the run command now needs a plan\n\n### Features\n\n* **cli:** attach verification plans to new runs"
+}

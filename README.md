@@ -94,6 +94,22 @@ FileVault then logs the user in, and that login is all the machine needs: the la
 `sudo fdesetup authrestart` only skips the disk unlock and leaves the Mac at the login window, where the GUI session does not exist (no agents, no keychain, no Tailscale app); sshd does run there, so reach it by its LAN name rather than the tailnet name.
 Unattended reboots would take the standard headless-Mac setup, FileVault off plus automatic login for the user, which is what headless Mac mini guides and macOS CI-runner setups do; deferred on purpose in Oct 2026, reboots are handled at the keyboard.
 
+## Weekly audit
+
+Every Sunday at 21:10 the server runs `bin/audit-page --scheduled`: it gathers what the machine runs against what is released and pushes a page into the agent inbox, `drift/drift-<date>.html`, with its row in the inbox README.
+The page has what matters first, Claude's judgement of the week (what to update now, what can wait), then the facts: every tool against its latest release with its update line, the two forks against their upstreams, the doctor's report, and whether the global policy's paths and links still resolve.
+Nothing is changed by the audit; every update is a line on the page to run by hand.
+
+```sh
+bin/audit            # the facts as JSON, read-only
+bin/audit-page       # the page, into the inbox, from this machine
+bin/audit-page --help
+```
+
+The agent is declared for every machine and skips itself anywhere but the server (`AUDIT_HOST`, default `mac`), so a by-hand run elsewhere is the plain command.
+It runs in the GUI session like herdr and cswap-auto, because `claude -p` reads the login keychain; a Sunday the server spends at the FileVault prompt is a Sunday without a page, and `~/Library/Logs/audit.log` says what happened.
+Tests: `bats tests`, on the fixtures under `tests/fixtures/audit`.
+
 ## Repo tour
 
 - `flake.nix` - entry point; wires nixpkgs, nix-darwin, home-manager, nix-homebrew, and declares the `mac` machine.
@@ -101,7 +117,8 @@ Unattended reboots would take the standard headless-Mac setup, FileVault off plu
 - `home.nix` - user level: packages, shell, prompt, activation scripts, symlinks, the declared sets the doctor reads.
 - `home/` - the actual config files that get symlinked into place.
 - `bin/doctor` - reports unowned items; `tests/doctor.bats` freezes its behaviour.
-- `.github/workflows/build.yml` - every PR and push to main runs the flake check, the full system build, shellcheck and the doctor's tests on a macOS runner.
+- `bin/audit`, `bin/audit-page` - the weekly drift audit: facts as JSON, then the page pushed into the inbox; `tests/audit.bats` freezes both.
+- `.github/workflows/build.yml` - every PR and push to main runs the flake check, the full system build, shellcheck and the bats tests on a macOS runner.
 
 ## License
 

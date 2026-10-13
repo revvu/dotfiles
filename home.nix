@@ -203,6 +203,22 @@ in
       StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/cswap-auto.log";
     };
   };
+  # The weekly drift audit (bin/audit gathers, bin/audit-page renders and pushes
+  # the page into the agent inbox): Sunday 21:10. Declared on every machine,
+  # built only on the server: audit-page --scheduled checks the hostname, so
+  # one home.nix serves both. It lives in the GUI session for the same reason
+  # as the two above, claude -p reads the login keychain. launchd runs a
+  # calendar job it missed while asleep, not one it missed while powered off.
+  launchd.agents.audit = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "${dotfiles}/bin/audit-page" "--scheduled" ];
+      StartCalendarInterval = [ { Weekday = 0; Hour = 21; Minute = 10; } ];
+      EnvironmentVariables.PATH = launchdPath;
+      StandardOutPath = "${config.home.homeDirectory}/Library/Logs/audit.log";
+      StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/audit.log";
+    };
+  };
   # Claude Code writes settings.json itself, so the repo only seeds it once.
   home.activation.claudeSettings = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     settings="$HOME/.claude/settings.json"
