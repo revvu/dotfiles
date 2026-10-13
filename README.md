@@ -86,6 +86,14 @@ The repo declares the environment only. These are installed once, by hand, and u
 
 `bin/doctor` exempts these casks and taps; the exempt list lives next to the other declared sets in `home.nix`.
 
+## Reboots on the server
+
+The server is a lidded MacBook with FileVault on, so every reboot stops at the FileVault prompt, which macOS draws on the built-in panel only (the server's is broken).
+At its keyboard: press Return, type the login password, press Return.
+FileVault then logs the user in, and that login is all the machine needs: the launchd agents start and the keychain is unlocked.
+`sudo fdesetup authrestart` only skips the disk unlock and leaves the Mac at the login window, where the GUI session does not exist (no agents, no keychain, no Tailscale app); sshd does run there, so reach it by its LAN name rather than the tailnet name.
+Unattended reboots would take the standard headless-Mac setup, FileVault off plus automatic login for the user, which is what headless Mac mini guides and macOS CI-runner setups do; deferred on purpose in Oct 2026, reboots are handled at the keyboard.
+
 ## Repo tour
 
 - `flake.nix` - entry point; wires nixpkgs, nix-darwin, home-manager, nix-homebrew, and declares the `mac` machine.
