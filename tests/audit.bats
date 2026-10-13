@@ -128,7 +128,7 @@ MD
   done
   "$BIN/audit" >"$BATS_TEST_TMPDIR/audit.json"
   jq -e '[.versions[] | select(.kind == "github")] | all(.notes | endswith(" SECURITY"))' "$BATS_TEST_TMPDIR/audit.json"
-  run "$BIN/audit-page" "$BATS_TEST_TMPDIR/audit.json"
+  run "$BIN/audit-page"
   [ "$status" -eq 0 ]
   [ "$(page | grep -c 'notes: breaking or security')" -eq 2 ]
   grep -q '2 with breaking or security notes' "$INBOX/README.md"
@@ -161,16 +161,6 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   page | grep -q '<p>The rest can wait.</p>'
 }
 
-@test "audit-page: takes a JSON file, escapes it, and still renders when sources were missing" {
-  rm "$FX/nm-release"
-  "$BIN/audit" >"$BATS_TEST_TMPDIR/audit.json" || true
-  run "$BIN/audit-page" "$BATS_TEST_TMPDIR/audit.json"
-  [ "$status" -eq 0 ]
-  page | grep -q 'Sources that did not answer'
-  page | grep -q 'nm-release: no answer'
-  page | grep -q '>no feed<'
-}
-
 @test "audit-page: pushes the page and replaces the older drift row in the README" {
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
@@ -183,16 +173,7 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   git -C "$INBOX" status --porcelain | grep -q . && false || true
 }
 
-@test "audit-page: a rerun with nothing new makes no second commit" {
-  run "$BIN/audit-page"
-  [ "$status" -eq 0 ]
-  run "$BIN/audit-page"
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"nothing new to commit"* ]]
-  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
-}
-
-@test "audit-page: unchanged reruns retry publishing a commit left local" {
+@test "audit-page: fresh runs commit and publish earlier failed pushes" {
   printf '#!/bin/sh\nexit 1\n' >"$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
   chmod +x "$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
   run "$BIN/audit-page"
@@ -202,15 +183,14 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
   run "$BIN/audit-page"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"nothing new to commit"* ]]
-  [ "$(git -C "$INBOX" rev-parse HEAD)" = "$audit_commit" ]
+  git -C "$INBOX" merge-base --is-ancestor "$audit_commit" HEAD
   [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
   rm "$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"nothing new to commit"* ]]
-  [ "$(git -C "$INBOX" rev-parse HEAD)" = "$audit_commit" ]
-  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-parse HEAD)" = "$audit_commit" ]
+  git -C "$INBOX" merge-base --is-ancestor "$audit_commit" HEAD
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 4 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-parse HEAD)" = "$(git -C "$INBOX" rev-parse HEAD)" ]
 }
 
 @test "audit-page: unrelated staged drafts are excluded from publishing and reruns" {
@@ -223,8 +203,7 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"nothing new to commit"* ]]
-  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 3 ]
   [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
 }
 

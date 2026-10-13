@@ -97,6 +97,8 @@ Unattended reboots would take the standard headless-Mac setup, FileVault off plu
 ## Weekly audit
 
 Every Sunday at 21:10 the server runs `bin/audit-page --scheduled`: it gathers what the machine runs against what is released and pushes a page into the agent inbox, `drift/drift-<date>.html`, with its row in the inbox README.
+Every run collects fresh facts with `bin/audit`; saved JSON is not accepted as input.
+Each completed render creates a commit and pushes, including reruns with identical output.
 The page has what matters first, Claude's judgement of the week (what to update now, what can wait), then the facts: every tool against its latest release with its update line, the two forks against their upstreams, the doctor's report, and whether the global policy's paths and links still resolve.
 Nothing is changed by the audit; every update is a line on the page to run by hand.
 

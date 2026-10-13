@@ -2,8 +2,8 @@
 # Turns bin/audit's JSON into the weekly drift page, asks Claude for its
 # judgement, and pushes the page into the agent inbox.
 #
-# Usage: audit-page [--scheduled] [audit.json]
-#   With no file it runs bin/audit itself. --scheduled is what the launchd
+# Usage: audit-page [--scheduled]
+#   Each run gathers fresh facts with bin/audit. --scheduled is what the launchd
 #   agent passes: the page is then built only on the host named by AUDIT_HOST
 #   (default mac, the server), so the same home.nix can declare the agent on
 #   every machine while one of them does the work.
@@ -22,6 +22,7 @@
 #   3. writes drift/drift-<date>.html into the inbox checkout, replaces any
 #      older drift row in its README table with this week's, commits and pushes
 #      unless either output path has local changes after pulling
+#      Each completed render creates a commit, even if its output is identical.
 #
 # Every live input can be overridden, which is how the tests run it:
 #   AUDIT_INBOX           the inbox checkout (default ~/github/gallopify-playground/inbox)
@@ -45,12 +46,11 @@ fi
 log() { printf '%s audit-page: %s\n' "$(date +%FT%T)" "$*"; }
 die() { log "$*"; exit 2; }
 
-scheduled=0; json=""
+scheduled=0
 for arg in "$@"; do
   case "$arg" in
     --scheduled) scheduled=1 ;;
-    -*) die "unknown option $arg" ;;
-    *) json="$arg" ;;
+    *) die "unknown argument $arg" ;;
   esac
 done
 
@@ -76,13 +76,11 @@ command -v jq >/dev/null || die "jq is not on PATH"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-if [ -z "$json" ]; then
-  json="$tmp/audit.json"
-  log "gathering with bin/audit"
-  if "$here/audit" >"$json"; then :
-  elif [ $? -eq 1 ]; then log "some sources did not answer"
-  else die "bin/audit failed"; fi
-fi
+json="$tmp/audit.json"
+log "gathering with bin/audit"
+if "$here/audit" >"$json"; then :
+elif [ $? -eq 1 ]; then log "some sources did not answer"
+else die "bin/audit failed"; fi
 jq -e . "$json" >/dev/null 2>&1 || die "$json is not JSON"
 
 date="$(jq -r .date "$json")"
@@ -273,11 +271,7 @@ cp "$tmp/README.md" README.md
 log "wrote $page"
 
 git add "drift/drift-$date.html" README.md
-if git diff --cached --quiet -- "drift/drift-$date.html" README.md; then
-  log "nothing new to commit"
-else
-  git commit -qm "drift: weekly audit $date from $host" -- "drift/drift-$date.html" README.md
-fi
+git commit --allow-empty -qm "drift: weekly audit $date from $host" -- "drift/drift-$date.html" README.md
 if git push -q || { git pull -q --rebase --autostash && git push -q; }; then
   log "pushed drift/drift-$date.html"
 else
