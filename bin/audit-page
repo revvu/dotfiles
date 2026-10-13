@@ -274,10 +274,10 @@ log "wrote $page"
 
 git add "drift/drift-$date.html" README.md
 if git diff --cached --quiet -- "drift/drift-$date.html" README.md; then
-  log "nothing changed since the last push"
-  exit 0
+  log "nothing new to commit"
+else
+  git commit -qm "drift: weekly audit $date from $host" -- "drift/drift-$date.html" README.md
 fi
-git commit -qm "drift: weekly audit $date from $host" -- "drift/drift-$date.html" README.md
 if git push -q || { git pull -q --rebase --autostash && git push -q; }; then
   log "pushed drift/drift-$date.html"
 else

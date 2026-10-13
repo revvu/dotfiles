@@ -184,11 +184,33 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
 }
 
 @test "audit-page: a rerun with nothing new makes no second commit" {
-  "$BIN/audit-page"
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"nothing changed since the last push"* ]]
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nothing new to commit"* ]]
   [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
+}
+
+@test "audit-page: unchanged reruns retry publishing a commit left local" {
+  printf '#!/bin/sh\nexit 1\n' >"$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
+  chmod +x "$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
+  run "$BIN/audit-page"
+  [ "$status" -eq 1 ]
+  audit_commit="$(git -C "$INBOX" rev-parse HEAD)"
+  [ "$(git -C "$INBOX" rev-list --count HEAD)" -eq 2 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  run "$BIN/audit-page"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"nothing new to commit"* ]]
+  [ "$(git -C "$INBOX" rev-parse HEAD)" = "$audit_commit" ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  rm "$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nothing new to commit"* ]]
+  [ "$(git -C "$INBOX" rev-parse HEAD)" = "$audit_commit" ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-parse HEAD)" = "$audit_commit" ]
 }
 
 @test "audit-page: unrelated staged drafts are excluded from publishing and reruns" {
@@ -201,7 +223,7 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"nothing changed since the last push"* ]]
+  [[ "$output" == *"nothing new to commit"* ]]
   [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
   [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
 }
