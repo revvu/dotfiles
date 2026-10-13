@@ -79,6 +79,61 @@ MD
   echo "$output" | jq -e '.doctor.status == 1 and (.doctor.output | test("stray"))'
 }
 
+@test "audit: failed npm requests leave every npm latest unknown" {
+  for failure in missing empty error invalid status; do
+    cp "$BATS_TEST_DIRNAME/fixtures/audit/npm-outdated" "$FX/npm-outdated"
+    printf '0\n' >"$FX/npm-outdated.status"
+    case "$failure" in
+      missing) rm "$FX/npm-outdated" ;;
+      empty) : >"$FX/npm-outdated" ;;
+      error) printf '{"error":{"code":"E401"}}\n' >"$FX/npm-outdated" ;;
+      invalid) printf 'not JSON\n' >"$FX/npm-outdated" ;;
+      status) printf '2\n' >"$FX/npm-outdated.status" ;;
+    esac
+    run "$BIN/audit"
+    [ "$status" -eq 1 ]
+    echo "$output" | jq -e '[.errors[] | select(startswith("npm-outdated:"))] | length == 1'
+    echo "$output" | jq -e '[.versions[] | select(.kind == "npm")] | length == 6 and all(.latest == null and .installed != null)'
+  done
+}
+
+@test "audit: npm exit 1 with outdated results succeeds" {
+  printf '1\n' >"$FX/npm-outdated.status"
+  run "$BIN/audit"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.errors == []'
+  echo "$output" | jq -e '.versions[] | select(.name == "lavish-axi") | .latest == "0.1.87"'
+}
+
+@test "audit: an empty npm result object means installed versions are current" {
+  printf '{}\n' >"$FX/npm-outdated"
+  run "$BIN/audit"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '[.versions[] | select(.kind == "npm")] | length == 6 and all(.latest == .installed)'
+}
+
+@test "audit-page: failed npm requests render no feed for every npm row" {
+  printf '{"error":{"code":"E401"}}\n' >"$FX/npm-outdated"
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  page | grep -q 'npm-outdated:'
+  [ "$(page | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 14 ]
+  ! page | grep -q 'npm install -g'
+}
+
+@test "audit-page: both GitHub releases retain flags beyond 4000 characters" {
+  for source in nm-release th-release; do
+    jq '.body = (("x" * 4100) + " SECURITY")' "$FX/$source" >"$FX/release.json"
+    mv "$FX/release.json" "$FX/$source"
+  done
+  "$BIN/audit" >"$BATS_TEST_TMPDIR/audit.json"
+  jq -e '[.versions[] | select(.kind == "github")] | all(.notes | endswith(" SECURITY"))' "$BATS_TEST_TMPDIR/audit.json"
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [ "$(page | grep -c 'notes: breaking or security')" -eq 2 ]
+  grep -q '2 with breaking or security notes' "$INBOX/README.md"
+}
+
 # --- bin/audit-page -----------------------------------------------------------
 
 page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
@@ -106,16 +161,6 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   page | grep -q '<p>The rest can wait.</p>'
 }
 
-@test "audit-page: takes a JSON file, escapes it, and still renders when sources were missing" {
-  rm "$FX/nm-release"
-  "$BIN/audit" >"$BATS_TEST_TMPDIR/audit.json" || true
-  run "$BIN/audit-page" "$BATS_TEST_TMPDIR/audit.json"
-  [ "$status" -eq 0 ]
-  page | grep -q 'Sources that did not answer'
-  page | grep -q 'nm-release: no answer'
-  page | grep -q '>no feed<'
-}
-
 @test "audit-page: pushes the page and replaces the older drift row in the README" {
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
@@ -128,12 +173,73 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   git -C "$INBOX" status --porcelain | grep -q . && false || true
 }
 
-@test "audit-page: a rerun with nothing new makes no second commit" {
-  "$BIN/audit-page"
+@test "audit-page: fresh runs commit and publish earlier failed pushes" {
+  printf '#!/bin/sh\nexit 1\n' >"$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
+  chmod +x "$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
+  run "$BIN/audit-page"
+  [ "$status" -eq 1 ]
+  audit_commit="$(git -C "$INBOX" rev-parse HEAD)"
+  [ "$(git -C "$INBOX" rev-list --count HEAD)" -eq 2 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  run "$BIN/audit-page"
+  [ "$status" -eq 1 ]
+  git -C "$INBOX" merge-base --is-ancestor "$audit_commit" HEAD
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  rm "$BATS_TEST_TMPDIR/bare/hooks/pre-receive"
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"nothing changed since the last push"* ]]
-  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 2 ]
+  git -C "$INBOX" merge-base --is-ancestor "$audit_commit" HEAD
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 4 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-parse HEAD)" = "$(git -C "$INBOX" rev-parse HEAD)" ]
+}
+
+@test "audit-page: unrelated staged drafts are excluded from publishing and reruns" {
+  printf 'private draft\n' >"$INBOX/draft.md"
+  git -C "$INBOX" add draft.md
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" diff-tree --no-commit-id --name-only -r HEAD)" = $'README.md\ndrift/drift-2026-11-01.html' ]
+  [ -z "$(git -C "$BATS_TEST_TMPDIR/bare" ls-tree --name-only HEAD draft.md)" ]
+  [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 3 ]
+  [ "$(git -C "$INBOX" diff --cached --name-only)" = draft.md ]
+}
+
+@test "audit-page: uncommitted README edits prevent publishing and remain intact" {
+  printf '\nPrivate README edit.\n' >>"$INBOX/README.md"
+  cp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+  for state in unstaged staged; do
+    if [ "$state" = staged ]; then git -C "$INBOX" add README.md; fi
+    before="$(git -C "$INBOX" status --porcelain)"
+    run "$BIN/audit-page"
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"inbox has local changes to README.md"* ]]
+    cmp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+    [ ! -e "$INBOX/drift" ]
+    [ "$(git -C "$INBOX" status --porcelain)" = "$before" ]
+    [ "$(git -C "$INBOX" rev-list --count HEAD)" -eq 1 ]
+    [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  done
+}
+
+@test "audit-page: uncommitted audit pages are preserved without publishing" {
+  mkdir -p "$INBOX/drift"
+  printf 'Private audit draft.\n' >"$INBOX/drift/drift-2026-11-01.html"
+  cp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+  for state in untracked staged; do
+    if [ "$state" = staged ]; then git -C "$INBOX" add drift/drift-2026-11-01.html; fi
+    before="$(git -C "$INBOX" status --porcelain)"
+    run "$BIN/audit-page"
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"inbox has local changes to drift/drift-2026-11-01.html"* ]]
+    [ "$(page)" = 'Private audit draft.' ]
+    cmp "$INBOX/README.md" "$BATS_TEST_TMPDIR/expected-readme"
+    [ "$(git -C "$INBOX" status --porcelain)" = "$before" ]
+    [ "$(git -C "$INBOX" rev-list --count HEAD)" -eq 1 ]
+    [ "$(git -C "$BATS_TEST_TMPDIR/bare" rev-list --count HEAD)" -eq 1 ]
+  done
 }
 
 @test "audit-page: Claude timing out ships the page without the judgement" {

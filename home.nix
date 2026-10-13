@@ -215,6 +215,7 @@ in
       ProgramArguments = [ "${dotfiles}/bin/audit-page" "--scheduled" ];
       StartCalendarInterval = [ { Weekday = 0; Hour = 21; Minute = 10; } ];
       EnvironmentVariables.PATH = launchdPath;
+      EnvironmentVariables.NPM_CONFIG_PREFIX = config.home.sessionVariables.NPM_CONFIG_PREFIX;
       StandardOutPath = "${config.home.homeDirectory}/Library/Logs/audit.log";
       StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/audit.log";
     };

@@ -2,13 +2,13 @@
 # Turns bin/audit's JSON into the weekly drift page, asks Claude for its
 # judgement, and pushes the page into the agent inbox.
 #
-# Usage: audit-page [--scheduled] [audit.json]
-#   With no file it runs bin/audit itself. --scheduled is what the launchd
+# Usage: audit-page [--scheduled]
+#   Each run gathers fresh facts with bin/audit. --scheduled is what the launchd
 #   agent passes: the page is then built only on the host named by AUDIT_HOST
 #   (default mac, the server), so the same home.nix can declare the agent on
 #   every machine while one of them does the work.
 #
-# What it does, in order:
+# What it does:
 #   1. renders the facts from a fixed template with the Lavish skin inlined:
 #      one version table (a row is "behind" when installed differs from latest,
 #      "overdue" when that latest release is older than four weeks, and flagged
@@ -21,6 +21,8 @@
 #      the judgement is missing
 #   3. writes drift/drift-<date>.html into the inbox checkout, replaces any
 #      older drift row in its README table with this week's, commits and pushes
+#      unless either output path has local changes after pulling.
+#      Rerun commit behavior is documented in README.md's Weekly audit section.
 #
 # Every live input can be overridden, which is how the tests run it:
 #   AUDIT_INBOX           the inbox checkout (default ~/github/gallopify-playground/inbox)
@@ -32,8 +34,8 @@
 #
 # Every line it prints is a log line; the launchd agent sends them to
 # ~/Library/Logs/audit.log. Exit 0 when the page is pushed (or --scheduled
-# skipped it on another host), 1 when the push failed after the page was
-# written, 2 when it could not build the page at all.
+# skipped it on another host), 1 when local changes prevent writing or the
+# push failed after the page was written, 2 when it could not build the page.
 set -euo pipefail
 
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
@@ -44,12 +46,11 @@ fi
 log() { printf '%s audit-page: %s\n' "$(date +%FT%T)" "$*"; }
 die() { log "$*"; exit 2; }
 
-scheduled=0; json=""
+scheduled=0
 for arg in "$@"; do
   case "$arg" in
     --scheduled) scheduled=1 ;;
-    -*) die "unknown option $arg" ;;
-    *) json="$arg" ;;
+    *) die "unknown argument $arg" ;;
   esac
 done
 
@@ -71,18 +72,15 @@ fi
 
 command -v jq >/dev/null || die "jq is not on PATH"
 [ -d "$inbox/.git" ] || die "$inbox is not a git checkout"
-[ -f "$inbox/README.md" ] || die "$inbox has no README.md to add the row to"
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-if [ -z "$json" ]; then
-  json="$tmp/audit.json"
-  log "gathering with bin/audit"
-  if "$here/audit" >"$json"; then :
-  elif [ $? -eq 1 ]; then log "some sources did not answer"
-  else die "bin/audit failed"; fi
-fi
+json="$tmp/audit.json"
+log "gathering with bin/audit"
+if "$here/audit" >"$json"; then :
+elif [ $? -eq 1 ]; then log "some sources did not answer"
+else die "bin/audit failed"; fi
 jq -e . "$json" >/dev/null 2>&1 || die "$json is not JSON"
 
 date="$(jq -r .date "$json")"
@@ -190,7 +188,6 @@ if [ "$n_errors" -gt 0 ]; then
 fi
 generated_at="$(jq -r .generated_at "$json")"
 
-mkdir -p "$inbox/drift"
 cat >"$tmp/page.html" <<EOF
 <!doctype html>
 <html lang="en" data-theme="gallopify">
@@ -252,6 +249,15 @@ row="| \`drift/drift-$date.html\` | $summary | Run the update lines it lists. Th
 
 cd "$inbox"
 git pull -q --rebase --autostash || log "pull failed, continuing with the local checkout"
+for output_path in README.md "drift/drift-$date.html"; do
+  local_changes="$(git status --porcelain -- "$output_path")"
+  if [ -n "$local_changes" ]; then
+    log "inbox has local changes to $output_path"
+    exit 1
+  fi
+done
+[ -f README.md ] || die "$inbox has no README.md to add the row to"
+mkdir -p "$inbox/drift"
 cp "$tmp/page.html" "$page"
 # Older drift rows go; this week's lands after the last table row.
 awk -v row="$row" '
@@ -265,11 +271,7 @@ cp "$tmp/README.md" README.md
 log "wrote $page"
 
 git add "drift/drift-$date.html" README.md
-if git diff --cached --quiet; then
-  log "nothing changed since the last push"
-  exit 0
-fi
-git commit -qm "drift: weekly audit $date from $host"
+git commit --allow-empty -qm "drift: weekly audit $date from $host" -- "drift/drift-$date.html" README.md
 if git push -q || { git pull -q --rebase --autostash && git push -q; }; then
   log "pushed drift/drift-$date.html"
 else
