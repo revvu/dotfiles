@@ -11,4 +11,4 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix flake check --no-build
       - run: nix build .#darwinConfigurations.mac.system
-      - run: nix shell nixpkgs#bats nixpkgs#jq nixpkgs#shellcheck -c sh -c 'shellcheck bin/doctor bootstrap.sh rebuild.sh && bats tests'
+      - run: nix shell nixpkgs#bats nixpkgs#jq nixpkgs#shellcheck -c sh -c 'shellcheck bin/doctor bin/audit bin/audit-page bootstrap.sh rebuild.sh && bats tests'

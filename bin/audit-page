@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+# Turns bin/audit's JSON into the weekly drift page, asks Claude for its
+# judgement, and pushes the page into the agent inbox.
+#
+# Usage: audit-page [--scheduled] [audit.json]
+#   With no file it runs bin/audit itself. --scheduled is what the launchd
+#   agent passes: the page is then built only on the host named by AUDIT_HOST
+#   (default mac, the server), so the same home.nix can declare the agent on
+#   every machine while one of them does the work.
+#
+# What it does, in order:
+#   1. renders the facts from a fixed template with the Lavish skin inlined:
+#      one version table (a row is "behind" when installed differs from latest,
+#      "overdue" when that latest release is older than four weeks, and flagged
+#      when its release notes mention breaking changes or security), the update
+#      lines for every row that is behind, the fork lag, the doctor's report,
+#      the policy references and the sources that did not answer
+#   2. asks Claude (claude -p, whatever account claude-swap has active) for the
+#      judgement section, what matters this week and what can wait, with a
+#      timeout; when Claude fails or times out the page still ships and says
+#      the judgement is missing
+#   3. writes drift/drift-<date>.html into the inbox checkout, replaces any
+#      older drift row in its README table with this week's, commits and pushes
+#
+# Every live input can be overridden, which is how the tests run it:
+#   AUDIT_INBOX           the inbox checkout (default ~/github/gallopify-playground/inbox)
+#   AUDIT_SKIN            the skin to inline (default the playground's .lavish-shared/lavish-skin.css)
+#   AUDIT_CLAUDE          the command asked for the judgement (default claude)
+#   AUDIT_CLAUDE_TIMEOUT  seconds to wait for it (default 120)
+#   AUDIT_HOST            the host that builds the page when --scheduled (default mac)
+#   AUDIT_NOW             epoch seconds used as "now" for the four-week rule
+#
+# Every line it prints is a log line; the launchd agent sends them to
+# ~/Library/Logs/audit.log. Exit 0 when the page is pushed (or --scheduled
+# skipped it on another host), 1 when the push failed after the page was
+# written, 2 when it could not build the page at all.
+set -euo pipefail
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  awk 'NR == 1 { next } !/^#/ { exit } { sub(/^# ?/, ""); print }' "$0"
+  exit 0
+fi
+
+log() { printf '%s audit-page: %s\n' "$(date +%FT%T)" "$*"; }
+die() { log "$*"; exit 2; }
+
+scheduled=0; json=""
+for arg in "$@"; do
+  case "$arg" in
+    --scheduled) scheduled=1 ;;
+    -*) die "unknown option $arg" ;;
+    *) json="$arg" ;;
+  esac
+done
+
+inbox="${AUDIT_INBOX:-$HOME/github/gallopify-playground/inbox}"
+skin="${AUDIT_SKIN:-$HOME/github/gallopify-playground/.lavish-shared/lavish-skin.css}"
+claude="${AUDIT_CLAUDE:-claude}"
+claude_timeout="${AUDIT_CLAUDE_TIMEOUT:-120}"
+want_host="${AUDIT_HOST:-mac}"
+now="${AUDIT_NOW:-$(date +%s)}"
+here="$(cd "$(dirname "$0")" && pwd)"
+
+if [ "$scheduled" -eq 1 ]; then
+  host="$(/usr/sbin/scutil --get LocalHostName 2>/dev/null || hostname -s)"
+  if [ "$host" != "$want_host" ]; then
+    log "skipped: this is $host, the scheduled audit runs on $want_host"
+    exit 0
+  fi
+fi
+
+command -v jq >/dev/null || die "jq is not on PATH"
+[ -d "$inbox/.git" ] || die "$inbox is not a git checkout"
+[ -f "$inbox/README.md" ] || die "$inbox has no README.md to add the row to"
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+if [ -z "$json" ]; then
+  json="$tmp/audit.json"
+  log "gathering with bin/audit"
+  if "$here/audit" >"$json"; then :
+  elif [ $? -eq 1 ]; then log "some sources did not answer"
+  else die "bin/audit failed"; fi
+fi
+jq -e . "$json" >/dev/null 2>&1 || die "$json is not JSON"
+
+date="$(jq -r .date "$json")"
+host="$(jq -r .host "$json")"
+page="$inbox/drift/drift-$date.html"
+
+# --- classification ---------------------------------------------------------
+# One jq prelude shared by every query below, so the rule lives in one place.
+# shellcheck disable=SC2016  # $now is jq's, passed with --argjson
+classify='
+  def age_days: if .released == null then null else ((($now - (.released | fromdateiso8601)) / 86400) | floor) end;
+  def state:
+    if .latest == null then "no feed"
+    elif .installed == null then "not installed"
+    elif .installed == .latest then "current"
+    elif (age_days != null and age_days > 28) then "overdue"
+    else "behind" end;
+  def flagged: ((.notes // "") | test("breaking|security"; "i"));
+  def behind: (state == "behind" or state == "overdue" or state == "not installed");
+'
+q() { jq -r --argjson now "$now" "$classify $1" "$json"; }
+
+n_tools="$(q '.versions | length')"
+n_behind="$(q '[.versions[] | select(behind)] | length')"
+n_overdue="$(q '[.versions[] | select(state == "overdue")] | length')"
+n_flagged="$(q '[.versions[] | select(flagged)] | length')"
+n_errors="$(q '.errors | length')"
+doctor_status="$(q '.doctor.status')"
+case "$doctor_status" in
+  0) doctor_word="clean" ;;
+  1) doctor_word="$(q '.doctor.output | split("\n") | map(select(test("\t"))) | length') unowned" ;;
+  *) doctor_word="failed" ;;
+esac
+forks_word="$(q '[.forks[] | "\(.name) \(.behind // "?")"] | join(", ")'), commits behind upstream"
+
+# --- judgement from Claude --------------------------------------------------
+judgement_html=""
+prompt="Below is this week's drift audit of the tool environment on the Mac named $host, as JSON.
+Write the judgement section for the audit page: what matters this week and what can wait.
+Two short paragraphs of plain prose, under 180 words in total: no headings, no lists, no markdown.
+Name tools as the JSON names them. A release note that mentions breaking changes or security matters.
+Do not restate the table; say what to do about it.
+
+$(jq -c 'del(.doctor.output)' "$json")"
+set +e
+# alarm() survives exec, so the timer set here ends the command it becomes.
+perl -e 'alarm shift; exec @ARGV' "$claude_timeout" "$claude" -p "$prompt" --output-format text >"$tmp/judgement" 2>"$tmp/judgement.err"
+claude_status=$?
+set -e
+if [ "$claude_status" -eq 0 ] && [ -s "$tmp/judgement" ]; then
+  judgement_html="$(jq -Rrs 'split("\n\n") | map(gsub("^\\s+|\\s+$"; "") | select(. != "") | "<p>" + @html + "</p>") | join("\n")' "$tmp/judgement")"
+  log "judgement: $(wc -w <"$tmp/judgement" | tr -d ' ') words from $claude"
+else
+  if [ "$claude_status" -eq 142 ]; then why="$claude did not answer within ${claude_timeout} s"
+  else why="$claude exited $claude_status: $(head -c 200 "$tmp/judgement.err" | tr '\n' ' ')"; fi
+  judgement_html="<p class=\"muted\">The judgement is missing this week: $(jq -Rn --arg w "$why" '$w | @html'). The tables below are complete.</p>"
+  log "judgement missing: $why"
+fi
+
+# --- render -----------------------------------------------------------------
+if [ -r "$skin" ]; then skin_css="$(cat "$skin")"; else skin_css="/* skin not found at $skin */"; log "skin not found at $skin, rendering unskinned"; fi
+
+badge() { # $1 = state
+  case "$1" in
+    current) echo '<span class="badge badge-sm badge-success badge-outline">current</span>' ;;
+    behind) echo '<span class="badge badge-sm badge-warning">behind</span>' ;;
+    overdue) echo '<span class="badge badge-sm badge-error">overdue</span>' ;;
+    "not installed") echo '<span class="badge badge-sm badge-error badge-outline">not installed</span>' ;;
+    *) echo '<span class="badge badge-sm badge-ghost">no feed</span>' ;;
+  esac
+}
+version_rows=""
+# Fields come joined by the unit separator: tabs are IFS whitespace, so an
+# empty field between tabs would be swallowed by read.
+while IFS=$'\x1f' read -r name kind installed latest released age state flag url; do
+  row="<tr><td><span class=\"font-mono\">$name</span><div class=\"text-xs muted\">$kind</div></td>"
+  row+="<td class=\"font-mono\">${installed:-<span class=\"muted\">none</span>}</td>"
+  row+="<td class=\"font-mono\">${latest:-<span class=\"muted\">no feed</span>}</td>"
+  if [ -n "$released" ]; then row+="<td>$released <span class=\"muted text-xs\">${age} d ago</span></td>"; else row+="<td class=\"muted\">unknown</td>"; fi
+  row+="<td>$(badge "$state")"
+  [ "$flag" = "true" ] && row+=" <a class=\"badge badge-sm badge-error\" href=\"$url\">notes: breaking or security</a>"
+  row+="</td></tr>"
+  version_rows+="$row"$'\n'
+done < <(q '.versions[] | [(.name | @html), .kind, (.installed // "" | @html), (.latest // "" | @html), (.released // "" | .[0:10]), (age_days // ""), state, flagged, (.notes_url // "" | @html)] | join("\u001f")')
+
+update_lines="$(q '.versions[] | select(behind and .update != null) | .update | @html')"
+if [ -n "$update_lines" ]; then
+  updates_html="<p class=\"text-sm muted\">Every row that is behind, as the command that moves it. The npm lines are per package; <code>npm update -g</code> does them all.</p><pre class=\"code\">$update_lines</pre>"
+else
+  updates_html="<p class=\"text-sm muted\">Nothing is behind; there is nothing to run.</p>"
+fi
+
+# shellcheck disable=SC2016  # $now is jq's
+fork_rows="$(q '.forks[] | "<tr><td><span class=\"font-mono\">\(.fork | @html)</span><div class=\"text-xs muted\">upstream \(.upstream | @html)</div></td><td class=\"font-mono\">\(.behind // "?")</td><td class=\"font-mono\">\(.ahead // "?")</td><td>\(if .merge_base then (.merge_base | .[0:10]) + " <span class=\"muted text-xs\">" + (((($now - (.merge_base | fromdateiso8601)) / 86400) | floor | tostring)) + " d ago</span>" else "<span class=\"muted\">unknown</span>" end)</td></tr>"')"
+
+policy_rows="$(q '.policy.refs[] | "<tr><td class=\"font-mono\">\(.ref | @html)</td><td>\(.kind)</td><td>\(if .ok then "<span class=\"badge badge-sm badge-success badge-outline\">resolves</span>" else "<span class=\"badge badge-sm badge-error\">missing</span>" end)</td></tr>"')"
+[ -n "$policy_rows" ] || policy_rows='<tr><td colspan="3" class="muted">The policy has no ~/ paths or https links.</td></tr>'
+policy_file="$(q '.policy.file | @html')"
+n_policy_bad="$(q '[.policy.refs[] | select(.ok | not)] | length')"
+
+doctor_output="$(q '.doctor.output | @html')"
+errors_html=""
+if [ "$n_errors" -gt 0 ]; then
+  errors_html="<section class=\"mt-10\"><h2 class=\"text-xl font-semibold\">Sources that did not answer</h2><p class=\"text-sm muted mt-1\">Their rows above show nulls; the audit ran to the end regardless.</p><ul class=\"mt-3 text-sm list-disc pl-5\">$(q '.errors[] | "<li class=\"font-mono\">" + @html + "</li>"')</ul></section>"
+fi
+generated_at="$(jq -r .generated_at "$json")"
+
+mkdir -p "$inbox/drift"
+cat >"$tmp/page.html" <<EOF
+<!doctype html>
+<html lang="en" data-theme="gallopify">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drift audit $date</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/daisyui.css">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.4/dist/index.global.js"></script>
+<style>
+$skin_css
+body{background:var(--color-base-100);color:var(--color-base-content)}
+.muted{color:var(--color-subtle)}
+code{font-family:var(--font-mono),monospace;font-size:0.92em;color:var(--color-accent)}
+pre.code{font-family:var(--font-mono),monospace;font-size:12px;line-height:1.45;overflow-x:auto;background:var(--color-base-200);border:1px solid var(--color-base-300);border-radius:var(--radius-box);padding:.75rem 1rem;white-space:pre-wrap;word-break:break-all}
+.kpi{background:var(--color-base-200);border:1px solid var(--color-base-300);border-radius:var(--radius-box);padding:1rem}
+.kpi .n{font-family:var(--font-mono),monospace;font-size:1.5rem;color:var(--color-primary)}
+.box{background:var(--color-base-200);border:1px solid var(--color-base-300);border-radius:var(--radius-box);padding:1rem 1.25rem}
+table.t{width:100%;border-collapse:collapse} table.t th{text-align:left;font-weight:600;padding:.4rem .5rem;font-size:.8rem;color:var(--color-subtle)}
+table.t td{vertical-align:top;padding:.4rem .5rem;border-top:1px solid var(--color-base-300)}
+</style></head>
+<body><main class="max-w-5xl mx-auto px-4 py-10">
+<header>
+<p class="text-sm muted font-mono">$generated_at on $host</p>
+<h1 class="text-3xl font-semibold mt-1">Drift audit, $date</h1>
+<p class="muted mt-2">What this machine runs against what is released, where the forks stand, what the doctor found, and whether the policy still points at real things. Read-only; every change is a line to run by hand.</p>
+</header>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+  <div class="kpi"><div class="n">$n_behind<span class="text-base muted"> / $n_tools</span></div><div class="text-sm muted">tools behind</div></div>
+  <div class="kpi"><div class="n">$n_overdue</div><div class="text-sm muted">more than four weeks</div></div>
+  <div class="kpi"><div class="n">$doctor_word</div><div class="text-sm muted">doctor</div></div>
+  <div class="kpi"><div class="n">$n_policy_bad</div><div class="text-sm muted">policy references missing</div></div>
+</div>
+<section class="mt-10"><h2 class="text-xl font-semibold">Judgement</h2>
+<div class="box mt-3 space-y-3">$judgement_html</div></section>
+<section class="mt-10"><h2 class="text-xl font-semibold">Versions</h2>
+<p class="text-sm muted mt-1">Behind: installed differs from latest. Overdue: that latest release is more than four weeks old. The notes badge appears when the latest release notes mention breaking changes or security.</p>
+<table class="t mt-3"><thead><tr><th>tool</th><th>installed</th><th>latest</th><th>released</th><th>state</th></tr></thead><tbody>
+$version_rows</tbody></table></section>
+<section class="mt-10"><h2 class="text-xl font-semibold">Update lines</h2>$updates_html</section>
+<section class="mt-10"><h2 class="text-xl font-semibold">Forks</h2>
+<p class="text-sm muted mt-1">Behind: upstream commits the fork lacks. Ahead: the fork's own commits. Merge base: the last commit both share.</p>
+<table class="t mt-3"><thead><tr><th>fork</th><th>behind</th><th>ahead</th><th>merge base</th></tr></thead><tbody>
+$fork_rows</tbody></table>
+<p class="text-sm muted mt-2">$forks_word.</p></section>
+<section class="mt-10"><h2 class="text-xl font-semibold">Doctor</h2>
+<p class="text-sm muted mt-1"><code>bin/doctor</code> exited $doctor_status: $doctor_word.</p>
+<pre class="code mt-3">$doctor_output</pre></section>
+<section class="mt-10"><h2 class="text-xl font-semibold">Policy references</h2>
+<p class="text-sm muted mt-1">Every <code>~/</code> path and https link in <span class="font-mono">$policy_file</span>.</p>
+<table class="t mt-3"><thead><tr><th>reference</th><th>kind</th><th>state</th></tr></thead><tbody>
+$policy_rows</tbody></table></section>
+$errors_html
+<footer class="mt-12 pt-4 border-t border-base-300 text-xs muted">Generated by <code>bin/audit-page</code> from <code>bin/audit</code> in revvu/dotfiles. The next audit replaces this page's row in the inbox README.</footer>
+</main></body></html>
+EOF
+
+# --- into the inbox ---------------------------------------------------------
+summary="Weekly drift audit from $host, $date: $n_behind of $n_tools tools behind ($n_overdue more than four weeks, $n_flagged with breaking or security notes), doctor $doctor_word, $forks_word."
+row="| \`drift/drift-$date.html\` | $summary | Run the update lines it lists. The next audit replaces this row. |"
+
+cd "$inbox"
+git pull -q --rebase --autostash || log "pull failed, continuing with the local checkout"
+cp "$tmp/page.html" "$page"
+# Older drift rows go; this week's lands after the last table row.
+awk -v row="$row" '
+  /^\| `drift\/drift-/ { next }
+  { lines[++n] = $0; if ($0 ~ /^\|/) last = n }
+  END {
+    for (i = 1; i <= n; i++) { print lines[i]; if (i == last) print row }
+    if (!last) print row
+  }' README.md >"$tmp/README.md"
+cp "$tmp/README.md" README.md
+log "wrote $page"
+
+git add "drift/drift-$date.html" README.md
+if git diff --cached --quiet; then
+  log "nothing changed since the last push"
+  exit 0
+fi
+git commit -qm "drift: weekly audit $date from $host"
+if git push -q || { git pull -q --rebase --autostash && git push -q; }; then
+  log "pushed drift/drift-$date.html"
+else
+  log "push failed; the page and the commit are in $inbox"
+  exit 1
+fi
