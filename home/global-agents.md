@@ -24,8 +24,9 @@
   Review your own plan adversarially and spike risky assumptions before building.
   If you hit a gap the plan did not anticipate, stop and raise it instead of patching around it.
 - In-progress pages live in the inbox, `~/github/gallopify-playground/inbox/`, not inside any project repo.
+  The inbox is its own private repo, `revvu/agent-inbox`, checked out at that path on every machine.
   Its `README.md` lists each page with its next step; keep that table current.
-  Work sessions start by opening the inbox.
+  Work sessions start by pulling and opening the inbox; commit and push after each page change, so the other machine can resume.
 - Each project has a scaffold repo (for example `atomic-skills`, `linear-skills`) that holds its finished Lavish docs and the skills and scripts agents use in that context.
   When a page's work is done, move it into the project's scaffold and remove its inbox row.
 - A workspace `CLAUDE.md` routes to the scaffolds.
