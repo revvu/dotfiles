@@ -27,6 +27,8 @@
   The inbox is its own private repo, `revvu/agent-inbox`, checked out at that path on every machine.
   Its `README.md` lists each page with its next step; keep that table current.
   Work sessions start by pulling and opening the inbox; commit and push after each page change, so the other machine can resume.
+  Several agents often work in the inbox at once, each on its own page; that is normal, not a conflict.
+  Pull and push freely and expect other agents' commits to land between yours: no two agents touch the same file, so there is nothing to race on.
   The server pushes a weekly drift audit into the inbox, `drift/drift-<date>.html`, every Sunday night; a session that finds the newest drift row older than eight days says so.
   The audit only reports: the axi tools, no-mistakes, treehouse, cursor-agent and the casks are updated by hand, when its page says a release is out.
 - Each project has a scaffold repo (for example `atomic-skills`, `linear-skills`) that holds its finished Lavish docs and the skills and scripts agents use in that context.
