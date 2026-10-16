@@ -30,7 +30,7 @@
   Several agents often work in the inbox at once, each on its own page; that is normal, not a conflict.
   Pull and push freely and expect other agents' commits to land between yours: no two agents touch the same file, so there is nothing to race on.
   The server pushes a weekly drift audit into the inbox, `drift/drift-<date>.html`, every Sunday night; a session that finds the newest drift row older than eight days says so.
-  The audit only reports: the axi tools, no-mistakes, treehouse, cursor-agent and the casks are updated by hand, when its page says a release is out.
+  The audit only reports: the axi tools, no-mistakes, treehouse, cursor-agent and the casks are updated by hand, when its page says a release is out; Paper has no feed, its row shows the installed version per machine, and a gap between the two machines closes with a relaunch from the app.
 - Each project has a scaffold repo (for example `atomic-skills`, `linear-skills`) that holds its finished Lavish docs and the skills and scripts agents use in that context.
   When a page's work is done, move it into the project's scaffold and remove its inbox row.
 - A workspace `CLAUDE.md` routes to the scaffolds.

@@ -51,9 +51,10 @@ MD
   [ "$status" -eq 0 ]
   echo "$output" | jq -e '.errors == []'
   echo "$output" | jq -e '.doctor == {status: 0, output: "clean: everything on this machine is declared or exempt"}'
-  echo "$output" | jq -e '.versions | length == 12'
+  echo "$output" | jq -e '.versions | length == 13'
   echo "$output" | jq -e '.versions[] | select(.name == "no-mistakes") | .installed == "v1.80.0" and .latest == "v1.84.0" and .released == "2026-09-26T08:31:52Z" and (.notes | test("BREAKING")) and .update == "no-mistakes update"'
   echo "$output" | jq -e '.versions[] | select(.name == "cursor-agent") | .installed == "2026.09.15-d2fe57e" and .latest == null'
+  echo "$output" | jq -e '.versions[] | select(.name == "paper") | .kind == "installed-only" and .installed == "0.5.16" and .latest == null'
   echo "$output" | jq -e '.versions[] | select(.name == "claude-swap") | .installed == "0.25.0" and .latest == "0.26.0" and .released == "2026-09-02T18:29:37Z"'
   echo "$output" | jq -e '.versions[] | select(.name == "codex") | .installed == "0.154.0" and .latest == "0.162.1" and .update == "brew upgrade --cask codex"'
   echo "$output" | jq -e '.versions[] | select(.name == "lavish-axi") | .installed == "0.1.63" and .latest == "0.1.87"'
@@ -69,7 +70,7 @@ MD
   echo "$output" | jq -e '.errors | length == 2'
   echo "$output" | jq -e '.versions[] | select(.name == "no-mistakes") | .installed == "v1.80.0" and .latest == null and .notes == null'
   echo "$output" | jq -e '.forks[] | select(.name == "firstmate") | .behind == null'
-  echo "$output" | jq -e '.versions | length == 12'
+  echo "$output" | jq -e '.versions | length == 13'
 }
 
 @test "audit: the doctor's exit code is carried, not interpreted" {
@@ -117,7 +118,7 @@ MD
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
   page | grep -q 'npm-outdated:'
-  [ "$(page | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 14 ]
+  [ "$(page | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 16 ] # six npm rows, cursor-agent and paper, two cells each
   ! page | grep -q 'npm install -g'
 }
 
@@ -147,9 +148,9 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$(page | grep -c '>overdue<')" -eq 2 ]            # no-mistakes, claude-swap
   [ "$(page | grep -c 'badge-warning">behind<')" -eq 7 ]             # codex and six npm globals
   [ "$(page | grep -c '>current<')" -eq 2 ]            # treehouse, claude-code@latest
-  [ "$(page | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 2 ] # cursor-agent's latest cell and its badge, one row
+  [ "$(page | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 4 ] # cursor-agent and paper: latest cell and badge, two rows
   [ "$(page | grep -c 'notes: breaking or security')" -eq 1 ]
-  page | grep -q '<div class="n">9<span class="text-base muted"> / 12</span></div>'
+  page | grep -q '<div class="n">9<span class="text-base muted"> / 13</span></div>'
   page | grep -q 'no-mistakes update'
   page | grep -q 'cswap upgrade'
   page | grep -q 'brew upgrade --cask codex'
@@ -165,7 +166,7 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
   [ "$(grep -c '^| `drift/drift-' "$INBOX/README.md")" -eq 1 ]
-  grep -q '^| `drift/drift-2026-11-01.html` | Weekly drift audit from .*: 9 of 12 tools behind (2 more than four weeks, 1 with breaking or security notes), doctor clean, dotfiles 9, firstmate 344, commits behind upstream. | Run the update lines' "$INBOX/README.md"
+  grep -q '^| `drift/drift-2026-11-01.html` | Weekly drift audit from .*: 9 of 13 tools behind (2 more than four weeks, 1 with breaking or security notes), doctor clean, dotfiles 9, firstmate 344, commits behind upstream. | Run the update lines' "$INBOX/README.md"
   # The new row sits right after the last table row, before the prose.
   awk '/^\| `other.html`/ { getline; print }' "$INBOX/README.md" | grep -q '^| `drift/drift-2026-11-01.html`'
   git -C "$BATS_TEST_TMPDIR/bare" log --format=%s -1 | grep -q '^drift: weekly audit 2026-11-01 from '

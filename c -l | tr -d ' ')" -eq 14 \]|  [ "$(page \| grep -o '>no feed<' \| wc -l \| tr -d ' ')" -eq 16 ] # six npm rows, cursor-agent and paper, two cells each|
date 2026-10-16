@@ -1,0 +1,7 @@
+ grep -o '>no feed<' | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 14 ]
+ grep -o '>no feed<' | grep -c 'notes: breaking or security')" -eq 2 ]
+ grep -o '>no feed<' | grep -c '>overdue<')" -eq 2 ]            # no-mistakes, claude-swap
+ grep -o '>no feed<' | grep -c 'badge-warning">behind<')" -eq 7 ]             # codex and six npm globals
+ grep -o '>no feed<' | grep -c '>current<')" -eq 2 ]            # treehouse, claude-code@latest
+ grep -o '>no feed<' | grep -o '>no feed<' | wc -l | tr -d ' ')" -eq 4 ] # cursor-agent and paper: latest cell and badge, two rows
+ grep -o '>no feed<' | grep -c 'notes: breaking or security')" -eq 1 ]
