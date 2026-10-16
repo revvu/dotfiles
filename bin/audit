@@ -13,7 +13,8 @@
 #   versions  installed against latest for no-mistakes and treehouse (GitHub
 #             releases, with the latest release's notes), claude-swap (PyPI),
 #             the claude-code@latest and codex casks (brew), every npm global
-#             (npm), and cursor-agent (installed only: it has no release feed)
+#             (npm), and cursor-agent and Paper (installed only: neither has
+#             a release feed; Paper updates itself on relaunch)
 #   forks     commits the dotfiles and firstmate forks lack from upstream, and
 #             the date they last shared a commit
 #   policy    every ~/ path and https link in the global agent policy, and
@@ -120,6 +121,9 @@ github_release treehouse th kunchenguid/treehouse treehouse "treehouse update"
 
 cursor="$(source_ cursor-version cursor-agent --version | head -n1 | tr -d '[:space:]')" || gap "cursor-version: cursor-agent --version gave nothing"
 version cursor-agent installed-only "$cursor" "" "" "" "" ""
+
+paper="$(source_ paper-version defaults read /Applications/Paper.app/Contents/Info.plist CFBundleShortVersionString | tr -d '[:space:]')" || gap "paper-version: Paper.app is not installed"
+version paper installed-only "$paper" "" "" "" "" ""
 
 cswap_installed="$(source_ uv-tools uv tool list | awk '$1 == "claude-swap" { sub(/^v/, "", $2); print $2 }')" || gap "uv-tools: uv tool list gave nothing"
 cswap_latest="" cswap_released=""
