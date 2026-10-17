@@ -20,8 +20,17 @@
 #   DOCTOR_NPM_BIN    directory (default ~/.npm-global/bin)
 #   DOCTOR_LOCAL_BIN  directory (default ~/.local/bin)
 #   DOCTOR_REPO       git checkout to inspect (default ~/.dotfiles)
+#   DOCTOR_HOST       this machine's name (default scutil LocalHostName); the
+#                     server's switches are checked only when it equals
+#                     AUDIT_HOST (default mac, as bin/audit-page)
+#   DOCTOR_FDESETUP, DOCTOR_AUTOLOGIN, DOCTOR_PMSET
+#                     files holding the output of fdesetup status, defaults
+#                     read ... autoLoginUser and pmset -g (instead of running them)
 #
 # Output: one "<class>\t<item>" line per unowned item, then a summary line.
+# On the server the class "unattended reboot" names a switch that has drifted
+# from the headless setup the README describes (FileVault off, automatic
+# login, sleep disabled), with the command that puts it back.
 # Exit 0 when clean, 1 when anything is unowned, 2 when an input is missing.
 set -euo pipefail
 
@@ -95,6 +104,22 @@ if [ -d "$repo" ]; then
     [ -n "$line" ] || continue
     report "changed tracked file" "${line#?? }"
   done <<<"$(git -C "$repo" status --short --untracked-files=no)"
+fi
+
+# The server reboots without hands only while three switches hold (README,
+# "Reboots on the server"). A macOS update can reset them, so the doctor says
+# which one did; it changes nothing.
+host="${DOCTOR_HOST:-$(/usr/sbin/scutil --get LocalHostName 2>/dev/null || hostname -s)}"
+if [ "$host" = "${AUDIT_HOST:-mac}" ]; then
+  filevault="$(lines_or_cmd "${DOCTOR_FDESETUP:-}" fdesetup status)"
+  [[ "$filevault" == *"FileVault is Off"* ]] \
+    || report "unattended reboot" "FileVault is on: sudo fdesetup disable"
+  autologin="$(lines_or_cmd "${DOCTOR_AUTOLOGIN:-}" defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser 2>/dev/null || true)"
+  [ -n "$autologin" ] \
+    || report "unattended reboot" "automatic login is off: sudo sysadminctl -autologin set -userName \$USER -password '...'"
+  power="$(lines_or_cmd "${DOCTOR_PMSET:-}" pmset -g)"
+  grep -qE '^ *SleepDisabled[[:space:]]+1$' <<<"$power" \
+    || report "unattended reboot" "sleep is enabled: sudo pmset -a disablesleep 1"
 fi
 
 if [ "$unowned" -eq 0 ]; then
