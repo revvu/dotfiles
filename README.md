@@ -88,11 +88,22 @@ The repo declares the environment only. These are installed once, by hand, and u
 
 ## Reboots on the server
 
-The server is a lidded MacBook with FileVault on, so every reboot stops at the FileVault prompt, which macOS draws on the built-in panel only (the server's is broken).
-At its keyboard: press Return, type the login password, press Return.
-FileVault then logs the user in, and that login is all the machine needs: the launchd agents start and the keychain is unlocked.
-`sudo fdesetup authrestart` only skips the disk unlock and leaves the Mac at the login window, where the GUI session does not exist (no agents, no keychain, no Tailscale app); sshd does run there, so reach it by its LAN name rather than the tailnet name.
-Unattended reboots would take the standard headless-Mac setup, FileVault off plus automatic login for the user, which is what headless Mac mini guides and macOS CI-runner setups do; deferred on purpose in Oct 2026, reboots are handled at the keyboard.
+The server is a lidded MacBook nobody sits at, so it runs the standard headless-Mac setup: FileVault off, automatic login for the user, sleep disabled (Oct 17, 2026; it replaced the FileVault-on setup of Oct 12, which stopped every reboot at a prompt drawn on the broken built-in panel).
+Apple silicon keeps the volume hardware-encrypted either way; what FileVault added was the boot-time password gate.
+Without it a boot lands in the user's GUI session on its own: the launchd agents start, the keychain is unlocked, the Tailscale app connects.
+Measured twice on Oct 17: on the tailnet 50 s after the boot, no hands.
+
+- Planned reboot: `ssh -t server 'sudo shutdown -r now'`, then wait a minute.
+- Power loss: plug the charger in, then open and close the lid once.
+  With the lid closed the Mac does not start on power alone (tested for 68 minutes; Apple silicon laptops boot on lid open, `BootPreference` is at its default), so the lid is the one touch.
+  No display, keyboard or password.
+- The switches: `sudo fdesetup disable`; `sudo sysadminctl -autologin set -userName <user> -password '<pw>'`, where the password is required (without it the command is a silent no-op); `sudo pmset -a disablesleep 1`.
+  `bin/doctor` checks all three on the server and names any that drifted, which a macOS update can do.
+- Verify: `ssh server 'fdesetup status; defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser; pmset -g | grep SleepDisabled'` prints `FileVault is Off.`, the user, and `SleepDisabled 1`.
+- Trade-off: anyone holding the laptop lands in the session, and the login password sits in `/etc/kcpassword` under a known weak obfuscation.
+  Accepted for a Mac that stays in the house and holds nothing that is not also on GitHub.
+- Rollback: `sudo sysadminctl -autologin off`, then `sudo fdesetup enable`; reboots stop at the FileVault prompt again.
+- If a boot ever stops at the login window instead of the session, sshd still runs there: reach the Mac by its LAN name (the Tailscale app is not up), run the verify line, and flip whatever drifted.
 
 ## Weekly audit
 
@@ -110,7 +121,7 @@ bin/audit-page --help
 ```
 
 The agent is declared for every machine and skips itself anywhere but the server (`AUDIT_HOST`, default `mac`), so a by-hand run elsewhere is the plain command.
-It runs in the GUI session like herdr and cswap-auto, because `claude -p` reads the login keychain; a Sunday the server spends at the FileVault prompt is a Sunday without a page, and `~/Library/Logs/audit.log` says what happened.
+It runs in the GUI session like herdr and cswap-auto, because `claude -p` reads the login keychain; a Sunday the server spends powered off is a Sunday without a page, and `~/Library/Logs/audit.log` says what happened.
 Tests: `bats tests`, on the fixtures under `tests/fixtures/audit`.
 
 ## Repo tour
