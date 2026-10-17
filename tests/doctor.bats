@@ -33,6 +33,12 @@ EOF
   export DOCTOR_BREW_LEAVES="$FX/leaves" DOCTOR_BREW_CASKS="$FX/casks" DOCTOR_BREW_TAPS="$FX/taps"
   export DOCTOR_UV_TOOLS="$FX/uv" DOCTOR_NPM_BIN="$FX/npm-bin" DOCTOR_LOCAL_BIN="$FX/local-bin"
   export DOCTOR_REPO="$FX/repo"
+  # the server's switches, as the server reports them when all is well
+  printf 'FileVault is Off.\n' >"$FX/fdesetup"
+  printf 'reevuadakroy\n' >"$FX/autologin"
+  printf 'System-wide power settings:\n SleepDisabled\t\t1\nCurrently in use:\n sleep                0\n' >"$FX/pmset"
+  export DOCTOR_FDESETUP="$FX/fdesetup" DOCTOR_AUTOLOGIN="$FX/autologin" DOCTOR_PMSET="$FX/pmset"
+  export DOCTOR_HOST=laptop
 }
 
 @test "clean machine: exit 0 and one summary line" {
@@ -78,4 +84,28 @@ EOF
   run "$DOCTOR" --help
   [ "$status" -eq 0 ]
   [[ "$output" == *"Reports everything this machine has"* ]]
+}
+
+@test "on the server, all three reboot switches holding is clean" {
+  export DOCTOR_HOST=mac
+  run "$DOCTOR"
+  [ "$status" -eq 0 ]
+}
+
+@test "on the server, each drifted reboot switch is named with its fix" {
+  export DOCTOR_HOST=mac
+  printf 'FileVault is On.\n' >"$FX/fdesetup"
+  : >"$FX/autologin"
+  printf ' SleepDisabled\t\t0\n' >"$FX/pmset"
+  run "$DOCTOR"
+  [ "$status" -eq 1 ]
+  expected="$(printf "unattended reboot\tFileVault is on: sudo fdesetup disable\nunattended reboot\tautomatic login is off: sudo sysadminctl -autologin set -userName \$USER -password '...'\nunattended reboot\tsleep is enabled: sudo pmset -a disablesleep 1\n3 unowned item(s)")"
+  [ "$output" = "$expected" ]
+}
+
+@test "elsewhere the reboot switches are not checked" {
+  printf 'FileVault is On.\n' >"$FX/fdesetup"
+  : >"$FX/autologin"
+  run "$DOCTOR"
+  [ "$status" -eq 0 ]
 }
