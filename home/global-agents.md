@@ -41,6 +41,16 @@
 Every project has a Lavish skin: the nearest `.lavish-shared/lavish-skin.css` above the artifact's directory, a DaisyUI 5 theme on the Tailwind v4 browser + DaisyUI CDN runtime.
 Use it, and offer to create one where a project has none.
 
+## UI design
+
+Paper is the source of truth for every screen: design in Paper first, then change the product to match it.
+Never edit a Paper board to match what was built; a gap between the two is a product bug.
+Feedback on a live screen goes into Paper first, then into the product.
+Each board is an option (being explored), ready (approved, not yet built) or live (exactly what production shows); never edit a live board in place.
+Build from Paper's exact values (tokens, get_jsx, get_computed_styles), never from screenshots, and a screen is done only when a diff against its board's export passes.
+A screen built before its board enters Paper once, through the project's import tool, and follows these rules from then on.
+Claude makes Paper edits on the Fable model; each project's Paper scaffold names its files, states and tools.
+
 ## no-mistakes
 
 Run no-mistakes on substantial PRs only: new features, behaviour changes, non-trivial refactors.
