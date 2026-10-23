@@ -41,6 +41,17 @@
 Every project has a Lavish skin: the nearest `.lavish-shared/lavish-skin.css` above the artifact's directory, a DaisyUI 5 theme on the Tailwind v4 browser + DaisyUI CDN runtime.
 Use it, and offer to create one where a project has none.
 
+## Lavish page standard
+
+A reader who sees only the top of a page knows what is being solved and what it needs, without opening anything else.
+- The page opens with a headline that states the situation, then a picture of the problem: a diagram, wireframe or animated flow showing where it breaks, what is missing and who holds each piece.
+- Under the picture comes one plain paragraph that starts with "Problem:", at most three sentences: what we are solving, what done looks like, and what it needs (people, access, decisions). No label-and-value table.
+- Keep it light: under 120 words above the fold, every section opens with a visual that the text only labels, and headings state conclusions, not topics.
+- Choose the body visuals by page type: a step track for builds and trackers, a diagram for systems and bugs, decision cards with a recommended default for anything waiting on the user.
+- History, logs, evidence and unverified items go in collapsed sections or a linked page.
+- Use motion freely wherever it explains something (work flowing, state changing, progress filling), and always honour reduced motion.
+- The reference examples are `inbox/lavish/page-styles.html` (the options tried) and `inbox/firstmate/firstmate-resync.html` (the standard applied).
+
 ## UI design
 
 Paper is the source of truth for every screen: design in Paper first, then change the product to match it.
