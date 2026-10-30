@@ -23,6 +23,9 @@
   Anything with open decisions gets a page that states the problem, each decision with a recommended default, and the plan.
   Review your own plan adversarially and spike risky assumptions before building.
   If you hit a gap the plan did not anticipate, stop and raise it instead of patching around it.
+- Every Lavish page layers conceptually: the problem and who it is for, the core idea and its words, the core mechanisms, the general architecture and stack, each part in depth, risks and alternatives, decisions, the plan, the log.
+  Each section uses only concepts introduced before it; push detail down to its layer and leave a short summary above.
+  `inbox/treadmill/treadmill.html` is the model.
 - In-progress pages live in the inbox, `~/github/gallopify-playground/inbox/`, not inside any project repo.
   The inbox is its own private repo, `revvu/agent-inbox`, checked out at that path on every machine.
   Its `README.md` lists each page with its next step; keep that table current.
