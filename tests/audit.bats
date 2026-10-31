@@ -41,7 +41,11 @@ MD
   printf '#!/bin/sh\nsleep 5\necho late\n' >"$BATS_TEST_TMPDIR/slow-claude"
   chmod +x "$BATS_TEST_TMPDIR/slow-claude"
   printf '.k{color:red}\n' >"$BATS_TEST_TMPDIR/skin.css"
+  # treadmill scaffolds audit, as a stub that names the two machines it was given.
+  printf '#!/bin/sh\necho "! inbox rows for $(jq -r .host "$3") then $(jq -r .host "$4")"\n' >"$BATS_TEST_TMPDIR/treadmill"
+  chmod +x "$BATS_TEST_TMPDIR/treadmill"
   export AUDIT_INBOX="$INBOX" AUDIT_CLAUDE="$BATS_TEST_TMPDIR/claude" AUDIT_SKIN="$BATS_TEST_TMPDIR/skin.css"
+  export AUDIT_TREADMILL="$BATS_TEST_TMPDIR/treadmill"
 }
 
 # --- bin/audit ----------------------------------------------------------------
@@ -61,6 +65,21 @@ MD
   echo "$output" | jq -e '.forks == [{name: "dotfiles", fork: "revvu/dotfiles", upstream: "kunchenguid/dotfiles", behind: 9, ahead: 29, merge_base: "2026-07-24T01:03:28Z"}, {name: "firstmate", fork: "revvu/firstmate", upstream: "kunchenguid/firstmate", behind: 344, ahead: 17, merge_base: "2026-09-07T19:41:14Z"}]'
   echo "$output" | jq -e '.policy.refs == [{ref: "~/gone/", kind: "path", ok: false}, {ref: "~/inbox/", kind: "path", ok: true}]'
   echo "$output" | jq -e '.date == "2026-11-01"'
+}
+
+@test "audit: the scaffold status and prune candidates are carried" {
+  run "$BIN/audit"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.scaffolds.status.host == "mac" and (.scaffolds.status.entries | length == 2)'
+  echo "$output" | jq -e '.scaffolds.prune | test("would delete linear-skills")'
+}
+
+@test "audit: no scaffold status leaves null and an errors line" {
+  rm "$FX/scaffolds-status"
+  run "$BIN/audit"
+  [ "$status" -eq 1 ]
+  echo "$output" | jq -e '.scaffolds.status == null'
+  echo "$output" | jq -e '[.errors[] | select(startswith("scaffolds-status:"))] | length == 1'
 }
 
 @test "audit: a source that does not answer leaves nulls, an errors line and exit 1" {
@@ -160,6 +179,25 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   page | grep -q '>missing<'
   page | grep -q '<p>Update no-mistakes first: its notes say breaking.</p>'
   page | grep -q '<p>The rest can wait.</p>'
+}
+
+@test "audit-page: the scaffold rows pair the other machine's published status with this one's" {
+  mkdir -p "$INBOX/drift"
+  printf '{"host": "macintosh", "workspace_claude_md": null, "entries": []}\n' >"$INBOX/drift/scaffolds-macintosh.json"
+  git -C "$INBOX" add drift && git -C "$INBOX" commit -qm laptop && git -C "$INBOX" push -q 2>/dev/null
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  page | grep -q '<h2 class="text-xl font-semibold">Scaffolds</h2>'
+  page | grep -q '! inbox rows for macintosh then mac'
+  page | grep -q 'drift/scaffolds-macintosh.json</span>, published 20'
+  page | grep -q 'would delete linear-skills'
+}
+
+@test "audit-page: without a published status the other machine is not reported" {
+  run "$BIN/audit-page"
+  [ "$status" -eq 0 ]
+  page | grep -q '! inbox rows for laptop then mac'
+  page | grep -q 'its cells read not reported'
 }
 
 @test "audit-page: pushes the page and replaces the older drift row in the README" {

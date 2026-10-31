@@ -113,6 +113,7 @@ Each run that reaches publishing creates a commit, including reruns with identic
 See `bin/audit-page --help` for publishing preconditions, failure handling and overrides.
 The page has what matters first, Claude's judgement of the week (what to update now, what can wait), then the facts: every tool against its latest release with its update line, the two forks against their upstreams, the doctor's report, and whether the global policy's paths and links still resolve.
 The audit never installs, removes or updates tools; every update is a line on the page to run by hand.
+The Scaffolds section is Treadmill's (`treadmill scaffolds audit`): one row per registry entry with the other machine's cell and the server's, one row for whether the two workspace `CLAUDE.md` copies differ, and the prune candidates; the other machine's cells come from its `drift/scaffolds-<host>.json` in the inbox.
 
 ```sh
 bin/audit            # the facts as JSON, read-only

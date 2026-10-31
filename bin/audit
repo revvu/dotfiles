@@ -19,6 +19,8 @@
 #             the date they last shared a commit
 #   policy    every ~/ path and https link in the global agent policy, and
 #             whether it resolves
+#   scaffolds this machine's treadmill scaffolds status --json, and the prune
+#             candidates treadmill scaffolds prune lists (a dry run)
 #   errors    the sources that did not answer, one line each
 #
 # Every live input can be replaced by a file for tests:
@@ -28,6 +30,8 @@
 #   AUDIT_NOW       epoch seconds to stamp the document with
 #   AUDIT_POLICY    the policy file to check (default home/global-agents.md)
 #   AUDIT_HOME      what ~ expands to in policy paths (default $HOME)
+#   AUDIT_TREADMILL the treadmill command (default the runner-main tree's
+#                   bin/treadmill in the gallopify playground)
 #
 # Exit 0 when every source answered, 1 when some did not (the JSON is still
 # complete, with nulls and an errors list), 2 when the output cannot be built.
@@ -44,6 +48,7 @@ fx="${AUDIT_FIXTURES:-}"
 now="${AUDIT_NOW:-$(date +%s)}"
 policy="${AUDIT_POLICY:-$here/../home/global-agents.md}"
 home="${AUDIT_HOME:-$HOME}"
+treadmill="${AUDIT_TREADMILL:-$HOME/github/gallopify-playground/treadmill-main/bin/treadmill}"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 : >"$tmp/versions"; : >"$tmp/forks"; : >"$tmp/policy"; : >"$tmp/errors"
@@ -181,6 +186,17 @@ else
   gap "policy: cannot read $policy"
 fi
 
+# --- scaffolds ---------------------------------------------------------------
+scaffolds_status=null
+if status_json="$(source_ scaffolds-status "$treadmill" scaffolds status --json)" &&
+  jq -e '.entries | type == "array"' <<<"$status_json" >/dev/null 2>&1; then
+  scaffolds_status="$status_json"
+else
+  gap "scaffolds-status: treadmill scaffolds status --json gave nothing"
+fi
+scaffolds_prune="$(source_ scaffolds-prune "$treadmill" scaffolds prune --days 30)" ||
+  gap "scaffolds-prune: treadmill scaffolds prune gave nothing"
+
 # --- assemble ---------------------------------------------------------------
 jq -n \
   --arg host "$(/usr/sbin/scutil --get LocalHostName 2>/dev/null || hostname -s)" \
@@ -193,10 +209,13 @@ jq -n \
   --slurpfile forks "$tmp/forks" \
   --slurpfile policy_refs "$tmp/policy" \
   --slurpfile errors "$tmp/errors" \
+  --argjson scaffolds_status "$scaffolds_status" \
+  --arg scaffolds_prune "${scaffolds_prune:-}" \
   '{host: $host, generated_at: $generated_at, date: $date,
     doctor: {status: $doctor_status, output: $doctor_out},
     versions: $versions, forks: $forks,
     policy: {file: $policy, refs: $policy_refs},
+    scaffolds: {status: $scaffolds_status, prune: $scaffolds_prune},
     errors: $errors}'
 
 [ -s "$tmp/errors" ] && exit 1

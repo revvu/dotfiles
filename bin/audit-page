@@ -13,8 +13,11 @@
 #      one version table (a row is "behind" when installed differs from latest,
 #      "overdue" when that latest release is older than four weeks, and flagged
 #      when its release notes mention breaking changes or security), the update
-#      lines for every row that is behind, the fork lag, the doctor's report,
-#      the policy references and the sources that did not answer
+#      lines for every row that is behind, the fork lag, the scaffold rows
+#      (treadmill scaffolds audit: one row per registry entry with the other
+#      machine's cell and this one's, one row for the workspace CLAUDE.md, then
+#      the prune candidates), the doctor's report, the policy references and
+#      the sources that did not answer
 #   2. asks Claude (claude -p, whatever account claude-swap has active) for the
 #      judgement section, what matters this week and what can wait, with a
 #      timeout; when Claude fails or times out the page still ships and says
@@ -31,6 +34,12 @@
 #   AUDIT_CLAUDE_TIMEOUT  seconds to wait for it (default 120)
 #   AUDIT_HOST            the host that builds the page when --scheduled (default mac)
 #   AUDIT_NOW             epoch seconds used as "now" for the four-week rule
+#   AUDIT_TREADMILL       the treadmill command (default the runner-main tree's
+#                         bin/treadmill in the gallopify playground)
+#
+# The other machine's scaffold cells come from the newest
+# drift/scaffolds-<host>.json in the inbox that is not this host's; without
+# one, its cells read "not reported".
 #
 # Every line it prints is a log line; the launchd agent sends them to
 # ~/Library/Logs/audit.log. Exit 0 when the page is pushed (or --scheduled
@@ -60,6 +69,7 @@ claude="${AUDIT_CLAUDE:-claude}"
 claude_timeout="${AUDIT_CLAUDE_TIMEOUT:-120}"
 want_host="${AUDIT_HOST:-mac}"
 now="${AUDIT_NOW:-$(date +%s)}"
+treadmill="${AUDIT_TREADMILL:-$HOME/github/gallopify-playground/treadmill-main/bin/treadmill}"
 here="$(cd "$(dirname "$0")" && pwd)"
 
 if [ "$scheduled" -eq 1 ]; then
@@ -176,6 +186,30 @@ fi
 # shellcheck disable=SC2016  # $now is jq's
 fork_rows="$(q '.forks[] | "<tr><td><span class=\"font-mono\">\(.fork | @html)</span><div class=\"text-xs muted\">upstream \(.upstream | @html)</div></td><td class=\"font-mono\">\(.behind // "?")</td><td class=\"font-mono\">\(.ahead // "?")</td><td>\(if .merge_base then (.merge_base | .[0:10]) + " <span class=\"muted text-xs\">" + (((($now - (.merge_base | fromdateiso8601)) / 86400) | floor | tostring)) + " d ago</span>" else "<span class=\"muted\">unknown</span>" end)</td></tr>"')"
 
+# --- scaffolds (treadmill scaffolds audit) -----------------------------------
+scaffolds_html="<p class=\"text-sm muted mt-3\">No scaffold status from this machine this week; see the sources that did not answer.</p>"
+if [ "$(q '.scaffolds.status != null')" = "true" ]; then
+  jq '.scaffolds.status' "$json" >"$tmp/scaffolds-here.json"
+  other=""
+  for f in "$inbox"/drift/scaffolds-*.json; do
+    [ -f "$f" ] && [ "$f" != "$inbox/drift/scaffolds-$host.json" ] && other="$f"
+  done
+  if [ -n "$other" ]; then
+    other_note="The other machine's cells are from <span class=\"font-mono\">drift/$(basename "$other")</span>, published $(git -C "$inbox" log -1 --format=%cs -- "drift/$(basename "$other")" 2>/dev/null || echo "on an unknown date")."
+  else
+    other="$tmp/scaffolds-other.json"
+    printf '{"host": "laptop", "workspace_claude_md": null, "entries": []}\n' >"$other"
+    other_note="No other machine has published drift/scaffolds-&lt;host&gt;.json to the inbox, so its cells read not reported."
+  fi
+  if rows="$("$treadmill" scaffolds audit "$other" "$tmp/scaffolds-here.json" 2>&1)"; then :
+  else rows="treadmill scaffolds audit failed: $rows"; fi
+  prune="$(q '.scaffolds.prune')"
+  scaffolds_html="<p class=\"text-sm muted mt-1\">One row per registry entry, the other machine's cell then this one's; ! marks drift: not on main, dirty, ahead, behind or missing. $other_note</p>
+<pre class=\"code mt-3\">$(jq -Rrs @html <<<"$rows")</pre>
+<p class=\"text-sm muted mt-3\">Prune candidates on $host (<code>treadmill scaffolds prune --days 30</code>, a dry run; <code>--apply</code> deletes them):</p>
+<pre class=\"code mt-2\">$(jq -Rrs @html <<<"${prune:-nothing listed}")</pre>"
+fi
+
 policy_rows="$(q '.policy.refs[] | "<tr><td class=\"font-mono\">\(.ref | @html)</td><td>\(.kind)</td><td>\(if .ok then "<span class=\"badge badge-sm badge-success badge-outline\">resolves</span>" else "<span class=\"badge badge-sm badge-error\">missing</span>" end)</td></tr>"')"
 [ -n "$policy_rows" ] || policy_rows='<tr><td colspan="3" class="muted">The policy has no ~/ paths or https links.</td></tr>'
 policy_file="$(q '.policy.file | @html')"
@@ -231,6 +265,8 @@ $version_rows</tbody></table></section>
 <table class="t mt-3"><thead><tr><th>fork</th><th>behind</th><th>ahead</th><th>merge base</th></tr></thead><tbody>
 $fork_rows</tbody></table>
 <p class="text-sm muted mt-2">$forks_word.</p></section>
+<section class="mt-10"><h2 class="text-xl font-semibold">Scaffolds</h2>
+$scaffolds_html</section>
 <section class="mt-10"><h2 class="text-xl font-semibold">Doctor</h2>
 <p class="text-sm muted mt-1"><code>bin/doctor</code> exited $doctor_status: $doctor_word.</p>
 <pre class="code mt-3">$doctor_output</pre></section>

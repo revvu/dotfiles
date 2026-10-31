@@ -1,0 +1,8 @@
+{
+ "host": "mac",
+ "workspace_claude_md": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+ "entries": [
+  {"name": "linear-skills", "kind": "scaffold", "present": true, "branch": "main", "sha": "a1b2c3d", "dirty": 0, "ahead": 0, "behind": 0, "last_commit": null, "last_used": null},
+  {"name": "inbox", "kind": "planning", "present": true, "branch": "main", "sha": "a1b2c3d", "dirty": 0, "ahead": 0, "behind": 20, "last_commit": null, "last_used": null}
+ ]
+}
