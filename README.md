@@ -55,7 +55,7 @@ Edit the config files in place, then apply:
 ./rebuild.sh
 ```
 
-Files under `home/` (Helix, WezTerm, herdr's `config.toml`, Claude's status line, the shared agent policy) are symlinked into place with `mkOutOfStoreSymlink`, so editing them here edits the live config — no rebuild needed.
+Files under `home/` (Helix, WezTerm, herdr's `config.toml`, Claude's status line, the shared agent policy and Reevu's reader portrait) are symlinked into place with `mkOutOfStoreSymlink`, so editing them here edits the live config — no rebuild needed.
 Rebuild only for changes to package lists or system defaults.
 
 Validate without applying:

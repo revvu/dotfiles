@@ -246,6 +246,14 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
   home.file.".pi/agent/AGENTS.md".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/global-agents.md";
+  # Reevu's reader portrait sits beside the policy in each location, so the
+  # policy can say "reevu.md beside this file" to every agent alike.
+  home.file.".claude/reevu.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/reevu.md";
+  home.file.".codex/reevu.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/reevu.md";
+  home.file.".pi/agent/reevu.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/reevu.md";
 
   # bin/doctor compares the live machine with what this evaluation declared,
   # so the declared sets are written out by the same evaluation. Brew items

@@ -39,6 +39,28 @@
 - A workspace `CLAUDE.md` routes to the scaffolds.
   Start project work from the scaffold directory so its rules and skills load.
 
+## Reader files
+
+Reevu's portrait is `reevu.md` beside this file: who he is, for anyone writing something he will read.
+Read it before writing to him.
+Change it only with Reevu; a line stays only if it changes what a writer does.
+
+@~/.claude/reevu.md
+
+- What he knows of a project is in the nearest `reevu.md` above the work: a scaffold's root, or an inbox page's folder.
+  A scaffold's `CLAUDE.md` imports it with `@reevu.md`.
+  Read it before writing to him.
+  Whatever your message rests on that is not in it goes in the working; if the code changed since a line's commit, show what changed.
+- A line enters a project `reevu.md` only when Reevu teaches it back: he explains it in his own words, and an agent checks it against the code and sources.
+  An idea he originated, said in his words, counts as taught.
+  Approvals, picked defaults and pages he was shown never enter; the code holds those.
+  A claim the code contradicts becomes one question, not a line; there is no score.
+  Each line records his words, the date, how it entered, and the commit it was checked against.
+- Ask for a teach-back once, when a line of thinking settles: "What did this settle, in your words?"
+  He can also start one.
+  Never ask in the middle of another ask.
+  Create the file, and its scaffold's import, at the first teach-back.
+
 ## Lavish skins
 
 Every project has a Lavish skin: the nearest `.lavish-shared/lavish-skin.css` above the artifact's directory, a DaisyUI 5 theme on the Tailwind v4 browser + DaisyUI CDN runtime.
