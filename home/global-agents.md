@@ -54,7 +54,7 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   Whatever your message rests on that is not in it goes in the working; if the code changed since a line's commit, show what changed.
   Below a group nothing is written: what he tells you on one task stays in that conversation.
 - A line enters a project `reevu.md` only when Reevu teaches it back: he explains it, in conversation or in something he wrote, and an agent checks it against the code and sources.
-  An idea he originated counts as taught.
+  An idea he originated counts as taught, including what he decided when he first described a project.
   Approvals, picked defaults and pages he was shown never enter; the code holds those.
   A claim the code contradicts becomes one question, not a line; there is no score.
   Lines compress what he understands, not how he said it: one intricacy he showed he grasps per line, with the date, how it entered, and the commit it was checked against.
