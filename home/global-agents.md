@@ -57,7 +57,9 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   An idea he originated counts as taught, including what he decided when he first described a project.
   Approvals, picked defaults and pages he was shown never enter; the code holds those.
   A claim the code contradicts becomes one question, not a line; there is no score.
-  Lines compress what he understands, not how he said it: one intricacy he showed he grasps per line, with the date, how it entered, and the commit it was checked against.
+  Lines compress what he understands, not how he said it: one idea per line, short but specific, with the date, how it entered, and the commit it was checked against.
+  Split a line that holds two ideas.
+  The compression comes after the check: his full answer and each claim's check go in the teach-back PR's description, so `git blame` on a line leads back to them.
 - Groups form in hindsight, inside one project: Reevu says "group these as X", or adds a task to a group.
   A new group is when to ask for a teach-back, through Treadmill's teach-back skill, whatever the project.
   It tests understanding, not memory: recall the problem and what got in the way, then ask one open question he can only answer by understanding it.
