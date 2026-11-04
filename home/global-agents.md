@@ -53,13 +53,13 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   Its top is the big picture of the project; each group of tasks he has named gets its own section below.
   Whatever your message rests on that is not in it goes in the working; if the code changed since a line's commit, show what changed.
   Below a group nothing is written: what he tells you on one task stays in that conversation.
-- A line enters a project `reevu.md` only when Reevu teaches it back: he explains it in his own words, and an agent checks it against the code and sources.
-  An idea he originated, said in his words, counts as taught.
+- A line enters a project `reevu.md` only when Reevu teaches it back: he explains it, in conversation or in something he wrote, and an agent checks it against the code and sources.
+  An idea he originated counts as taught.
   Approvals, picked defaults and pages he was shown never enter; the code holds those.
   A claim the code contradicts becomes one question, not a line; there is no score.
-  Each line records his words, the date, how it entered, and the commit it was checked against.
+  Lines compress what he understands, not how he said it: one intricacy he showed he grasps per line, with the date, how it entered, and the commit it was checked against.
 - Groups form in hindsight, inside one project: Reevu says "group these as X", or adds a task to a group.
-  A new group is when to ask for a teach-back: "What did this settle, in your words?"
+  A new group is when to ask for a teach-back: "What did this settle?"
   His answer becomes that group's section.
   He can also start one; never ask in the middle of another ask.
   When what he teaches bears on groups in other projects, give each its own version, in that group's terms and checked against that project's code.
