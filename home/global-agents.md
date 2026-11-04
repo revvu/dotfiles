@@ -59,7 +59,8 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   A claim the code contradicts becomes one question, not a line; there is no score.
   Lines compress what he understands, not how he said it: one intricacy he showed he grasps per line, with the date, how it entered, and the commit it was checked against.
 - Groups form in hindsight, inside one project: Reevu says "group these as X", or adds a task to a group.
-  A new group is when to ask for a teach-back: "What did this settle?"
+  A new group is when to ask for a teach-back, through Treadmill's teach-back skill, whatever the project.
+  It tests understanding, not memory: recall the problem and what got in the way, then ask one open question he can only answer by understanding it.
   His answer becomes that group's section.
   He can also start one; never ask in the middle of another ask.
   When what he teaches bears on groups in other projects, give each its own version, in that group's terms and checked against that project's code.
