@@ -70,21 +70,21 @@ denied() {
   [ -z "$output" ]
 }
 
-@test "git commit in the inbox: a staged page with the log passes" {
+@test "git commit in the inbox: a staged new page with the log passes" {
   git -C "$INBOX" add topic/reviewed.html
   run call "git commit -m page"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
 
-@test "git commit in the inbox: a staged page without the log is refused" {
+@test "git commit in the inbox: a staged new page without the log is refused" {
   git -C "$INBOX" add topic/unreviewed.html
   run call "git commit -m page"
   [ "$status" -eq 0 ]
   denied
 }
 
-@test "git add -A && git commit in the inbox sees the pages it is about to stage" {
+@test "git add -A && git commit in the inbox sees the new pages it is about to stage" {
   run call "git -C $INBOX add -A && git -C $INBOX commit -m pages" "$BATS_TEST_TMPDIR"
   [ "$status" -eq 0 ]
   denied
@@ -94,6 +94,25 @@ denied() {
 @test "git commit naming only the reviewed page passes" {
   run call "git add topic/reviewed.html README.md && git commit -m page"
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "git add naming a new page without the log, then commit, is refused" {
+  run call "git add topic/unreviewed.html && git commit -m page"
+  [ "$status" -eq 0 ]
+  denied
+}
+
+@test "git commit modifying an old page without the log passes" {
+  git -C "$INBOX" add topic/unreviewed.html
+  git -C "$INBOX" commit -qm "an old page, written before the review"
+  printf '<p>A log line.</p>\n' >>"$INBOX/topic/unreviewed.html"
+  run call "git add topic/unreviewed.html && git commit -m 'log line'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+  run call "git commit -am 'log line'"
+  [ -z "$output" ]
+  run call "git add -A && git commit -m 'log line'"
   [ -z "$output" ]
 }
 

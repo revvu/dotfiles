@@ -9,8 +9,11 @@
 #
 # Pages leave two ways from a Bash call:
 #   lavish-axi <page.html>, lavish-axi share <page.html>
-#   git commit in the inbox: the staged pages, the pages the command names,
-#   and every changed page when the command adds all (add -A/--all/., commit -a)
+#   git commit in the inbox: only the pages the commit adds (new files), that
+#   is the staged new pages, plus untracked pages the command names or adds
+#   all at once (add -A/--all/.). A commit that modifies an existing page
+#   passes: the inbox holds pages written before the review existed, and an
+#   appended log line is not a new page. lavish-axi checks every page.
 # Every other command passes at once, so a session that writes no page pays
 # nothing and sees nothing.
 #
@@ -92,19 +95,23 @@ if printf '%s' "$cmd" | grep -Eq '(^|[^[:alnum:]_-])git([[:space:]]+-[cC][[:spac
     top=$(cd "$top" && pwd -P)
     [ "$top" = "$inbox_top" ] || continue
     changed=()
+    # Staged new pages.
     while IFS= read -r f; do [ -n "$f" ] && changed+=("$top/$f"); done < <(
-      git -C "$top" diff --cached --name-only --diff-filter=AMR -- '*.html' '*.htm'
-      if printf '%s' "$cmd" | grep -Eq 'git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+add[[:space:]]+(.*[[:space:]])?(-A|--all|\.)([[:space:]]|$)'; then
-        git -C "$top" ls-files -m -o --exclude-standard -- '*.html' '*.htm'
-      elif printf '%s' "$cmd" | grep -Eq 'commit[[:space:]]+(.*[[:space:]])?(-a|-am|--all)([[:space:]]|$)|git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+add[[:space:]]+(.*[[:space:]])?-u([[:space:]]|$)'; then
-        git -C "$top" ls-files -m -- '*.html' '*.htm'
-      fi
+      git -C "$top" diff --cached --name-only --diff-filter=A -- '*.html' '*.htm'
     )
+    # Untracked pages, which this command adds if it adds all or names them.
+    add_all=
+    printf '%s' "$cmd" | grep -Eq 'git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+add[[:space:]]+(.*[[:space:]])?(-A|--all|\.)([[:space:]]|$)' && add_all=1
+    named=" "
     for w in "${words[@]}"; do
       case "$w" in
-        *.html | *.htm) f=$(resolve "$w") && case "$f" in "$top"/*) changed+=("$f") ;; esac ;;
+        *.html | *.htm) f=$(resolve "$w") && f=$(cd "${f%/*}" && pwd -P)/${f##*/} && named="$named$f " ;;
       esac
     done
+    while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      case "$add_all$named" in 1*| *" $top/$f "*) changed+=("$top/$f") ;; esac
+    done < <(git -C "$top" ls-files -o --exclude-standard -- '*.html' '*.htm')
     pages+=(${changed[@]+"${changed[@]}"})
     break
   done

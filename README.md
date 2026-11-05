@@ -77,7 +77,8 @@ Its tests run with `bats tests`.
 
 ## The Lavish publish check (added by hand)
 
-`bin/lavish-review-gate` is a Claude Code PreToolUse hook: it refuses `lavish-axi <page>`, `lavish-axi share <page>` and a `git commit` in the agent inbox when a page has no Reader review log, and its refusal names the `lavish-page` skill.
+`bin/lavish-review-gate` is a Claude Code PreToolUse hook: it refuses `lavish-axi <page>` and `lavish-axi share <page>` when the page has no Reader review log, and a `git commit` in the agent inbox when a page the commit adds (a new file) has none; its refusal names the `lavish-page` skill.
+A commit that only modifies an existing page passes, since the inbox holds pages written before the review existed.
 Any other Bash call passes at once with no output.
 Applying links it to `~/.claude/hooks/lavish-review-gate`.
 A fresh machine gets the hook from `settings.seed.json`; on a machine whose `settings.json` already exists, add it once by hand, then start a new session:
