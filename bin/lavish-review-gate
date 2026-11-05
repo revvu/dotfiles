@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# Claude Code PreToolUse hook (matcher Bash): refuses to publish a Lavish page
+# that has no Reader review log, and names the lavish-page skill in the refusal.
+#
+# Why this exists: the lavish-page skill and the policy line are prompts, and
+# a step in text can be skipped. This holds one invariant where pages leave:
+# no page reaches the reader without its review log. No library covers a
+# check on our own page format; tests/lavish-review-gate.bats freezes it.
+#
+# Pages leave two ways from a Bash call:
+#   lavish-axi <page.html>, lavish-axi share <page.html>
+#   git commit in the inbox: the staged pages, the pages the command names,
+#   and every changed page when the command adds all (add -A/--all/., commit -a)
+# Every other command passes at once, so a session that writes no page pays
+# nothing and sees nothing.
+#
+# A page has the log when it carries
+#   <summary>Reader review · N items, M claims · <date></summary>
+# (the shape the skill's step 5d gives).
+#
+# Input: the hook JSON on stdin (tool_input.command, cwd).
+# Output: a deny decision on stdout, or nothing (allow). Any error allows:
+# the hook never breaks a Bash call it cannot read.
+#
+#   LAVISH_REVIEW_INBOX   the inbox checkout (default ~/github/gallopify-playground/inbox)
+
+set -u
+
+input=$(cat)
+# Fast path: most Bash calls mention neither.
+case "$input" in
+  *lavish-axi* | *commit*) ;;
+  *) exit 0 ;;
+esac
+
+command -v jq >/dev/null 2>&1 || exit 0
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null) || exit 0
+[ -n "$cmd" ] || exit 0
+[ -n "$cwd" ] || cwd=$PWD
+inbox=${LAVISH_REVIEW_INBOX:-$HOME/github/gallopify-playground/inbox}
+
+expand() { # a path token -> absolute path, relative to $2
+  local p=${1/#\~/$HOME}
+  p=${p#\"}; p=${p%\"}; p=${p#\'}; p=${p%\'}
+  case "$p" in /*) printf '%s' "$p" ;; *) printf '%s/%s' "$2" "$p" ;; esac
+}
+
+has_log() {
+  tr '\n' ' ' <"$1" | grep -Eqi '<summary[^>]*>[^<]*Reader review[^<]*[0-9]+ items?[^<]*[0-9]+ claims?'
+}
+
+# Directories the command may run in: the cwd, then every cd and git -C target.
+dirs=("$cwd")
+read -r -a words <<<"$(printf '%s' "$cmd" | tr ';&|()' '     ')"
+for ((i = 0; i < ${#words[@]}; i++)); do
+  w=${words[i]}
+  if { [ "$w" = cd ] || [ "$w" = -C ]; } && [ $((i + 1)) -lt ${#words[@]} ]; then
+    d=$(expand "${words[i + 1]}" "$cwd")
+    [ -d "$d" ] && dirs+=("$d")
+  fi
+done
+
+resolve() { # a path token -> the first existing file among the dirs
+  local d f
+  for d in "${dirs[@]}"; do
+    f=$(expand "$1" "$d")
+    [ -f "$f" ] && { printf '%s' "$f"; return 0; }
+  done
+  return 1
+}
+
+pages=()
+
+# lavish-axi <page> and lavish-axi share <page>; its other subcommands
+# (poll, reply, end, export, stop, playbook, design) continue or leave a session.
+for ((i = 0; i < ${#words[@]}; i++)); do
+  [ "${words[i]##*/}" = lavish-axi ] || continue
+  j=$((i + 1))
+  [ "${words[j]:-}" = share ] && j=$((j + 1))
+  case "${words[j]:-}" in
+    *.html | *.htm) f=$(resolve "${words[j]}") && pages+=("$f") ;;
+  esac
+done
+
+# git commit in the inbox.
+if printf '%s' "$cmd" | grep -Eq '(^|[^[:alnum:]_-])git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+commit([[:space:]]|$)' &&
+  [ -d "$inbox" ]; then
+  inbox_top=$(cd "$inbox" && pwd -P)
+  for d in "${dirs[@]}"; do
+    top=$(git -C "$d" rev-parse --show-toplevel 2>/dev/null) || continue
+    top=$(cd "$top" && pwd -P)
+    [ "$top" = "$inbox_top" ] || continue
+    changed=()
+    while IFS= read -r f; do [ -n "$f" ] && changed+=("$top/$f"); done < <(
+      git -C "$top" diff --cached --name-only --diff-filter=AMR -- '*.html' '*.htm'
+      if printf '%s' "$cmd" | grep -Eq 'git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+add[[:space:]]+(.*[[:space:]])?(-A|--all|\.)([[:space:]]|$)'; then
+        git -C "$top" ls-files -m -o --exclude-standard -- '*.html' '*.htm'
+      elif printf '%s' "$cmd" | grep -Eq 'commit[[:space:]]+(.*[[:space:]])?(-a|-am|--all)([[:space:]]|$)|git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+add[[:space:]]+(.*[[:space:]])?-u([[:space:]]|$)'; then
+        git -C "$top" ls-files -m -- '*.html' '*.htm'
+      fi
+    )
+    for w in "${words[@]}"; do
+      case "$w" in
+        *.html | *.htm) f=$(resolve "$w") && case "$f" in "$top"/*) changed+=("$f") ;; esac ;;
+      esac
+    done
+    pages+=(${changed[@]+"${changed[@]}"})
+    break
+  done
+fi
+
+missing=()
+seen=" "
+for p in ${pages[@]+"${pages[@]}"}; do
+  case "$seen" in *" $p "*) continue ;; esac
+  seen="$seen$p "
+  [ -f "$p" ] || continue
+  has_log "$p" || missing+=("$p")
+done
+[ ${#missing[@]} -eq 0 ] && exit 0
+
+reason="Refused: no Reader review log in ${missing[*]}. Write the page with the lavish-page skill (load it with the Skill tool): its step 5 runs a fresh reviewer playing the reader and a fact judge in parallel, then ends the page with the log this check looks for, <summary>Reader review · N items, M claims · date</summary>. Never write the log without running the review."
+jq -n --arg r "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'

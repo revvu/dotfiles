@@ -30,6 +30,7 @@ The repo defines the environment and nothing else.
   Same rose-pine moon look, transparent background, italics off (theme override in `home/.config/helix/themes/`).
 - **One agent policy file.**
   `home/global-agents.md` is symlinked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and `~/.pi/agent/AGENTS.md`, so Claude, Codex, and Pi share one set of instructions.
+  The `lavish-page` skill (`home/skills/lavish-page`), which the policy names for every Lavish page, is symlinked into `~/.claude/skills/` and `~/.codex/skills/`.
   Codex also gets a system-level base config at `/etc/codex/config.toml`.
 - **Small fixes.**
   `rebuild.sh` calls `darwin-rebuild` by absolute path (sudo's `secure_path` doesn't include nix-darwin's bin).
@@ -73,6 +74,20 @@ bin/doctor
 
 It reads the Brewfile the current system activates and the declared sets home-manager writes to `~/.config/doctor/declared.json`, prints every unowned brew formula, cask, tap, npm global, uv tool, `~/.local/bin` entry and app-changed tracked file, and exits 1 if there are any.
 Its tests run with `bats tests`.
+
+## The Lavish publish check (added by hand)
+
+`bin/lavish-review-gate` is a Claude Code PreToolUse hook: it refuses `lavish-axi <page>`, `lavish-axi share <page>` and a `git commit` in the agent inbox when a page has no Reader review log, and its refusal names the `lavish-page` skill.
+Any other Bash call passes at once with no output.
+Applying links it to `~/.claude/hooks/lavish-review-gate`.
+A fresh machine gets the hook from `settings.seed.json`; on a machine whose `settings.json` already exists, add it once by hand, then start a new session:
+
+```sh
+jq '.hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "\"$HOME/.claude/hooks/lavish-review-gate\"", "timeout": 10}]}])' \
+  ~/.claude/settings.json > /tmp/settings.json && mv /tmp/settings.json ~/.claude/settings.json
+```
+
+Tests: `bats tests/lavish-review-gate.bats`.
 
 ## GUI apps (installed by hand)
 
@@ -132,6 +147,7 @@ Tests: `bats tests`, on the fixtures under `tests/fixtures/audit`.
 - `home/` - the actual config files that get symlinked into place.
 - `bin/doctor` - reports unowned items; `tests/doctor.bats` freezes its behaviour.
 - `bin/audit`, `bin/audit-page` - the weekly drift audit: facts as JSON, then the page pushed into the inbox; `tests/audit.bats` freezes both.
+- `bin/lavish-review-gate` - the Lavish publish check, a Claude Code hook; `tests/lavish-review-gate.bats` freezes it.
 - `.github/workflows/build.yml` - every PR and push to main runs the flake check, the full system build, shellcheck and the bats tests on a macOS runner.
 
 ## License

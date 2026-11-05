@@ -83,6 +83,8 @@ A reader who sees only the top of a page knows what is being solved and what it 
 - History, logs, evidence and unverified items go in collapsed sections or a linked page.
 - Use motion freely wherever it explains something (work flowing, state changing, progress filling), and always honour reduced motion.
 - The reference examples are `inbox/lavish/page-styles.html` (the options tried) and `inbox/firstmate/firstmate-resync.html` (the standard applied).
+- End every Lavish page with the `lavish-page` skill's review: a fresh agent playing Reevu lists what stops him acting, a fact judge checks the claims the page rests on, and the writer answers each item from evidence or marks it unknown.
+  This covers every Lavish file, prepped tasks included.
 
 ## UI design
 

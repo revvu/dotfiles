@@ -254,6 +254,17 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/reevu.md";
   home.file.".pi/agent/reevu.md".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/reevu.md";
+  # The lavish-page skill, which the policy's last Lavish line names, is linked
+  # into Claude's and Codex's skill folders so every session on every machine
+  # lists it. Pi is left out until its skill folder is known.
+  home.file.".claude/skills/lavish-page".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/lavish-page";
+  home.file.".codex/skills/lavish-page".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/lavish-page";
+  # The publish check for Lavish pages, a PreToolUse hook settings.json runs by
+  # absolute path (seeded on a fresh machine, added by hand elsewhere; README).
+  home.file.".claude/hooks/lavish-review-gate".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/bin/lavish-review-gate";
 
   # bin/doctor compares the live machine with what this evaluation declared,
   # so the declared sets are written out by the same evaluation. Brew items
