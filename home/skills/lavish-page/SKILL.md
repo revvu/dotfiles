@@ -57,6 +57,8 @@ History, evidence and per-item detail go in `<details>`.
 - Works at 390 px wide, with no horizontal scroll.
 - Every full sentence on its own line in the source.
 - The model pages are the ones the global policy names.
+- Under the headline, a **Related** line links the pages a reader of this one would look for next: the pages it builds on, answers or is weighed against, and their design boards.
+  Each link gets a few words on why, and uses the page's full address, so it works wherever the page is opened.
 
 ## 5. Reader review
 
@@ -155,4 +157,5 @@ The counts in the summary are the reviewer's items and the judge's claims.
 ## 6. Publish
 
 Publish the page the way its project does (a note command, a review session, or a commit with its index row).
+Then add this page to the Related line of each page it links, and republish those, so every link runs both ways.
 A page without a Reader review log is refused at publish, with a message naming this skill; the answer is to run step 5, never to write a log without it.
