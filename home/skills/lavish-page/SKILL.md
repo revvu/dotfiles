@@ -18,6 +18,13 @@ It covers every new Lavish file or rewrite, whoever writes it; an appended log l
   Each item goes into the page's working, introduced before it is used, or the page stops short of it.
 - His context is the chat plus pages he has opened.
   A name coined in a scratch file, a subagent report or a task outcome is unseen until the page introduces it; never use one bare.
+- Interim, until Lucidity's values are built into a proper system: read Lucidity's reader file, `~/github/gallopify-playground/lucidity-skills/reevu.md`, and skim the notes in `treadmill-tasks/notes/lucidity/` for the values they list.
+  The notes are the source; this list only points at them, so when they disagree, the notes win.
+  Every page applies these:
+  - An ask earns his attention only for what his input uniquely provides; anything another source holds goes there first (`what-needs-you`).
+  - Working, not conclusions: "2 + 1 + 1 = 4?", never "4?" (`knowledge-problem`, `information-flow`).
+  - Setting work aside should not leave him remembering that it is open; parked work keeps its place by itself (`what-needs-you`).
+  - What starts collapsed and the order things come in are attention choices: his moves lead, finished work leaves by itself (`attention`).
 
 ## 2. Show the working
 
@@ -99,6 +106,8 @@ You are the person described in <portrait>. Read <portrait> (that is you) and <p
 ```text
 You are a fact judge. Read <page>. From the page itself, pick the claims its headline and each of its decisions rest on; you choose them, not the writer. Check each against the primary sources: the code at <repo paths>, logs, command output, CI runs, commits and data you can query. A doc, README, contract or policy saying something is a claim to check, not a source. Mark each claim holds, wrong or unsupported, and give the evidence: a file and line, a log line, a run, a commit, or what you looked for and did not find. Judge facts only, not wording or layout. List the wrong ones first. Write to <dir>/facts.md.
 ```
+
+Interim, until Lucidity's values are built into a proper system: append to the reviewer prompt "Also read <Lucidity reader file> and the Lucidity ideas in step 1 of <this skill>, and list where the page breaks one."
 
 The reviewer holds no sources by design, so it cannot tell a confident wrong claim from a right one; the judge holds the sources, so it cannot tell what the reader has seen.
 Neither needs the other's output, so running them together costs no wall time.
