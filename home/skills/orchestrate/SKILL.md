@@ -28,7 +28,9 @@ For each piece of work, ask two questions: does it outlive this session, and doe
 | A read you need to write a good brief | You |
 
 Nothing else is yours to do.
-If you notice yourself on a third tool call for one piece, stop and delegate it.
+
+A Lavish page for Reevu lives in Treadmill: a task written with `treadmill-prep`, or a note under its project added with `treadmill note <project> <file>`.
+The inbox is only for one-off work that belongs to no Treadmill project.
 
 ## 2. Claim shared resources before dispatch
 
@@ -83,7 +85,7 @@ Follow Lucidity's `what-needs-you` and `information-flow` notes, and `lucidity-s
 - What remains goes to him as a self-contained decision: the context, the working ("2 + 1 + 1 = 4?", never "4?"), the options and a recommended default.
 - A question that is his to form, such as a want nobody has formed yet, carries no default (`lucidity-skills/AGENTS.md`).
 - Never send a bare list of pending questions.
-- A decision with several moving parts gets a page, written with `lavish-page`.
+- A decision with several moving parts gets a page, written with `lavish-page` and filed as a Treadmill note or task (section 1).
 
 ## 7. Speak only when something changed for him
 
