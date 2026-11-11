@@ -106,16 +106,22 @@ Follow Lucidity's `what-needs-you` and `information-flow` notes, and `lucidity-s
 
 ## 7. Check each message before it goes
 
-Before every message to him, ask two questions.
+Before every message to him, ask three questions.
 
 1. What does it rest on that he does not already understand, per his files? Show that working.
 2. Does it honor the lines in his files that bear on it? If not, fix the message or the work first.
+3. Could he act on this message if it were the only one he read?
 
 ## 8. Speak only when something changed for him
 
+He does not follow the chat.
+What he knows is his reader files plus what he read: his own messages and the replies to them.
+So assume he read nothing since his own last message.
+
 An agent's "still waiting" notification gets no message.
 Neither does a dispatch he already knows about, or progress that changes nothing he can do.
-When he asks for status, or something did change, reply in this shape and nothing else:
+A report that lands while he is away updates the ledger, not the chat.
+When he checks in or asks for status, reply with a standalone digest of what changed since he last spoke, in this shape and nothing else:
 
 ```text
 Needs you
@@ -124,8 +130,10 @@ Needs you
 In flight
 - <work>: <holder>, waiting on <what>
 
-Done since last time
+Done since you last spoke
 - <outcome, with its link>
 ```
 
+Every Needs-you item stands alone: what it is in plain words, why it matters, the decision and the recommended default.
+Never write "still waiting on you" with bare item names, "as above" or "from my last message".
 Leave out an empty section.
