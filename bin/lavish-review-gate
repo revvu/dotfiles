@@ -7,13 +7,16 @@
 # no page reaches the reader without its review log. No library covers a
 # check on our own page format; tests/lavish-review-gate.bats freezes it.
 #
-# Pages leave two ways from a Bash call:
+# Pages leave three ways from a Bash call:
 #   lavish-axi <page.html>, lavish-axi share <page.html>
-#   git commit in the inbox: only the pages the commit adds (new files), that
-#   is the staged new pages, plus untracked pages the command names or adds
-#   all at once (add -A/--all/.). A commit that modifies an existing page
-#   passes: the inbox holds pages written before the review existed, and an
-#   appended log line is not a new page. lavish-axi checks every page.
+#   treadmill note <project> <page.html>, which publishes a Treadmill note
+#   git commit in the inbox or the treadmill-tasks clone (where prepped tasks
+#   are committed): only the pages the commit adds (new files), that is the
+#   staged new pages, plus untracked pages the command names or adds all at
+#   once (add -A/--all/.). A commit that modifies or moves an existing page
+#   passes: both repos hold pages written before the review existed, and an
+#   appended log line or an outcome is not a new page. lavish-axi and
+#   treadmill note check every page they publish.
 # Every other command passes at once, so a session that writes no page pays
 # nothing and sees nothing.
 #
@@ -26,13 +29,14 @@
 # the hook never breaks a Bash call it cannot read.
 #
 #   LAVISH_REVIEW_INBOX   the inbox checkout (default ~/github/gallopify-playground/inbox)
+#   LAVISH_REVIEW_TASKS   the treadmill-tasks clone (default ~/github/gallopify-playground/treadmill-tasks)
 
 set -u
 
 input=$(cat)
 # Fast path: most Bash calls mention neither.
 case "$input" in
-  *lavish-axi* | *commit*) ;;
+  *lavish-axi* | *commit* | *treadmill*) ;;
   *) exit 0 ;;
 esac
 
@@ -42,6 +46,7 @@ cwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null) || exit 0
 [ -n "$cmd" ] || exit 0
 [ -n "$cwd" ] || cwd=$PWD
 inbox=${LAVISH_REVIEW_INBOX:-$HOME/github/gallopify-playground/inbox}
+tasks=${LAVISH_REVIEW_TASKS:-$HOME/github/gallopify-playground/treadmill-tasks}
 
 expand() { # a path token -> absolute path, relative to $2
   local p=${1/#\~/$HOME}
@@ -86,14 +91,27 @@ for ((i = 0; i < ${#words[@]}; i++)); do
   esac
 done
 
-# git commit in the inbox.
+# treadmill note <project> <page>: the first page after note.
+for ((i = 0; i < ${#words[@]}; i++)); do
+  [ "${words[i]##*/}" = treadmill ] && [ "${words[i + 1]:-}" = note ] || continue
+  for ((j = i + 2; j < ${#words[@]}; j++)); do
+    case "${words[j]}" in
+      *.html | *.htm) f=$(resolve "${words[j]}") && pages+=("$f"); break ;;
+    esac
+  done
+done
+
+# git commit in the inbox or the treadmill-tasks clone.
+gated=" "
+for r in "$inbox" "$tasks"; do
+  [ -d "$r" ] && gated="$gated$(cd "$r" && pwd -P) "
+done
 if printf '%s' "$cmd" | grep -Eq '(^|[^[:alnum:]_-])git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:space:]]+commit([[:space:]]|$)' &&
-  [ -d "$inbox" ]; then
-  inbox_top=$(cd "$inbox" && pwd -P)
+  [ "$gated" != " " ]; then
   for d in "${dirs[@]}"; do
     top=$(git -C "$d" rev-parse --show-toplevel 2>/dev/null) || continue
     top=$(cd "$top" && pwd -P)
-    [ "$top" = "$inbox_top" ] || continue
+    case "$gated" in *" $top "*) ;; *) continue ;; esac
     changed=()
     # Staged new pages.
     while IFS= read -r f; do [ -n "$f" ] && changed+=("$top/$f"); done < <(

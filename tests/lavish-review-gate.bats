@@ -2,13 +2,21 @@
 # Freezes bin/lavish-review-gate, the PreToolUse hook that refuses to publish
 # a Lavish page without its Reader review log. Each test feeds the hook the
 # JSON Claude Code sends and asserts on the decision: a deny naming the
-# lavish-page skill, or no output (allow). The inbox is a throwaway git repo
-# through LAVISH_REVIEW_INBOX.
+# lavish-page skill, or no output (allow). The inbox and the treadmill-tasks
+# clone are throwaway git repos through LAVISH_REVIEW_INBOX and
+# LAVISH_REVIEW_TASKS.
 
 setup() {
   GATE="$BATS_TEST_DIRNAME/../bin/lavish-review-gate"
   INBOX="$BATS_TEST_TMPDIR/inbox"
   export LAVISH_REVIEW_INBOX="$INBOX"
+  TASKS="$BATS_TEST_TMPDIR/treadmill-tasks"
+  export LAVISH_REVIEW_TASKS="$TASKS"
+  git init -q "$TASKS"
+  git -C "$TASKS" config user.name t
+  git -C "$TASKS" config user.email t@t
+  mkdir -p "$TASKS/backlog" "$TASKS/launch"
+  git -C "$TASKS" commit -q --allow-empty -m init
   git init -q "$INBOX"
   git -C "$INBOX" config user.name t
   git -C "$INBOX" config user.email t@t
@@ -122,6 +130,47 @@ denied() {
   cp "$INBOX/topic/unreviewed.html" "$OTHER/"
   git -C "$OTHER" add unreviewed.html
   run call "git commit -m page" "$OTHER"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "treadmill note: a page with the log passes, one without is refused" {
+  run call "uv run --no-project python \$RUNNER/bin/treadmill note schwab topic/reviewed.html"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+  run call "uv run --no-project python \$RUNNER/bin/treadmill note schwab topic/unreviewed.html"
+  [ "$status" -eq 0 ]
+  denied
+  echo "$output" | jq -e '.hookSpecificOutput.permissionDecisionReason | test("unreviewed.html")'
+}
+
+@test "treadmill commands other than note pass" {
+  run call "treadmill stage unreviewed Ledger && treadmill lint topic/unreviewed.html"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "git commit in the treadmill-tasks clone: a new task without the log is refused" {
+  cp "$INBOX/topic/unreviewed.html" "$TASKS/backlog/task.html"
+  run call "git -C $TASKS add backlog/task.html && git -C $TASKS commit -m 'prep: task' -- backlog/task.html" "$BATS_TEST_TMPDIR"
+  [ "$status" -eq 0 ]
+  denied
+  echo "$output" | jq -e '.hookSpecificOutput.permissionDecisionReason | test("backlog/task.html")'
+}
+
+@test "git commit in the treadmill-tasks clone: a new task with the log passes" {
+  cp "$INBOX/topic/reviewed.html" "$TASKS/backlog/task.html"
+  run call "git -C $TASKS add backlog/task.html && git -C $TASKS commit -m 'prep: task' -- backlog/task.html" "$BATS_TEST_TMPDIR"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "git commit moving an old task without the log passes" {
+  cp "$INBOX/topic/unreviewed.html" "$TASKS/backlog/task.html"
+  git -C "$TASKS" add backlog/task.html
+  git -C "$TASKS" commit -qm "an old task, written before the review"
+  git -C "$TASKS" mv backlog/task.html launch/task.html
+  run call "git commit -m 'launch: task'" "$TASKS"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
