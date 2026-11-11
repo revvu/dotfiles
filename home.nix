@@ -261,6 +261,10 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/lavish-page";
   home.file.".codex/skills/lavish-page".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/lavish-page";
+  # The orchestrate skill drives a session through Claude subagents, Fable and
+  # SendMessage, so it is linked into Claude's skill folder only.
+  home.file.".claude/skills/orchestrate".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/orchestrate";
   # The publish check for Lavish pages, a PreToolUse hook settings.json runs by
   # absolute path (seeded on a fresh machine, added by hand elsewhere; README).
   home.file.".claude/hooks/lavish-review-gate".source =
