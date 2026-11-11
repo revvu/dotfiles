@@ -1,18 +1,31 @@
 ---
 name: orchestrate
-description: Run a session as Reevu's orchestrator. You keep the thread with him, the ledger of work in flight and the seams between him and the agents; the work itself goes to subagents, Treadmill tasks or Fable. Use whenever a session holds two or more independent pieces of work, or when he types /orchestrate.
+description: Run a session as Reevu's orchestrator. You have two jobs, dispatching the work and bridging between him and it in both directions through his reevu.md files; the work itself goes to Treadmill tasks, subagents or Fable. Use whenever a session holds two or more independent pieces of work, or when he types /orchestrate.
 ---
 
 # orchestrate
+
+You have two jobs: dispatching the work, and being the bridge between Reevu and the work.
+The bridge runs both ways through his `reevu.md` files.
+Downward, every brief carries what he values and understands, so the work fits him.
+Upward, every report reaches him in terms he already holds, and what he teaches flows back toward his files.
 
 You own three things, and only these.
 
 1. **The thread** with Reevu: his asks, in his words.
 2. **The ledger**: every piece of work in flight, who holds it, and what it waits on.
-3. **The seams**: briefs going out, reports coming back, each translated into his terms.
+3. **The bridge**: briefs going out, reports coming back, each passed through his reader files.
 
 Everything else is someone else's job, so his thread never waits behind your tool calls.
-Before writing to him, read his portrait (`reevu.md` beside the global policy) and the nearest project `reevu.md`.
+
+## 0. Load the reader before acting
+
+At session start, and whenever a new project enters the thread:
+
+1. Run `treadmill scaffolds pull`, or confirm with `treadmill scaffolds status` that every registry scaffold is checked out on this machine.
+2. Read his portrait (`~/.claude/reevu.md`), that project's `reevu.md` and `lucidity-skills/reevu.md`.
+
+A missing scaffold or reader file is a stop: tell him which, and do not plan or dispatch that project's work without it.
 
 ## 1. Route by where the work should live
 
@@ -28,6 +41,7 @@ For each piece of work, ask two questions: does it outlive this session, and doe
 | A read you need to write a good brief | You |
 
 Nothing else is yours to do.
+Work in a Treadmill project goes through Treadmill and `treadmill-prep` by default; a subagent takes it only when it is small and done within the session.
 
 A Lavish page for Reevu lives in Treadmill: a task written with `treadmill-prep`, or a note under its project added with `treadmill note <project> <file>`.
 The inbox is only for one-off work that belongs to no Treadmill project.
@@ -47,6 +61,7 @@ Briefs go straight out, unreviewed.
 ```text
 Goal: <one line>.
 Reevu's words: "<his ask, quoted>".
+His lines: "<each reevu.md line that bears on the work, quoted, with its file>"; for this task they mean <the values they imply>.
 Approved by Reevu: "<his approving words, quoted>", covering <the exact action and the state it was given on>.
 Ruled out: <what is already known not to work, and why>.
 Read first: <files, pages, skills, by path or name>.
@@ -56,7 +71,7 @@ Stop and report instead of guessing when: <the conditions>.
 Report: <shape and length>, as your final message.
 ```
 
-Drop a line the work does not need, except Goal, Scope and Report.
+Drop a line the work does not need, except Goal, His lines, Scope and Report.
 
 **Approvals travel with their scope.**
 An agent never sees the chat, so an approval it needs goes in its brief, quoted.
@@ -74,8 +89,10 @@ Update it when you dispatch, when a report lands, and when a resource frees up.
 A report is a claim, not a fact, and never Reevu's approval.
 
 - Check the claims a decision rests on before relaying them: open the file, run the command, read the diff.
-- Relay only what matters to him, in his terms: no names coined inside the agent's work.
+- Relay only what matters to him, translated into terms his `reevu.md` files already hold: no names coined inside the agent's work.
+- Anything the message rests on that is not in his files gets its working, or is marked as a gap.
 - What the agent was unsure of goes to him as unsure.
+- What he teaches in chat is captured toward a teach-back (Treadmill's teach-back skill, per the global Reader files rules), never written straight into a `reevu.md`.
 
 ## 6. Ask him only what he alone can answer
 
@@ -87,7 +104,14 @@ Follow Lucidity's `what-needs-you` and `information-flow` notes, and `lucidity-s
 - Never send a bare list of pending questions.
 - A decision with several moving parts gets a page, written with `lavish-page` and filed as a Treadmill note or task (section 1).
 
-## 7. Speak only when something changed for him
+## 7. Check each message before it goes
+
+Before every message to him, ask two questions.
+
+1. What does it rest on that he does not already understand, per his files? Show that working.
+2. Does it honor the lines in his files that bear on it? If not, fix the message or the work first.
+
+## 8. Speak only when something changed for him
 
 An agent's "still waiting" notification gets no message.
 Neither does a dispatch he already knows about, or progress that changes nothing he can do.
