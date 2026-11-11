@@ -31,6 +31,7 @@ The repo defines the environment and nothing else.
 - **One agent policy file.**
   `home/global-agents.md` is symlinked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and `~/.pi/agent/AGENTS.md`, so Claude, Codex, and Pi share one set of instructions.
   The `lavish-page` skill (`home/skills/lavish-page`), which the policy names for every Lavish page, is symlinked into `~/.claude/skills/` and `~/.codex/skills/`.
+  The `orchestrate` skill (`home/skills/orchestrate`), which runs a session with several pieces of work through agents, is symlinked into `~/.claude/skills/` only, since it relies on Claude's subagents.
   Codex also gets a system-level base config at `/etc/codex/config.toml`.
 - **Small fixes.**
   `rebuild.sh` calls `darwin-rebuild` by absolute path (sudo's `secure_path` doesn't include nix-darwin's bin).
