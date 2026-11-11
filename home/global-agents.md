@@ -97,6 +97,7 @@ Each board is an option (being explored), ready (approved, not yet built) or liv
 Build from Paper's exact values (tokens, get_jsx, get_computed_styles), never from screenshots, and a screen is done only when its build, diffed against its board, shows no difference that data, live content or rendering noise does not explain.
 A screen built before its board enters Paper once, through the project's import tool, and follows these rules from then on.
 Claude makes Paper edits on the Fable model; each project's Paper scaffold names its files, states and tools.
+Any agent, a Treadmill worker included, runs Fable itself whenever it needs it: a subagent through the Agent tool with `model: "fable"`, or `claude -p --model fable` from the shell.
 
 ## no-mistakes
 
