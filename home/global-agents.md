@@ -62,10 +62,11 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   Lines compress what he understands, not how he said it: one idea per line, short but specific, with the date, how it entered, and the commit it was checked against.
   Split a line that holds two ideas.
   The compression comes after the check: his full answer and each claim's check go in the teach-back PR's description, so `git blame` on a line leads back to them.
-- Groups form in hindsight, inside one project: Reevu says "group these as X", or adds a task to a group.
-  A new group is when to ask for a teach-back, through Treadmill's teach-back skill, whatever the project.
+- Groups form inside one project, in either order: Reevu names one up front and it is then decomposed into the tasks that achieve it, or he groups tasks in hindsight ("group these as X"), or adds a task to a group.
+  Naming a group up front is his first teach-back, his first statement of intent: what he said it is for enters that group's section as his idea.
+  Ask for a teach-back, through Treadmill's teach-back skill, whatever the project, once a group has work to understand: when he groups tasks in hindsight, or when the tasks of a group he named up front are done.
   It tests understanding, not memory: recall the problem and what got in the way, then ask one open question he can only answer by understanding it.
-  His answer becomes that group's section.
+  His answer fills that group's section.
   He can also start one; never ask in the middle of another ask.
   When what he teaches bears on groups in other projects, give each its own version, in that group's terms and checked against that project's code.
   Create the file, and its scaffold's import, at the first teach-back.
