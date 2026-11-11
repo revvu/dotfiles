@@ -26,7 +26,9 @@
 - Every Lavish page layers conceptually: the problem and who it is for, the core idea and its words, the core mechanisms, the general architecture and stack, each part in depth, risks and alternatives, decisions, the plan, the log.
   Each section uses only concepts introduced before it; push detail down to its layer and leave a short summary above.
   `inbox/treadmill/treadmill.html` is the model.
-- In-progress pages live in the inbox, `~/github/gallopify-playground/inbox/`, not inside any project repo.
+- Project work, and the Lavish pages that plan or explain it, live in Treadmill, not in the inbox or inside a project repo.
+  A page that drives work is a task, written with the `treadmill-prep` skill; a page that drives no task (a plan, a glossary, a finding) is a note beside the project's tasks, added with `treadmill note <project> <file>`.
+- The inbox, `~/github/gallopify-playground/inbox/`, is only for one-off work that belongs to no Treadmill project.
   The inbox is its own private repo, `revvu/agent-inbox`, checked out at that path on every machine.
   Its `README.md` lists each page with its next step; keep that table current.
   Work sessions start by pulling and opening the inbox; commit and push after each page change, so the other machine can resume.
@@ -34,8 +36,8 @@
   Pull and push freely and expect other agents' commits to land between yours: no two agents touch the same file, so there is nothing to race on.
   The server pushes a weekly drift audit into the inbox, `drift/drift-<date>.html`, every Sunday night; a session that finds the newest drift row older than eight days says so.
   The audit only reports: the axi tools, no-mistakes, treehouse, cursor-agent and the casks are updated by hand, when its page says a release is out; Paper has no feed, its row shows the installed version per machine, and a gap between the two machines closes with a relaunch from the app.
-- Each project has a scaffold repo (for example `atomic-skills`, `linear-skills`) that holds its finished Lavish docs and the skills and scripts agents use in that context.
-  When a page's work is done, move it into the project's scaffold and remove its inbox row.
+- Each project has a scaffold repo (for example `atomic-skills`, `linear-skills`) that holds the skills and scripts agents use in that context.
+  When an inbox page's work is done, remove its inbox row.
 - A workspace `CLAUDE.md` routes to the scaffolds.
   Start project work from the scaffold directory so its rules and skills load.
 
