@@ -261,6 +261,12 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/lavish-page";
   home.file.".codex/skills/lavish-page".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/lavish-page";
+  # The systems-breakdown skill, which the policy routes exploratory work on a
+  # new project to, builds on lavish-page and is linked beside it.
+  home.file.".claude/skills/systems-breakdown".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/systems-breakdown";
+  home.file.".codex/skills/systems-breakdown".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/systems-breakdown";
   # The orchestrate skill drives a session through Claude subagents, Fable and
   # SendMessage, so it is linked into Claude's skill folder only.
   home.file.".claude/skills/orchestrate".source =

@@ -26,6 +26,7 @@
 - Every Lavish page layers conceptually: the problem and who it is for, the core idea and its words, the core mechanisms, the general architecture and stack, each part in depth, risks and alternatives, decisions, the plan, the log.
   Each section uses only concepts introduced before it; push detail down to its layer and leave a short summary above.
   `inbox/treadmill/treadmill.html` is the model.
+- Big-picture exploratory work on a new project or area (how it works end to end, what we must build) gets a mechanism-by-mechanism breakdown, written with the `systems-breakdown` skill.
 - Project work, and the Lavish pages that plan or explain it, live in Treadmill, not in the inbox or inside a project repo.
   A page that drives work is a task, written with the `treadmill-prep` skill; a page that drives no task (a plan, a glossary, a finding) is a note beside the project's tasks, added with `treadmill note <project> <file>`.
 - The inbox, `~/github/gallopify-playground/inbox/`, is only for one-off work that belongs to no Treadmill project.
