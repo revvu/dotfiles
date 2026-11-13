@@ -37,24 +37,60 @@ It covers every new Lavish file or rewrite, whoever writes it; an appended log l
 
 ## 3. Layer it
 
-Each section uses only concepts introduced above it; push detail down and leave a one-line summary above.
+A reader spends attention to find what he must understand or do; the page's job is to make that cheap (Pirolli and Card's information foraging).
+Five rules do it, on every kind of page.
+
+1. **Bottom line first.**
+   The first screen says what this is, where it stands and what it needs from whom, so a reader who stops there still acts rightly.
+   A page that proposes work (a task, a plan, a bug, a decision) says it in one paragraph starting "Problem:", at most three sentences: what we are solving, what done looks like, what it needs.
+   A page that reports on work (a map, a tracker, a report) leads with the verdict, then the asks grouped by who holds them.
+   Every ask is ready to act on: a verb first, what it unblocks, and the wait or the default.
+2. **Overview first, detail on demand.**
+   With nothing opened, the page shows the whole and every route into it.
+   Visible is what most readers need to act or to choose what to open; one open away is what some need; what no reader needs is deleted, not folded.
+   Nothing he must have to act is folded, and the reason for a recommendation stays beside it.
+   No fact is more than two opens from the default view.
+3. **Labels speak his language and say what is behind them.**
+   A heading, tile, row or link uses words from his reader files or defined above on this page, and tells him enough to decide whether to open it.
+   A section with one answer is headed by the answer; a collection is headed by its name.
+   A code or coined term appears only beside its meaning, or one open down.
+4. **One home per fact.**
+   Argue it once, at the shallowest place whose reader needs it; everywhere else mentions it in one line that links there.
+   A summary line above its detail is that mention, not a second telling.
+5. **One shape per kind, one meaning per signal.**
+   Items of the same kind have the same parts in the same order; a colour or chip means one thing on the whole page.
+   Keep apart what he acts on, what he reads to understand, what he looks up and what he audits.
+
+Sources, one line each:
+
+- Information foraging: Pirolli and Card, "Information Foraging", Psychological Review, 1999.
+- Bottom line first: the military BLUF convention and Minto's pyramid principle.
+- Overview first: Shneiderman, "The Eyes Have It", 1996; Nielsen, "Progressive Disclosure", 2006, which caps it at two levels.
+- Labels: Nielsen's heuristic 2, "match between system and the real world" (speak the users' language).
+- One home: DRY, "a single, authoritative representation" (Hunt and Thomas, 1999).
+- One shape: Gestalt similarity, Bertin's visual variables and Horn's information mapping.
+
+Each section uses only concepts introduced above it.
 The order, skipping layers the page does not need:
 
-1. Headline that states the situation, then a picture of the problem (where it breaks, what is missing, who holds each piece).
-2. One paragraph starting "Problem:", at most three sentences: what we are solving, what done looks like, what it needs.
-3. The core idea and its words: the few terms the rest of the page uses, defined once.
-4. The core mechanisms.
-5. The architecture and stack.
-6. Each part in depth.
-7. Risks and alternatives.
-8. Decisions.
-9. The plan.
-10. The log, collapsed, ending with the Reader review log (step 5).
+1. A title that names the thing, then the bottom line and the picture of the whole, both on the first screen where they fit.
+2. The core idea and its words: the few terms the rest of the page uses, defined once.
+3. The core mechanisms.
+4. The architecture and stack.
+5. Each part in depth.
+6. Risks and alternatives.
+7. Decisions.
+8. The plan.
+9. The log, collapsed, ending with the Reader review log (step 5).
 
-Under 120 words above the fold.
-Every section opens with a visual that its text only labels: a step track for builds and trackers, a diagram for systems and bugs, decision cards for anything waiting on him, a step-by-step table when he has to follow a mechanism in order.
-Headings state conclusions, not topics.
-History, evidence and per-item detail go in `<details>`.
+Every section opens with a visual that its text only labels: a step track for builds and trackers, a diagram or clickable map for systems and bugs, decision cards for anything waiting on him, a step-by-step table when he has to follow a mechanism in order.
+
+Before the review, apply two tests at 1280 and 390 px.
+
+- **Stop test**: cover everything below the first screen; can he say what this is, where it stands and what is asked of him?
+- **Split test**: each block in the default view is visible because most readers need it, one open down behind a label that says what it is because some do, or deleted because none do; anything he needs to act comes up.
+
+Word counts and screens tall are only a before-and-after diagnostic on a rewrite, never a target.
 
 ## 4. Build it
 
@@ -64,7 +100,7 @@ History, evidence and per-item detail go in `<details>`.
 - Works at 390 px wide, with no horizontal scroll.
 - Every full sentence on its own line in the source.
 - The model pages are the ones the global policy names.
-- Under the headline, a **Related** line links the pages a reader of this one would look for next: the pages it builds on, answers or is weighed against, and their design boards.
+- Under the title, a **Related** line links the pages a reader of this one would look for next: the pages it builds on, answers or is weighed against, and their design boards.
   Each link gets a few words on why, and uses the page's full address, so it works wherever the page is opened.
 
 ## 5. Reader review
@@ -104,7 +140,7 @@ You are the person described in <portrait>. Read <portrait> (that is you) and <p
 **Fact judge**, holding the sources:
 
 ```text
-You are a fact judge. Read <page>. From the page itself, pick the claims its headline and each of its decisions rest on; you choose them, not the writer. Check each against the primary sources: the code at <repo paths>, logs, command output, CI runs, commits and data you can query. A doc, README, contract or policy saying something is a claim to check, not a source. Mark each claim holds, wrong or unsupported, and give the evidence: a file and line, a log line, a run, a commit, or what you looked for and did not find. Judge facts only, not wording or layout. List the wrong ones first. Write to <dir>/facts.md.
+You are a fact judge. Read <page>. From the page itself, pick the claims its bottom line and each of its decisions rest on; you choose them, not the writer. Check each against the primary sources: the code at <repo paths>, logs, command output, CI runs, commits and data you can query. A doc, README, contract or policy saying something is a claim to check, not a source. Mark each claim holds, wrong or unsupported, and give the evidence: a file and line, a log line, a run, a commit, or what you looked for and did not find. Judge facts only, not wording or layout. List the wrong ones first. Write to <dir>/facts.md.
 ```
 
 Interim, until Lucidity's values are built into a proper system: append to the reviewer prompt "Also read <Lucidity reader file> and the Lucidity ideas in step 1 of <this skill>, and list where the page breaks one."
