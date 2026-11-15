@@ -271,6 +271,14 @@ in
   # SendMessage, so it is linked into Claude's skill folder only.
   home.file.".claude/skills/orchestrate".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/orchestrate";
+  # demo-kit's skills (filming a demo video, and sharing a Treadmill note to
+  # Slack #demos only on Reevu's word) live in the demo-kit repo, which every
+  # machine checks out at the same workspace path; linked so any project's
+  # session finds them.
+  home.file.".claude/skills/demo-video".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/gallopify-playground/demo-kit/.claude/skills/demo-video";
+  home.file.".claude/skills/note-post".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/github/gallopify-playground/demo-kit/.claude/skills/note-post";
   # The publish check for Lavish pages, a PreToolUse hook settings.json runs by
   # absolute path (seeded on a fresh machine, added by hand elsewhere; README).
   home.file.".claude/hooks/lavish-review-gate".source =
