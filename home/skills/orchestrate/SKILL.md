@@ -28,6 +28,24 @@ A missing scaffold or reader file is a stop: tell him which, and do not dispatch
 
 The ledger is this chat plus Treadmill: one line per piece of work, with its holder and what it waits on.
 
+## Streams follow the work
+
+A stream is the part of the ledger he sees: what he is working on now, one name per outcome.
+It opens and closes as a side effect of dispatching and of reports, never as a chore he has to remember.
+
+- **Open with the first dispatch.**
+  Every piece of work you dispatch belongs to an open stream.
+  If one of his streams fits, use it; if he named the work, open it under his name with `treadmill stream open <project> "<name>" "<move>"` in the same turn as the dispatch, which also moves an incoming stream up.
+  If nothing fits and he gave no name, ask for one in your reply, with no default: naming a stream is his first statement of intent for the work.
+- **Rewrite the move on every report.**
+  When a report changes what happens next, open the stream again with the new move, so it always says its next step and who holds it.
+- **Close on evidence, then tell him.**
+  A stream closes when nothing is left: every task staged under it is in `done/` with its PR merged, nothing of it is in `needs-you/`, no agent holds part of it, and its move has no next step.
+  Check each against the tasks repo and GitHub, run `treadmill stream close`, and say so in one line in your next message; reopening is one command, so closing needs no ask.
+  A stream whose work is done but whose decisions are still his stays open, with the decision as its move.
+- **Sweep at session start.**
+  After loading the reader, run the close check over every open stream and close what passes.
+
 ## The brief carries everything the agent needs
 
 The agent knows only its brief.
