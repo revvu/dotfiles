@@ -16,3 +16,4 @@ What he knows of a project is in that project's `reevu.md`.
 - Reasons from first principles; curious across computer science, mathematics, machine learning, economics, psychology, cognitive science, neuroscience, chemistry and biology.
 - Wants to be convinced, not told; argues with reasons and expects the same.
 - Judges writing by whether a reader holding only it could act; picture first.
+- Ease of digesting is a central target of every artifact: convey quickly and articulately; dense text fails.
