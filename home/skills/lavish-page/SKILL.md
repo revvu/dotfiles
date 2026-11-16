@@ -25,7 +25,7 @@ It covers every new Lavish file or rewrite, whoever writes it; an appended log l
   - An ask earns his attention only for what his input uniquely provides; anything another source holds goes there first (`what-needs-you`).
   - Working, not conclusions: "2 + 1 + 1 = 4?", never "4?" (`knowledge-problem`, `information-flow`).
   - Setting work aside should not leave him remembering that it is open; parked work keeps its place by itself (`what-needs-you`).
-  - What starts collapsed and the order things come in are attention choices: his moves lead, finished work leaves by itself (`attention`).
+  - What starts collapsed and the order things come in are attention choices: his moves lead, placed where they sit on the picture of the whole, and finished work leaves by itself (`attention`).
 
 ## 2. Show the working
 
@@ -47,7 +47,8 @@ The last three are about layout.
    The first screen says what this is, where it stands and what it needs from whom, so a reader who stops there still acts rightly.
    In that order: what the thing is for comes before where it stands, and where it stands comes before any ask.
    A page that proposes work (a task, a plan, a bug, a decision) says it in one paragraph starting "Problem:", at most three sentences: what we are solving, what done looks like, what it needs.
-   A page that reports on work (a map, a tracker, a report) leads with the verdict, then the asks grouped by who holds them.
+   A page that reports on work (a map, a tracker, a report) is built around the question its reader comes with ("what stands between us and the first trade?"): the verdict answers it, the picture of the whole is the answer's structure, and each status and ask sits on that picture beside the step it unblocks.
+   Asks are told once, there; a list by holder is a view of those same items, linked, never a second telling above the picture.
    Every ask is ready to act on: a verb first, what it is part of, what it unblocks, and the wait or the default.
 2. **A concept is introduced, by what it does, before it is used.**
    A concept counts as held only if his reader files hold it or the page introduced it above; what he was shown or told does not count.
@@ -76,6 +77,7 @@ The last three are about layout.
 Sources, one line each:
 
 - Information foraging: Pirolli and Card, "Information Foraging", Psychological Review, 1999.
+- The reader's question as the frame: Minto, "The Pyramid Principle", 1987, the top of the pyramid answers the question already in the reader's mind; Larkin and Simon, "Why a Diagram is (Sometimes) Worth Ten Thousand Words", Cognitive Science, 1987, a diagram indexes information by location, so what is used together is found together without search; Mayer, "Multimedia Learning", 2001, spatial contiguity, words placed beside the part of the picture they describe; Lucidity's `information-flow`, a record sits beside what it governs.
 - Bottom line first, situation before ask: the military BLUF convention; Minto's pyramid principle and its situation, complication, question, answer; Treadmill's information-economy page, `inbox/treadmill/treadmill-information-economy.html` (an ask arrives in one frame: what it is part of, what it unblocks).
 - Concepts before use: Ausubel, 1968, "the most important single factor influencing learning is what the learner already knows"; Lucidity's `learning-in-treadmill` (every ask names the concepts it rests on, held, stale or open); Nielsen's heuristic 2, speak the users' language.
 - Blackbox to the decision: his own method, "Black-box the flow, then follow each byte process by process" (Jun 26 and Jul 6, 2026, in `inbox/reader/scratch/portrait/all/own-words.md`); Parnas, "On the Criteria To Be Used in Decomposing Systems into Modules", 1972 (information hiding); Hayek, 1945, "how little the individual participants need to know in order to be able to take the right action", as Lucidity's `information-flow` uses it.
@@ -152,7 +154,7 @@ Fill in only the paths; the prompts are fixed.
 ```text
 You are the person described in <portrait>. Read <portrait> (that is you) and <project reader file>; the concepts you hold are the ones those two files hold, and no others. <seen.md> is what you asked and what you were shown or told on this topic; shown is not understood, so a name there is one you may recognise, not a concept you hold. That and the page are all you know, so open no other file. Read <page> as yourself, top to bottom, and look at it as rendered in <screenshots> at 1280 and 390 px.
 You think in concepts, not terms: a concept is an idea with a job, what it is, what it does and why it matters here. First restate each decision on the page in one line: what is being chosen, why, and which part you would doubt; any you cannot restate is your first item. Then judge the page's information design, section by section:
-1. Order: is each concept one you hold or one the page introduced above it, by what it does? Do you know what this is and where it stands before anything is asked of you?
+1. Order: what question did you come to this page with, and is the page built around it, with the verdict answering it and each ask placed on the picture of the whole beside what it unblocks, rather than in a list above it or told twice? Is each concept one you hold or one the page introduced above it, by what it does? Do you know what this is and where it stands before anything is asked of you?
 2. Handles: does a label from the writer's process (a step or PR number, a decision id, a check's result such as "0 differences") stand where the concept it names should be?
 3. Blackboxing: for the decision at hand, does the page show what the choice turns on and close what does not change it? Is something you need closed, or something you don't need open?
 4. Abstraction: does each section stay at one level, the whole before its parts, with units that are what the decision is about rather than how the work was organised?
