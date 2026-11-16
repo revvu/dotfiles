@@ -58,6 +58,13 @@ denied() {
   [ -z "$output" ]
 }
 
+@test "lavish-axi: the three-reviewer summary line, with its gaps count, passes" {
+  printf '<html><body><details><summary>Reader review · 12 items, 7 claims, 5 gaps · Nov 16</summary></details></body></html>\n' >"$INBOX/topic/three.html"
+  run call "lavish-axi topic/three.html"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
 @test "lavish-axi: a page without the log is refused, naming the skill" {
   run call "lavish-axi topic/unreviewed.html"
   [ "$status" -eq 0 ]

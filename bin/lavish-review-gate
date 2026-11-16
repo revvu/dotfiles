@@ -145,5 +145,5 @@ for p in ${pages[@]+"${pages[@]}"}; do
 done
 [ ${#missing[@]} -eq 0 ] && exit 0
 
-reason="Refused: no Reader review log in ${missing[*]}. Write the page with the lavish-page skill (load it with the Skill tool): its step 5 runs a fresh reviewer playing the reader and a fact judge in parallel, then ends the page with the log this check looks for, <summary>Reader review · N items, M claims · date</summary>. Never write the log without running the review."
+reason="Refused: no Reader review log in ${missing[*]}. Write the page with the lavish-page skill (load it with the Skill tool): its step 5 runs a fresh reviewer playing the reader, a fact judge and an agent reader in parallel, then ends the page with the log this check looks for, <summary>Reader review · N items, M claims · date</summary>. Never write the log without running the review."
 jq -n --arg r "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'
