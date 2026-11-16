@@ -17,3 +17,4 @@ What he knows of a project is in that project's `reevu.md`.
 - Wants to be convinced, not told; argues with reasons and expects the same.
 - Judges writing by whether a reader holding only it could act; picture first.
 - Ease of digesting is a central target of every artifact: convey quickly and articulately; dense text fails.
+- Folds divide readers: the default view holds blackboxes at the level of his decisions; behind a closed fold is complete context for an agent.
