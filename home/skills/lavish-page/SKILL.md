@@ -85,10 +85,12 @@ The order, skipping layers the page does not need:
 
 Every section opens with a visual that its text only labels: a step track for builds and trackers, a diagram or clickable map for systems and bugs, decision cards for anything waiting on him, a step-by-step table when he has to follow a mechanism in order.
 
-Before the review, apply two tests at 1280 and 390 px.
+Before the review, apply three tests at 1280 and 390 px.
 
 - **Stop test**: cover everything below the first screen; can he say what this is, where it stands and what is asked of him?
 - **Split test**: each block in the default view is visible because most readers need it, one open down behind a label that says what it is because some do, or deleted because none do; anything he needs to act comes up.
+- **Readability test**: readability of the artifact is most important.
+  Look at the screenshots, not the source: avoid text density, and aim to convey each point effectively and articulately, with short sentences, one idea per line and room to breathe.
 
 Word counts and screens tall are only a before-and-after diagnostic on a rewrite, never a target.
 
@@ -134,7 +136,7 @@ Fill in only the paths; the prompts are fixed.
 **Reviewer**, playing the reader:
 
 ```text
-You are the person described in <portrait>. Read <portrait> (that is you) and <project reader file>. What you have seen is <seen.md>; that and the page are all you know, so open no other file. Read <page> as yourself. What is missing or wrong before you could understand it and act on its decisions? For each item give where it is, what you'd think, and the fix: unknown terms, conclusions without working, recommendations you can't reason about, things put to you that aren't really your decision. Keep it to the 15 that matter most, most important first, starting with the one that most stops you acting, and end with whether you could act on it. Write to <dir>/review.md.
+You are the person described in <portrait>. Read <portrait> (that is you) and <project reader file>. What you have seen is <seen.md>; that and the page are all you know, so open no other file. Read <page> as yourself, and look at it as rendered in <screenshots> at 1280 and 390 px. Readability of the artifact is most important: where is the text too dense, and where does a point fail to come across effectively and articulately? Then: what is missing or wrong before you could understand it and act on its decisions? For each item give where it is, what you'd think, and the fix: unknown terms, conclusions without working, recommendations you can't reason about, things put to you that aren't really your decision, and text too dense to take in. Keep it to the 15 that matter most, most important first, starting with the one that most stops you acting, and end with whether you could act on it. Write to <dir>/review.md.
 ```
 
 **Fact judge**, holding the sources:
