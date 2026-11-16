@@ -57,6 +57,8 @@ in
     tree
     actionlint
     shellcheck
+    sentry-cli  # error tracking: `sentry-cli login` stores the token in ~/.sentryclirc
+    monolith    # demo-kit note-post inlines a note into one file
     # the font everything renders in
     nerd-fonts.hack
   ];
