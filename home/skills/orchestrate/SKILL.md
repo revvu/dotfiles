@@ -37,8 +37,12 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
   Every piece of work you dispatch belongs to an open stream.
   If one of his streams fits, use it; if he named the work, open it under his name with `treadmill stream open <project> "<name>" "<move>"` in the same turn as the dispatch, which also moves an incoming stream up.
   If nothing fits and he gave no name, ask for one in your reply, with no default: naming a stream is his first statement of intent for the work.
+- **Everything for him lands in the stream.**
+  Every note and task the stream's work produces is staged into it with `treadmill stage <slug> "<stream>"` the moment it is published or prepped, so it shows under the stream as something to read or launch, one click away.
+  Put that step in every brief that publishes or preps, and check the stage files when the report comes in; a page he asked for that is not staged is not delivered.
 - **Rewrite the move on every report.**
   When a report changes what happens next, open the stream again with the new move, so it always says its next step and who holds it.
+  The move names his part in his words: which notes to read, which task to launch, which question to answer.
 - **Close on evidence, then tell him.**
   A stream closes when nothing is left: every task staged under it is in `done/` with its PR merged, nothing of it is in `needs-you/`, no agent holds part of it, and its move has no next step.
   Check each against the tasks repo and GitHub, run `treadmill stream close`, and say so in one line in your next message; reopening is one command, so closing needs no ask.
