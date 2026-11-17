@@ -12,6 +12,11 @@ let
     "lavish-axi" = "lavish-axi";
     "tasks-axi" = "tasks-axi";
     "quota-axi" = "quota-axi";
+    # Sentry's agent CLI (getsentry/toolkit). npm over a pinned nix fetch of the
+    # release binary: one bundled file with no dependencies, the same version
+    # as the binary, `sentry cli upgrade` updates it in place, and the weekly
+    # audit reports it when npm has a newer one. Auth lives in its own store.
+    "sentry" = "sentry";
   };
   # Python CLIs that ship only on PyPI, installed as isolated uv tools. Same
   # rule as Homebrew and npm: declared here, never installed ad-hoc. Keyed by
@@ -57,7 +62,6 @@ in
     tree
     actionlint
     shellcheck
-    sentry-cli  # error tracking: `sentry-cli login` stores the token in ~/.sentryclirc
     monolith    # demo-kit note-post inlines a note into one file
     # the font everything renders in
     nerd-fonts.hack
