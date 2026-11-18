@@ -64,7 +64,12 @@ He elevates nothing; you decide what reaches him.
 
 - **The open streams are your work list.**
   At session start, and each time a watch fires, read every open stream, its move, and its tasks' places in the tasks repo, then decide each one's next step.
-  Keep a watch running while any stream is open: a `Monitor` on `needs-you/` and `done/` in the tasks repo, re-armed whenever it expires.
+  Keep the feed running while any stream is open.
+  At session start, run `bin/treadmill feed` in `~/github/gallopify-playground/treadmill` once and act on each line: every task that reached Needs you or Done since the last read, even while no session ran.
+  Then arm a `Monitor` on `bin/treadmill feed --follow` at its 30-minute maximum, re-armed whenever it expires; it resumes where the last read stopped.
+  Each line names the kind, task, project and stream; read the task's state in the tasks repo before acting, and check its PR with `gh` on a done line.
+  A `feed: fetch failing` line means the feed cannot reach GitHub; a `down` line means the server's tick is failing.
+  Run one orchestrator per machine: a second feed exits saying another is reading.
 - **Take the next step yourself when the specification settles it.**
   - Answer a stop from the stream's specification, or with the stop's recommended default when it is a small call, then relaunch.
   - Prep the stream's next task.
