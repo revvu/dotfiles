@@ -285,8 +285,9 @@ in
   # by the dev.treadmill.shepard job; Claude only, beside orchestrate.
   home.file.".claude/skills/shepard".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/shepard";
-  # to-server hands the laptop's work to the Shepard and a new herdr worker on
-  # the server so Reevu can close the laptop; Claude only, beside orchestrate.
+  # to-server hands the laptop's work to the server so Reevu can close the
+  # laptop: a stream per piece of work, and a server Orchestrator that preps and
+  # launches each piece as a task in its stream; Claude only, beside orchestrate.
   home.file.".claude/skills/to-server".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/to-server";
   # demo-kit's skills (filming a demo video, and sharing a Treadmill note to
