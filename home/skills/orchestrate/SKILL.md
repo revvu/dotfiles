@@ -36,7 +36,7 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
 - **Open with the first dispatch.**
   Every piece of work you dispatch belongs to an open stream.
   If one of his streams fits, use it; if he named the work, open it under his name with `treadmill stream open <project> "<name>" "<move>"` in the same turn as the dispatch, which also moves an incoming stream up.
-  If nothing fits and he gave no name, ask for one in your reply, with no default: naming a stream is his first statement of intent for the work.
+  If nothing fits and he gave no name, ask for one (in your reply if he is asking, else as a `needs-you` ledger line), with no default: naming a stream is his first statement of intent for the work.
 - **Everything for him lands in the stream.**
   Every note and task the stream's work produces is staged into it with `treadmill stage <slug> "<stream>"` the moment it is published or prepped, so it shows under the stream as something to read or launch, one click away.
   Put that step in every brief that publishes or preps, and check the stage files when the report comes in; a page he asked for that is not staged is not delivered.
@@ -45,13 +45,13 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
   The move names his part in his words: which notes to read, which task to launch, which question to answer.
 - **Close on evidence, then tell him.**
   A stream closes when nothing is left: every task staged under it is in `done/` with its PR merged, nothing of it is in `needs-you/`, no agent holds part of it, and its move has no next step.
-  Check each against the tasks repo and GitHub, run `treadmill stream close`, and say so in one line in your next message; reopening is one command, so closing needs no ask.
+  Check each against the tasks repo and GitHub, run `treadmill stream close`, and record it as a `done` ledger line; reopening is one command, so closing needs no ask.
   A stream whose work is done but whose next step is still his stays open, with that step as its move:
   - a decision only he can make;
   - a teach-back that is expected, such as on theory notes or a new integration;
   - his own big-picture work on it: understanding what was built, or planning what comes next (the Schwab integration, Nov 18).
 
-  When in doubt whether a finished stream is his to come back to, leave it open and say so in one line; closing it is his call then.
+  When in doubt whether a finished stream is his to come back to, leave it open and record that as a `needs-you` ledger line; closing it is his call then.
 - **Sweep at session start.**
   After loading the reader, run the close check over every open stream and close what passes.
 
@@ -76,7 +76,7 @@ He elevates nothing; you decide what reaches him.
   - A guard that refused an action.
   - A step that would take the work beyond its specification, such as production, another stream's work, or a new outcome.
 
-  Elevating means the stream's move names his part, and the item goes in your next message's Needs-you list, with its working and a default where one exists.
+  Elevating means the stream's move names his part, and a `needs-you` line in the ledger carries it, with its working and a default where one exists; `catch-me-up` shows it to him.
   Keep driving the rest of the stream around it.
 - **Never covered by a stream:** production and promotion, anything a refused permission blocked, and any action his files or a project's rules forbid.
 
@@ -104,20 +104,23 @@ Report: <shape and length>, as your final message.
   A question his to form gets no default.
   A decision with several moving parts gets a page, written with `lavish-page` and filed in Treadmill.
 - What he teaches in chat goes toward a teach-back, per the global Reader files rules, never straight into a `reevu.md`.
-- Speak only when something changed for him.
-  A "still waiting" notification, a dispatch he knows about or progress that changes nothing he can do gets no message.
-- **Every reply to him opens with what he missed.**
-  His last message marks the last time he read the chat; he rarely follows it between his messages (Nov 18).
-  So each reply to a message of his, however short or off-topic his message, opens with what changed since his previous message: what finished, what is still running, then the numbered Needs-you list, each item with its link, working and default.
-  Then answer what he sent.
-  When nothing changed, say so in one line.
+- **Silent between his messages; the ledger holds what happened.**
+  He reads only what he asks for (Nov 18): chat that piles up between his messages blurs what he has seen with what he has not.
+  So a report, a finished task, a stop you answered or a watch that fired gets no message.
+  Record it instead, as one line in the ledger, `~/.claude/orchestrate/ledger.md` (create it if missing): `<ISO time> <kind> <project/stream> — <what changed, in his words> <link>`, where kind is `done`, `started`, `answered`, `merged`, `needs-you` or `note`.
+  A `needs-you` line carries its working and default, so the catch-up can show it whole.
+  When the harness makes you end a turn with text, write nothing more than "Recorded."
+- **Reply to his message, and only to it.**
+  When he writes, answer what he wrote, with the working it needs; do not add what else happened.
+  What else happened is the `catch-me-up` skill's job: he runs it when he wants it, and it prints everything since the last catch-up, then marks the ledger.
+  The only exception is something that cannot wait for his next catch-up (production at risk, money moving, a deadline today): send that one item, and record it as usual.
 
-Before every message, three checks:
+Before every reply, and in every catch-up, three checks:
 
 1. What does it rest on that his files do not hold?
    Show that working in his terms, and mark what the agent was unsure of as unsure.
 2. Does it honour the lines in his files that bear on it?
    If not, fix the message or the work first.
 3. Could he act on it if it were the only message he read?
-   He has not read the chat since his own last message.
+   He reads nothing between his messages except a catch-up.
    So never "as above" or bare item names.
