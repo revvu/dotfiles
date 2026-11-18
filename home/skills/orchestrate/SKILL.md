@@ -63,18 +63,17 @@ Within that, the next step is yours to take, not his to approve.
 He elevates nothing; you decide what reaches him.
 
 - **The open streams are your work list.**
-  At session start, and each time a watch fires, read every open stream, its move, and its tasks' places in the tasks repo, then decide each one's next step.
-  Keep the feed running while any stream is open.
-  At session start, run `bin/treadmill feed` in `~/github/gallopify-playground/treadmill` once and act on each line: every task that reached Needs you or Done since the last read, even while no session ran.
-  Then arm a `Monitor` on `bin/treadmill feed --follow` at its 30-minute maximum, re-armed whenever it expires; it resumes where the last read stopped.
-  Each line names the kind, task, project and stream; read the task's state in the tasks repo before acting, and check its PR with `gh` on a done line.
+  At session start, run `bin/treadmill feed` once, then `bin/treadmill stream list`, both in `~/github/gallopify-playground/treadmill`.
+  Arm a `Monitor` on `bin/treadmill feed --follow` at its 30-minute maximum and re-arm it whenever it expires; it resumes where the last read stopped.
+  On every feed line and every re-arm, run `bin/treadmill stream list` and act on each line that needs a step: a stopped task (answer or elevate it); a `wait=merge` or `task-pr` (get the PR merged or fixed); a `wait=reevu-merge` (bring it to Reevu); `task-idle` (launch or re-chain the named task); `scaffold` or `bad-chain` (clear it); a stream with nothing running or queued and work left (prep its next task); a stream with `open=0` (check it with `gh` and close it).
+  Act only on tasks in open streams; a held line for a task in no open stream is noted, not acted on.
   A `feed: fetch failing` line means the feed cannot reach GitHub; a `down` line means the server's tick is failing.
   Run one orchestrator per machine: a second feed exits saying another is reading.
 - **Take the next step yourself when the specification settles it.**
   - Answer a stop from the stream's specification, or with the stop's recommended default when it is a small call, then relaunch.
   - Prep the stream's next task.
   - Fix a break the stream's own work caused.
-  - Merge the stream's PRs to staging once CI is green, they are mergeable and no-mistakes has reached checks-passed; check the claims first, as for any report.
+  - The tick merges each done task's PR once GitHub reports it ready; do not merge them yourself. Merge only a PR whose task carries data-merge="reevu", and only after Reevu has approved it in chat. Report merged PRs from the merged events or gh.
 - **Elevate only what the specification cannot settle.**
   - A decision only he can make: it changes the outcome, or his files and the stream's pages do not answer it.
   - Access only he holds: a login, a console, or a permission that was refused.
