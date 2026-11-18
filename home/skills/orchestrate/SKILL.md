@@ -36,7 +36,7 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
 - **Open with the first dispatch.**
   Every piece of work you dispatch belongs to an open stream.
   If one of his streams fits, use it; if he named the work, open it under his name with `treadmill stream open <project> "<name>" "<move>"` in the same turn as the dispatch, which also moves an incoming stream up.
-  If nothing fits and he gave no name, ask for one (in your reply if he is asking, else as a `needs-you` ledger line), with no default: naming a stream is his first statement of intent for the work.
+  If nothing fits and he gave no name, ask for one (in your reply if he is asking, else as an item in the needs buffer), with no default: naming a stream is his first statement of intent for the work.
 - **Everything for him lands in the stream.**
   Every note and task the stream's work produces is staged into it with `treadmill stage <slug> "<stream>"` the moment it is published or prepped, so it shows under the stream as something to read or launch, one click away.
   Put that step in every brief that publishes or preps, and check the stage files when the report comes in; a page he asked for that is not staged is not delivered.
@@ -45,13 +45,13 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
   The move names his part in his words: which notes to read, which task to launch, which question to answer.
 - **Close on evidence, then tell him.**
   A stream closes when nothing is left: every task staged under it is in `done/` with its PR merged, nothing of it is in `needs-you/`, no agent holds part of it, and its move has no next step.
-  Check each against the tasks repo and GitHub, run `treadmill stream close`, and record it as a `done` ledger line; reopening is one command, so closing needs no ask.
+  Check each against the tasks repo and GitHub, run `treadmill stream close`, and say nothing: a closed stream needs nothing from him; reopening is one command, so closing needs no ask.
   A stream whose work is done but whose next step is still his stays open, with that step as its move:
   - a decision only he can make;
   - a teach-back that is expected, such as on theory notes or a new integration;
   - his own big-picture work on it: understanding what was built, or planning what comes next (the Schwab integration, Nov 18).
 
-  When in doubt whether a finished stream is his to come back to, leave it open and record that as a `needs-you` ledger line; closing it is his call then.
+  When in doubt whether a finished stream is his to come back to, leave it open and put that question in the needs buffer; closing it is his call then.
 - **Sweep at session start.**
   After loading the reader, run the close check over every open stream and close what passes.
 
@@ -76,7 +76,7 @@ He elevates nothing; you decide what reaches him.
   - A guard that refused an action.
   - A step that would take the work beyond its specification, such as production, another stream's work, or a new outcome.
 
-  Elevating means the stream's move names his part, and a `needs-you` line in the ledger carries it, with its working and a default where one exists; `catch-me-up` shows it to him.
+  Elevating means the stream's move names his part, and an item in the needs buffer carries it, with its working and a default where one exists; `catch-me-up` shows it to him.
   Keep driving the rest of the stream around it.
 - **Never covered by a stream:** production and promotion, anything a refused permission blocked, and any action his files or a project's rules forbid.
 
@@ -104,16 +104,20 @@ Report: <shape and length>, as your final message.
   A question his to form gets no default.
   A decision with several moving parts gets a page, written with `lavish-page` and filed in Treadmill.
 - What he teaches in chat goes toward a teach-back, per the global Reader files rules, never straight into a `reevu.md`.
-- **Silent between his messages; the ledger holds what happened.**
+- **Silent between his messages; the needs buffer holds what is his.**
   He reads only what he asks for (Nov 18): chat that piles up between his messages blurs what he has seen with what he has not.
   So a report, a finished task, a stop you answered or a watch that fired gets no message.
-  Record it instead, as one line in the ledger, `~/.claude/orchestrate/ledger.md` (create it if missing): `<ISO time> <kind> <project/stream> — <what changed, in his words> <link>`, where kind is `done`, `started`, `answered`, `merged`, `needs-you` or `note`.
-  A `needs-you` line carries its working and default, so the catch-up can show it whole.
+  What reaches him is only what needs him, kept in the needs buffer, `~/.claude/orchestrate/needs/`: one file per need, named by a short slug, holding what he decides or does, its stream, its link, the working and a recommended default (none when the question is his to form), and the date it came in.
+  - **A need comes in**: write its file.
+    Work that needs nothing from him never enters; work he should read or learn from enters as a need to read it, such as a teach-back.
+  - **A need changes**: rewrite its file in place, so it says the need as it stands now, not its history.
+  - **He resolves one**: when his message answers or settles it, act on the answer and delete its file.
+    An answer that leaves part open rewrites the file to that part.
   When the harness makes you end a turn with text, write nothing more than "Recorded."
 - **Reply to his message, and only to it.**
   When he writes, answer what he wrote, with the working it needs; do not add what else happened.
-  What else happened is the `catch-me-up` skill's job: he runs it when he wants it, and it prints everything since the last catch-up, then marks the ledger.
-  The only exception is something that cannot wait for his next catch-up (production at risk, money moving, a deadline today): send that one item, and record it as usual.
+  What needs him is the `catch-me-up` skill's job: he runs it when he wants it, and it prints every need still in the buffer, however many catch-ups it has already appeared in.
+  The only exception is something that cannot wait for his next catch-up (production at risk, money moving, a deadline today): send that one item, and keep it in the buffer as usual.
 
 Before every reply, and in every catch-up, three checks:
 
