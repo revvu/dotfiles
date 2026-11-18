@@ -74,7 +74,7 @@ He elevates nothing; you decide what reaches him.
   - Answer a stop from the stream's specification, or with the stop's recommended default when it is a small call, then relaunch.
   - Prep the stream's next task.
   - Fix a break the stream's own work caused.
-  - Merge the stream's PRs to staging once CI is green, they are mergeable and no-mistakes has reached checks-passed; check the claims first, as for any report.
+  - The tick merges each done task's PR once GitHub reports it ready; do not merge them yourself. Merge only a PR whose task carries data-merge="reevu", and only after Reevu has approved it in chat. Report merged PRs from the merged events or gh.
 - **Elevate only what the specification cannot settle.**
   - A decision only he can make: it changes the outcome, or his files and the stream's pages do not answer it.
   - Access only he holds: a login, a console, or a permission that was refused.
