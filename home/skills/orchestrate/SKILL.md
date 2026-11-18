@@ -46,7 +46,12 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
 - **Close on evidence, then tell him.**
   A stream closes when nothing is left: every task staged under it is in `done/` with its PR merged, nothing of it is in `needs-you/`, no agent holds part of it, and its move has no next step.
   Check each against the tasks repo and GitHub, run `treadmill stream close`, and say so in one line in your next message; reopening is one command, so closing needs no ask.
-  A stream whose work is done but whose decisions are still his stays open, with the decision as its move.
+  A stream whose work is done but whose next step is still his stays open, with that step as its move:
+  - a decision only he can make;
+  - a teach-back that is expected, such as on theory notes or a new integration;
+  - his own big-picture work on it: understanding what was built, or planning what comes next (the Schwab integration, Nov 18).
+
+  When in doubt whether a finished stream is his to come back to, leave it open and say so in one line; closing it is his call then.
 - **Sweep at session start.**
   After loading the reader, run the close check over every open stream and close what passes.
 
