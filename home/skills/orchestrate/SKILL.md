@@ -106,6 +106,11 @@ Report: <shape and length>, as your final message.
 - What he teaches in chat goes toward a teach-back, per the global Reader files rules, never straight into a `reevu.md`.
 - Speak only when something changed for him.
   A "still waiting" notification, a dispatch he knows about or progress that changes nothing he can do gets no message.
+- **Every reply to him opens with what he missed.**
+  His last message marks the last time he read the chat; he rarely follows it between his messages (Nov 18).
+  So each reply to a message of his, however short or off-topic his message, opens with what changed since his previous message: what finished, what is still running, then the numbered Needs-you list, each item with its link, working and default.
+  Then answer what he sent.
+  When nothing changed, say so in one line.
 
 Before every message, three checks:
 
