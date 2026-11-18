@@ -33,6 +33,7 @@ The repo defines the environment and nothing else.
   The `lavish-page` skill (`home/skills/lavish-page`), which the policy names for every Lavish page, is symlinked into `~/.claude/skills/` and `~/.codex/skills/`.
   The `systems-breakdown` skill (`home/skills/systems-breakdown`), which the policy names for exploratory work on a new project, is linked the same way.
   The `orchestrate` skill (`home/skills/orchestrate`), which runs a session with several pieces of work through agents, is symlinked into `~/.claude/skills/` only, since it relies on Claude's subagents.
+  The `to-server` skill (`home/skills/to-server`), which hands the laptop's work to the server before Reevu closes it, is linked beside it, Claude only.
   Codex also gets a system-level base config at `/etc/codex/config.toml`.
 - **Small fixes.**
   `rebuild.sh` calls `darwin-rebuild` by absolute path (sudo's `secure_path` doesn't include nix-darwin's bin).

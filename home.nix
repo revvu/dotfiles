@@ -285,6 +285,10 @@ in
   # by the dev.treadmill.shepard job; Claude only, beside orchestrate.
   home.file.".claude/skills/shepard".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/shepard";
+  # to-server hands the laptop's work to the Shepard and a new herdr worker on
+  # the server so Reevu can close the laptop; Claude only, beside orchestrate.
+  home.file.".claude/skills/to-server".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/to-server";
   # demo-kit's skills (filming a demo video, and sharing a Treadmill note to
   # Slack #demos only on Reevu's word) live in the demo-kit repo, which every
   # machine checks out at the same workspace path; linked so any project's
