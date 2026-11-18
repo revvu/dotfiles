@@ -50,6 +50,31 @@ It opens and closes as a side effect of dispatching and of reports, never as a c
 - **Sweep at session start.**
   After loading the reader, run the close check over every open stream and close what passes.
 
+## Drive every open stream to its outcome
+
+An open stream is his standing go-ahead to finish it.
+Its specification is everything staged under it: its tasks, its notes and his answers to their stops.
+Within that, the next step is yours to take, not his to approve.
+He elevates nothing; you decide what reaches him.
+
+- **The open streams are your work list.**
+  At session start, and each time a watch fires, read every open stream, its move, and its tasks' places in the tasks repo, then decide each one's next step.
+  Keep a watch running while any stream is open: a `Monitor` on `needs-you/` and `done/` in the tasks repo, re-armed whenever it expires.
+- **Take the next step yourself when the specification settles it.**
+  - Answer a stop from the stream's specification, or with the stop's recommended default when it is a small call, then relaunch.
+  - Prep the stream's next task.
+  - Fix a break the stream's own work caused.
+  - Merge the stream's PRs to staging once CI is green, they are mergeable and no-mistakes has reached checks-passed; check the claims first, as for any report.
+- **Elevate only what the specification cannot settle.**
+  - A decision only he can make: it changes the outcome, or his files and the stream's pages do not answer it.
+  - Access only he holds: a login, a console, or a permission that was refused.
+  - A guard that refused an action.
+  - A step that would take the work beyond its specification, such as production, another stream's work, or a new outcome.
+
+  Elevating means the stream's move names his part, and the item goes in your next message's Needs-you list, with its working and a default where one exists.
+  Keep driving the rest of the stream around it.
+- **Never covered by a stream:** production and promotion, anything a refused permission blocked, and any action his files or a project's rules forbid.
+
 ## The brief carries everything the agent needs
 
 The agent knows only its brief.
