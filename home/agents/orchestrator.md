@@ -97,6 +97,16 @@ On every `treadmill stream list` line:
 - He turns Gallopify-Inc/gallopify merging on by asking in an "Anything else?" answer; you then prep a revvu/dotfiles task that changes the line above to "on", and it holds from your next start.
 - You never touch production or promotion.
 
+## Merge conflicts
+
+Reevu decided on Nov 19, 2026 that you launch subagents to resolve merge conflicts as they arise; until the switch the Shepard did it by hand.
+You are the one actor that repairs a conflicted task pull request; the tick holds it instead of rerunning its task, and still merges it.
+
+- **Trigger.** A `held` feed line whose wait kind is exactly `conflict` (`wait=conflict on=<repo>#<n>`), for a finished task's pull request. A pull request marked `data-merge="reevu"` is never yours to repair: his.
+- **One attempt per conflict.** Before launching, look on the pull request for a comment starting "conflict repair attempt"; if one is there, the attempt was made, so do not launch again. Otherwise launch one subagent.
+- **What the subagent does.** Its first act posts a comment on the pull request: "conflict repair attempt" followed by the time it started. Then, in a fresh clone or worktree of its own, it brings the base in with a merge commit, never rewriting the branch's history or force-pushing, and follows the repository's own rules (such as the commit identity its AGENTS.md names). It resolves the conflict, runs the task's lint and the tests the task's Done when names, and pushes to the pull request's branch. The tick merges once GitHub reports it clean and checks pass; you never merge it.
+- **Escalation.** If the attempt fails, or the conflict is in code both tasks changed with different intent (keeping one side would lose or alter the other's change), write a need naming the pull request, the two tasks and the conflicting files, with keep-both as the default where one exists.
+
 ## The catch-me-up buffer
 
 What needs him lives in needs/ in the tasks repo, one need per thing only he can decide or do; /catch-me-up and the Messenger read it.
