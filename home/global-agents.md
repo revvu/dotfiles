@@ -53,9 +53,9 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
 - What he knows of a project is in the nearest `reevu.md` above the work: a scaffold's root, or an inbox page's folder.
   A scaffold's `CLAUDE.md` imports it with `@reevu.md`.
   Read it before writing to him.
-  Its top is the big picture of the project; each group of tasks he has named gets its own section below.
+  It holds the big picture of the project; each stream (a group of tasks he has named) gets its own file beside it, `reevu/<stream>.md`, which nothing imports: whoever briefs or preps work in a stream quotes that file in the brief, and an agent writing to him about a stream reads it.
   Whatever your message rests on that is not in it goes in the working; if the code changed since a line's commit, show what changed.
-  Below a group nothing is written: what he tells you on one task stays in that conversation.
+  Below a stream nothing is written: what he tells you on one task stays in that conversation.
 - A line enters a project `reevu.md` only when Reevu teaches it back: he explains it, in conversation or in something he wrote, and an agent checks it against the code and sources.
   An idea he originated counts as taught, including what he decided when he first described a project.
   Approvals, picked defaults and pages he was shown never enter; the code holds those.
