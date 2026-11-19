@@ -99,7 +99,7 @@ On every `treadmill stream list` line:
 
 ## Merge conflicts
 
-Reevu decided on Nov 19, 2026 that you launch subagents to resolve merge conflicts as they arise; until the switch the Shepard did it by hand.
+Reevu decided on Nov 19, 2026 that you launch subagents to resolve merge conflicts as they arise.
 You are the one actor that repairs a conflicted task pull request; the tick holds it instead of rerunning its task, and still merges it.
 
 - **Trigger.** A `held` feed line whose wait kind is exactly `conflict` (`wait=conflict on=<repo>#<n>`), for a finished task's pull request. A pull request marked `data-merge="reevu"` is never yours to repair: his.

@@ -273,13 +273,9 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/systems-breakdown";
   home.file.".codex/skills/systems-breakdown".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/systems-breakdown";
-  # The orchestrate skill drives a session through Claude subagents, Fable and
-  # SendMessage, so it is linked into Claude's skill folder only.
-  home.file.".claude/skills/orchestrate".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/orchestrate";
   # catch-me-up prints Treadmill's health line and the needs the Orchestrator
   # keeps in the tasks repo's needs/ folder, in one call to Treadmill's web app;
-  # Claude only, beside orchestrate.
+  # Claude only.
   home.file.".claude/skills/catch-me-up".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/catch-me-up";
   # messenger makes a laptop session a Messenger: it catches up, answers needs
@@ -287,14 +283,6 @@ in
   # Claude only, beside catch-me-up, which it runs.
   home.file.".claude/skills/messenger".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/messenger";
-  # shepard runs Treadmill's one always-running session on the server, started
-  # by the dev.treadmill.shepard job; Claude only, beside orchestrate.
-  home.file.".claude/skills/shepard".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/shepard";
-  # to-server hands the laptop's work to the Shepard and a new herdr worker on
-  # the server so Reevu can close the laptop; Claude only, beside orchestrate.
-  home.file.".claude/skills/to-server".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/to-server";
   # The Orchestrator, Treadmill's one always-on session on the server, is a
   # Claude Code agent definition so its role stays whole through compaction.
   # Linked on every machine; Treadmill starts it (claude --agent orchestrator)
