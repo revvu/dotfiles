@@ -289,6 +289,12 @@ in
   # the server so Reevu can close the laptop; Claude only, beside orchestrate.
   home.file.".claude/skills/to-server".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/to-server";
+  # The Orchestrator, Treadmill's one always-on session on the server, is a
+  # Claude Code agent definition so its role stays whole through compaction.
+  # Linked on every machine; Treadmill starts it (claude --agent orchestrator)
+  # only where the tick runs, so the link alone starts nothing on a laptop.
+  home.file.".claude/agents/orchestrator.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/agents/orchestrator.md";
   # demo-kit's skills (filming a demo video, and sharing a Treadmill note to
   # Slack #demos only on Reevu's word) live in the demo-kit repo, which every
   # machine checks out at the same workspace path; linked so any project's
