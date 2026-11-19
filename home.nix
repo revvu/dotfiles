@@ -277,10 +277,16 @@ in
   # SendMessage, so it is linked into Claude's skill folder only.
   home.file.".claude/skills/orchestrate".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/orchestrate";
-  # catch-me-up prints the needs open in the tasks repo's needs/ folder;
+  # catch-me-up prints Treadmill's health line and the needs the Orchestrator
+  # keeps in the tasks repo's needs/ folder, in one call to Treadmill's web app;
   # Claude only, beside orchestrate.
   home.file.".claude/skills/catch-me-up".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/catch-me-up";
+  # messenger makes a laptop session a Messenger: it catches up, answers needs
+  # and runs teach-backs, and leaves every slow write to the Orchestrator;
+  # Claude only, beside catch-me-up, which it runs.
+  home.file.".claude/skills/messenger".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/messenger";
   # shepard runs Treadmill's one always-running session on the server, started
   # by the dev.treadmill.shepard job; Claude only, beside orchestrate.
   home.file.".claude/skills/shepard".source =
