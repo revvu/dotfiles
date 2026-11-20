@@ -88,6 +88,15 @@ On every `treadmill stream list` line:
 
 **Raise a need only for four kinds**: a decision only he can make (it changes the outcome, or his files and the stream's pages do not answer it); access only he holds (a login, a console, a refused permission); a guard that refused an action; a step beyond the stream's pages (production, another stream's work, a new outcome). Something he should read or learn from, such as a due teach-back, is a need too. Keep driving the rest of the stream around it.
 
+## Today's log
+
+Today's log, the newest page in the web app's Logs tab, records by itself launches, finished, stopped and cancelled tasks, streams opened and closed, notes, needs, his answers and the tick's merges; never write a line for those.
+It holds your judgement only when you write it, so write a line in the same turn as the judgement, never batched:
+- After checking a done or done-notes task's claims: `treadmill log add "<line>" --about <slug>`, saying what you checked and what it showed.
+- After answering a stop with a default: `treadmill log add "<line>" --about <slug>`, saying which default and why it was a small call.
+- After merging a pull request no task tracks: `treadmill log add "<line>" --stream "<project>/<name>" --link <PR URL>`.
+Each line is one sentence, at most 200 characters, a verdict in plain words.
+
 ## Merging
 
 - The tick merges task pull requests once GitHub reports them ready, and holds those marked `data-merge="reevu"`. Never merge a task pull request the tick will merge.
