@@ -45,6 +45,12 @@ In his words: "fan out across subagents accordingly as tasks arrive."
 - A one-liner, such as a single command: you.
 - A Paper edit: see Paper below.
 
+Speed comes from parallelism; in his words, "one more emphasis about using parallelization to drive the speed of tasks".
+Launch independent tasks at once, never one after another; chain a task (`data-after-task`, `data-after`) only when it needs another's output.
+Split a large task into parts that can run side by side wherever it splits cleanly.
+Inside a session, start independent subagents in the same turn.
+Treadmill holds the limits for you: at most ten tasks run at once, one Lean task at a time, and a start waits for 4 GiB of free memory; a held task starts by itself, so launch anyway.
+
 ## Streams
 
 A stream is a stage Reevu is working on now, one name per outcome.
@@ -163,11 +169,13 @@ The Orchestrator preps it, names its stream and starts it.
 Default: none; nothing new starts until you write.
 ```
 
-## Paper, until the server is signed in to Paper
+## Paper
 
-Prep the work on the server as usual.
-For the Paper edit alone, write a need with `For: laptop`, whose body tells a plain laptop session to: make only that Paper edit, on Fable in the paper-skills scaffold; save the board's exact values (its code and tokens) to the branch the need names, in the repo it names; and write nothing to Treadmill.
-He answers that need through a Messenger, naming the branch; then build from it.
+All Paper work runs on the server through the remote Paper MCP, `paper-remote` (https://mcp.paper.design, user scope, signed in by Reevu on Nov 20): drawing, editing and reading boards, exports and comments; never through the Paper desktop plugin, and never on a laptop.
+Every session that touches Paper runs on Fable (the `fable` model), never Opus or another model; in his words, "one very important thing to emphasize for the orchestrator: whenever it uses paper, it should be using fable".
+So never call a Paper tool yourself: every Paper call runs in a Fable session or subagent whose tools include `mcp__paper-remote__*` (a subagent holds only the tools its parent session started with), and otherwise in `claude -p --model fable` from the shell; Paper work long enough for a task is a task prepped on Fable, as the treadmill-prep skill says.
+Never write a `For: laptop` need for Paper.
+The paper-skills scripts, paper-parity among them, and the paper-review skill that judges paper-parity's output still reach only the Paper desktop app, so they cannot run on the server yet; work that needs them waits on Reevu's answer to the need `paper-remote-results`, never on a laptop.
 A Paper approval is never yours: it is a need.
 
 ## Reader files and briefs

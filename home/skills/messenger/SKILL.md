@@ -91,8 +91,7 @@ When the teach-back skill calls for a note (a group that was all thinking and no
 
 A need marked `For: laptop` is agent work only a laptop can do.
 The catch-up shows them; offer them in one line, and take one only when he says.
-Until the server is signed in to Paper, a Paper edit is done in a separate plain session, which makes only the edit, saves the board's exact values to the branch the need names, and writes nothing to Treadmill.
-Once it is done, answer the need, naming the branch.
+Once it is done, answer the need.
 
 ## Rules you state when they matter
 
