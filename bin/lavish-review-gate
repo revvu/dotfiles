@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Claude Code PreToolUse hook (matcher Bash): refuses to publish a Lavish page
-# that has no Reader review log, and names the lavish-page skill in the refusal.
+# that has no Reader review, and names the lavish-page skill in the refusal.
 #
 # Why this exists: the lavish-page skill and the policy line are prompts, and
 # a step in text can be skipped. This holds one invariant where pages leave:
-# no page reaches the reader without its review log. No library covers a
+# no page reaches the reader without its review. No library covers a
 # check on our own page format; tests/lavish-review-gate.bats freezes it.
 #
 # Pages leave three ways from a Bash call:
@@ -20,9 +20,15 @@
 # Every other command passes at once, so a session that writes no page pays
 # nothing and sees nothing.
 #
-# A page has the log when it carries
+# A page has its review when it carries the review mark in its head,
+#   <meta name="lavish-review" content="<date> · N items, M claims">
+# (name first, double quotes; the shape the skill's step 5d gives), with the
+# log itself off the page in <page>.review.md and the commit or PR that lands
+# it; or the older on-page log's summary line, accepted on purpose since older
+# pages carry it,
 #   <summary>Reader review · N items, M claims · <date></summary>
-# (the shape the skill's step 5d gives).
+# The pattern is a twin of LOG_RE in revvu/treadmill's treadmill/review_log.py;
+# tests/fixtures/review-log holds the pages both answer alike. Keep them in step.
 #
 # Input: the hook JSON on stdin (tool_input.command, cwd).
 # Output: a deny decision on stdout, or nothing (allow). Any error allows:
@@ -55,7 +61,7 @@ expand() { # a path token -> absolute path, relative to $2
 }
 
 has_log() {
-  tr '\n' ' ' <"$1" | grep -Eqi '<summary[^>]*>[^<]*Reader review[^<]*[0-9]+ items?[^<]*[0-9]+ claims?'
+  tr '\r\n' '  ' <"$1" | grep -Eqi '<summary[^>]*>[^<]*Reader review[^<]*[0-9]+ items?[^<]*[0-9]+ claims?|<meta[[:space:]]+name="lavish-review"[[:space:]]+content="[^"]*[0-9]+ items?[^"]*[0-9]+ claims?'
 }
 
 # Directories the command may run in: the cwd, then every cd and git -C target.
@@ -145,5 +151,5 @@ for p in ${pages[@]+"${pages[@]}"}; do
 done
 [ ${#missing[@]} -eq 0 ] && exit 0
 
-reason="Refused: no Reader review log in ${missing[*]}. Write the page with the lavish-page skill (load it with the Skill tool): its step 5 runs a fresh reviewer playing the reader, a fact judge and an agent reader in parallel, then ends the page with the log this check looks for, <summary>Reader review · N items, M claims · date</summary>. Never write the log without running the review."
+reason="Refused: no Reader review in ${missing[*]}. Write the page with the lavish-page skill (load it with the Skill tool): its step 5 runs a fresh reviewer playing the reader, a fact judge and an agent reader in parallel, then records the review as the mark this check looks for, <meta name=\"lavish-review\" content=\"date · N items, M claims\"> in the page's head, with the log in <page>.review.md beside it (the older on-page <summary>Reader review · N items, M claims · date</summary> is accepted too). Never record a review without running it."
 jq -n --arg r "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'

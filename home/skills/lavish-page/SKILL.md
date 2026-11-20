@@ -1,6 +1,6 @@
 ---
 name: lavish-page
-description: Write any Lavish page or file the reader will read (a note, a decision page, a morning report, an analysis, a prepped task, a decision stage, an outcome page) so that, holding only the page and his reader files, he can act on it. Ends with the reader review, a fresh agent playing the reader, a fact judge and an agent reader run in parallel, whose answers go in the page's Reader review log. Use before writing or rewriting any Lavish file, in any project; publishing refuses a page without that log.
+description: Write any Lavish page or file the reader will read (a note, a decision page, a morning report, an analysis, a prepped task, a decision stage, an outcome page) so that, holding only the page and his reader files, he can act on it. Keeps the form the reader asked for a page, held in the page's form line. Ends with the reader review, a fresh agent playing the reader, a fact judge and an agent reader run in parallel, recorded as a review mark in the page's head with the log off the page. Use before writing or rewriting any Lavish file, in any project; publishing refuses a page without the mark.
 ---
 
 # lavish-page
@@ -12,6 +12,11 @@ It covers every new Lavish file or rewrite, whoever writes it; an appended log l
 
 ## 1. Load the reader
 
+- Read the page's form line first, if it has one: `<meta name="lavish-form" content="...">` in its head, one per page, holding the form the reader asked for this page, in his words.
+  When he states a form for a page (in chat, a brief or a stop answer), write it into the form line in his words; when it governs only part of the page, scope it in words ("top: ...; below: the standard").
+  Never change an existing form line unless he does, and quote his words asking for the change where the publish route records it (a commit body, a PR description).
+  The form overrides step 3's defaults wherever they conflict: the bottom line beside a picture, a visual per section, the fold for agents, the order list.
+  Step 3's tests apply only as far as the form allows.
 - Read his portrait, the reader file beside the global agent policy: who he is, how he reasons, what convinces him.
 - Read the project's reader file, the nearest one above the work: its big picture, then the group section the page belongs to; name the group before writing.
 - List the concepts the page will rest on that neither file holds.
@@ -19,7 +24,7 @@ It covers every new Lavish file or rewrite, whoever writes it; an appended log l
 - What he holds is what those two files hold.
   The chat and the pages he was shown are names he may recognise, not concepts he understands: shown is not understood.
   A name coined in a scratch file, a subagent report or a task outcome is not even recognised; never use one bare.
-- Interim, until Lucidity's values are built into a proper system: read Lucidity's reader file, `~/github/gallopify-playground/lucidity-skills/reevu.md`, and skim the notes in `treadmill-tasks/notes/lucidity/` for the values they list.
+- Interim, until Lucidity's values are built into a proper system: read Lucidity's reader file, `lucidity-skills/reevu.md` in the workspace, and skim the notes in `treadmill-tasks/notes/lucidity/` for the values they list.
   The notes are the source; this list only points at them, so when they disagree, the notes win.
   Every page applies these:
   - An ask earns his attention only for what his input uniquely provides; anything another source holds goes there first (`what-needs-you`).
@@ -96,7 +101,7 @@ The order, skipping layers the page does not need:
 6. Risks and alternatives.
 7. Decisions.
 8. The plan.
-9. The log, collapsed, ending with the Reader review log (step 5).
+9. The log, collapsed; the Reader review log stays off the page (step 5d).
 
 Every section opens with a visual that its text only labels: a step track for builds and trackers, a diagram or clickable map for systems and bugs, decision cards for anything waiting on him, a step-by-step table when he has to follow a mechanism in order.
 
@@ -135,12 +140,13 @@ It tells the reviewer which names he may recognise, never what he understands: s
 - **From the records**: pages or notes he opened, where the project keeps a read record, and pages he said he read.
 - **Concepts he does not hold**: every concept the page rests on that his reader files do not hold, including those behind names he was shown.
   Reviewers use this part most; never leave it out.
+- **The form line**: the page's form line, quoted whole, or "none".
 - **Left out**: his reader files. The reviewer reads them directly, so the seen list never copies them.
 
 A writer with no chat (a worker running a task) builds it from the task file instead: his brief, his answers to stops, his comments, plus the read records.
 **Untested**: no worker has built a seen list yet.
 
-The seen list belongs to this one page: it is published in the page's log so he can correct it, and is used nowhere else.
+The seen list belongs to this one page: it goes into the review log file (step 5d) so he can correct it, and is used nowhere else.
 A line in it never enters a reader file; only a teach-back does that.
 
 ### 5b. Launch all three agents at once
@@ -152,7 +158,7 @@ Fill in only the paths; the prompts are fixed.
 **Reviewer**, playing the reader:
 
 ```text
-You are the person described in <portrait>. Read <portrait> (that is you) and <project reader file>; the concepts you hold are the ones those two files hold, and no others. <seen.md> is what you asked and what you were shown or told on this topic; shown is not understood, so a name there is one you may recognise, not a concept you hold. That and the page are all you know, so open no other file. Read <page> as yourself, top to bottom, with every fold closed, as rendered in <screenshots> at 1280 and 390 px; the default view is yours, and what sits behind a closed fold is written for an agent, so open one only when its label makes you want to.
+You are the person described in <portrait>. Read <portrait> (that is you) and <project reader file>; the concepts you hold are the ones those two files hold, and no others. <seen.md> is what you asked and what you were shown or told on this topic; shown is not understood, so a name there is one you may recognise, not a concept you hold. That and the page are all you know, so open no other file. The page's form line, if it has one, is quoted in <seen.md>: it is what you asked for this page, so check the page against it and ask for nothing it rules out. Read <page> as yourself, top to bottom, with every fold closed, as rendered in <screenshots> at 1280 and 390 px; the default view is yours, and what sits behind a closed fold is written for an agent, so open one only when its label makes you want to.
 You think in concepts, not terms: a concept is an idea with a job, what it is, what it does and why it matters here. First restate each decision on the page in one line: what is being chosen, why, and which part you would doubt; any you cannot restate is your first item. Then judge the page's information design, section by section:
 1. Order: what question did you come to this page with, and is the page built around it, with the verdict answering it and each ask placed on the picture of the whole beside what it unblocks, rather than in a list above it or told twice? Is each concept one you hold or one the page introduced above it, by what it does? Do you know what this is and where it stands before anything is asked of you?
 2. Handles: does a label from the writer's process (a step or PR number, a decision id, a check's result such as "0 differences") stand where the concept it names should be?
@@ -172,6 +178,7 @@ You are a fact judge. Read <page>. From the page itself, pick the claims its bot
 
 ```text
 You are a fresh agent about to carry forward the work <page> drives, with no way to ask its author. Read <page> with every fold open, and <what it drives: the task file, the work it hands off>, and any file or source they point to. Nothing else counts: what they do not say or link, you do not know.
+The page's form line, if it has one, `<meta name="lavish-form" content="...">` in its head, is the form the reader asked for this page; it overrides the default shape, so check the folds against it and ask for nothing it rules out.
 First restate the work in four lines: its purpose, the end state that counts as done, your first action, and the first point where you would stop and ask. Any line you cannot fill is your first item.
 Then judge whether the folded content is complete context to carry the work, against six questions:
 1. Intent: does it say why the work exists and what end state counts as done, well enough that you would still choose rightly if the plan stopped fitting?
@@ -224,38 +231,61 @@ Never reword to sound sure: rewording leaves the false premise standing.
 New text the answers add can bring new errors; check each new fact as you would any other.
 
 One round: the reader is the next reader.
-Anything added after the review is marked in the log as not reviewed.
+Anything added after the review is marked in the review log file as not reviewed.
 
-### 5d. Write the Reader review log
+### 5d. Record the review: the mark on the page, the log off it
 
-The last section of the page, collapsed, in exactly this shape; the publish check looks for the summary line and refuses a page without it:
+The log stays off the page, so revisions do not grow it.
+The page carries only the review mark, one line in its head, which the publish check looks for and refuses a page without:
 
 ```html
-<details id="reader-review">
-<summary>Reader review · 12 items, 7 claims, 5 gaps · Nov 5</summary>
-<p>Three fresh Opus agents, in parallel: a reviewer playing the reader, holding only his two reader files, the seen list below and the page with its folds closed; a fact judge holding the code, logs and runs; an agent reader holding the folded content and what the page drives. Reviewer's verdict: "…". Agent reader's verdict: "…".</p>
-<table>
-  <tr><th>#</th><th>Reviewer item</th><th>Answer</th></tr>
-  <tr><td>1</td><td>The item, in one line.</td><td>Fixed: what changed, and where it was checked.</td></tr>
-</table>
-<table>
-  <tr><th>#</th><th>Claim</th><th>Judge</th><th>Answer</th></tr>
-  <tr><td>1</td><td>The claim, in one line.</td><td>Wrong: the evidence.</td><td>Fixed: what the page says now.</td></tr>
-</table>
-<table>
-  <tr><th>#</th><th>Agent-reader gap</th><th>Answer</th></tr>
-  <tr><td>1</td><td>The gap and the question it fails, in one line.</td><td>Fixed: what the fold carries now.</td></tr>
-</table>
-<p>Rejected: none. (Or: the rejected items' numbers.)</p>
-<details><summary>The seen list the reviewer held</summary><pre>…seen.md…</pre></details>
-</details>
+<meta name="lavish-review" content="Nov 5 · 12 items, 7 claims, 5 gaps">
 ```
 
-The counts in the summary are the reviewer's items, the judge's claims and the agent reader's gaps.
+Name first, then content, in double quotes, with the date and the counts: the reviewer's items, the judge's claims and the agent reader's gaps.
+On a revision that runs a new review, replace the mark; a page has one.
+
+The log is a markdown file beside the page, `<page>.review.md` (for `plan.html`, `plan.review.md`), in this shape:
+
+````markdown
+Reader review · 12 items, 7 claims, 5 gaps · Nov 5
+
+Three fresh Opus agents, in parallel: a reviewer playing the reader, holding only his two reader files, the seen list below and the page with its folds closed; a fact judge holding the code, logs and runs; an agent reader holding the folded content and what the page drives. Reviewer's verdict: "…". Agent reader's verdict: "…".
+
+| # | Reviewer item | Answer |
+|---|---|---|
+| 1 | The item, in one line. | Fixed: what changed, and where it was checked. |
+
+| # | Claim | Judge | Answer |
+|---|---|---|---|
+| 1 | The claim, in one line. | Wrong: the evidence. | Fixed: what the page says now. |
+
+| # | Agent-reader gap | Answer |
+|---|---|---|
+| 1 | The gap and the question it fails, in one line. | Fixed: what the fold carries now. |
+
+Rejected: none. (Or: the rejected items' numbers.)
+
+The seen list the reviewer held:
+
+```text
+…seen.md…
+```
+````
+
+Where the log lands depends on how the page is published:
+
+- `treadmill note` and `treadmill file` put the sibling file in their commit body; leave it beside the page when you call them.
+- A page committed by hand (the inbox, a scaffold repo) puts the log in that commit's message body.
+- A page in a PR puts the log in the PR description.
+- A page a Treadmill run writes to its `out/` folder keeps `out/<page stem>.review.md` beside it.
+- A page published with `lavish-axi`, or by any route with no commit, keeps the sibling file next to the page.
+
 `review.md`, `facts.md` and `context.md` are scratch; the log is the record.
+Pages written before this rule carry the log on the page under `<summary>Reader review · N items, M claims · date</summary>`; the publish check still accepts that shape, and a rewrite that runs a new review replaces it with the mark.
 
 ## 6. Publish
 
 Publish the page the way its project does (a note command, a review session, or a commit with its index row).
 Then add this page to the Related line of each page it links, and republish those, so every link runs both ways.
-A page without a Reader review log is refused at publish, with a message naming this skill; the answer is to run step 5, never to write a log without it.
+A page with neither the review mark nor the older on-page summary is refused at publish, with a message naming this skill; the answer is to run step 5, never to write a mark or a log without it.
