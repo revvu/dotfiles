@@ -74,6 +74,8 @@ Use it, and offer to create one where a project has none.
 ## Lavish page standard
 
 A reader who sees only the top of a page knows what is being solved and what it needs, without opening anything else.
+- A page can carry one form line, a lavish-form meta tag in its head holding the form Reevu asked for, in his words.
+  It overrides this standard's defaults for that page (picture first, a visual per section, agent folds); every brief that touches the page quotes it verbatim, and the reader review checks the page against it.
 - Bottom line first: the first screen names the thing and says where it stands and what it needs from whom, beside a picture of the whole (a diagram, map, wireframe or animated flow).
   A page that proposes work says it in one plain paragraph that starts with "Problem:", at most three sentences: what we are solving, what done looks like, and what it needs (people, access, decisions). No label-and-value table.
   A page that reports on work leads with the verdict and the asks, grouped by who holds them.
@@ -87,6 +89,7 @@ A reader who sees only the top of a page knows what is being solved and what it 
 - The reference examples are `inbox/lavish/page-styles.html` (the options tried), `inbox/firstmate/firstmate-resync.html` (the standard applied) and the Schwab Atlas, Treadmill note `schwab-map-atlas` in project `schwab` (overview first, detail on demand).
 - End every Lavish page with the `lavish-page` skill's review: a fresh agent playing Reevu lists what stops him acting, a fact judge checks the claims the page rests on, an agent reader checks that the folds carry enough to take the work forward, and the writer answers each item from evidence or marks it unknown.
   This covers every Lavish file, prepped tasks included.
+  The review's log stays off the page: the page carries a one-line review mark, and the log lands in the commit or PR that lands the page.
 
 ## UI design
 

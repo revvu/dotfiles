@@ -55,7 +55,7 @@ Every panel has the same parts, in this order; the first five are visible when i
 - Decisions as cards, each marked by owner: yours (only he can answer), agent default (taken unless he objects), applied (an earlier call of his, with its date), or routed (another owner, named).
 - The plan: each step cut from a named system, with its owner and its done-when, ready to become Treadmill tasks with `treadmill-prep`.
 - Needs you, at the top under the bottom line, grouped by the person who holds each item: only what he alone holds, each with candidates, what it changes and a default where one exists; routed and settled items say so in one line and are not asks.
-- Log, collapsed: what was not verified, the sources read, and the Reader review log.
+- Log, collapsed: what was not verified and the sources read; the review log goes off the page, as the lavish-page skill says.
 
 ## 6. Review and file
 

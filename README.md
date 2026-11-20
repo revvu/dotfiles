@@ -80,7 +80,9 @@ Its tests run with `bats tests`.
 
 ## The Lavish publish check (added by hand)
 
-`bin/lavish-review-gate` is a Claude Code PreToolUse hook: it refuses `lavish-axi <page>`, `lavish-axi share <page>` and `treadmill note <project> <page>` when the page has no Reader review log, and a `git commit` in the agent inbox or the treadmill-tasks clone when a page the commit adds (a new file, such as a prepped task) has none; its refusal names the `lavish-page` skill.
+`bin/lavish-review-gate` is a Claude Code PreToolUse hook: it refuses `lavish-axi <page>`, `lavish-axi share <page>` and `treadmill note <project> <page>` when the page has no Reader review, and a `git commit` in the agent inbox or the treadmill-tasks clone when a page the commit adds (a new file, such as a prepped task) has none; its refusal names the `lavish-page` skill.
+A page carries its review as the review mark in its head, `<meta name="lavish-review" content="Nov 20 · 12 items, 7 claims">`, with the log itself off the page in `<page>.review.md` and the commit or PR that lands it; the older on-page `<summary>Reader review · N items, M claims · date</summary>` passes too.
+The pattern is a twin of Treadmill's `treadmill/review_log.py`, and `tests/fixtures/review-log/` holds the pages both answer alike.
 A commit that only modifies or moves an existing page passes, since both repos hold pages written before the review existed.
 Any other Bash call passes at once with no output.
 Applying links it to `~/.claude/hooks/lavish-review-gate`.

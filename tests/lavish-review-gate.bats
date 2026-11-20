@@ -187,3 +187,27 @@ denied() {
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+
+# The three pages every copy of the check answers alike, shared with
+# revvu/treadmill's tests/fixtures/review-log (treadmill/review_log.py).
+@test "a new inbox page with only the review mark passes" {
+  cp "$BATS_TEST_DIRNAME/fixtures/review-log/mark-only.html" "$INBOX/topic/"
+  run call "git add topic/mark-only.html && git commit -m page"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "a new inbox page with only the older on-page summary passes" {
+  cp "$BATS_TEST_DIRNAME/fixtures/review-log/summary-only.html" "$INBOX/topic/"
+  run call "git add topic/summary-only.html && git commit -m page"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "a new inbox page with neither the mark nor the summary is refused" {
+  cp "$BATS_TEST_DIRNAME/fixtures/review-log/neither.html" "$INBOX/topic/"
+  run call "git add topic/neither.html && git commit -m page"
+  [ "$status" -eq 0 ]
+  denied
+  echo "$output" | jq -e '.hookSpecificOutput.permissionDecisionReason | test("neither.html")'
+}

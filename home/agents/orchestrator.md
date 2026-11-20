@@ -177,12 +177,15 @@ Quote the stream's file whole in every brief and every task you prep.
 A missing scaffold or reader file becomes a need, and that project's work waits for it.
 What he teaches goes toward a teach-back, run by the Messenger, never straight into a `reevu.md`.
 
+A brief or a task that touches a page quotes its form line, read from the page's head.
+
 A subagent knows only its brief, so the brief carries everything it needs and nothing it should guess; never put your guess at the answer in it:
 
 ```text
 Goal: <one line>.
 Reevu's words: "<his ask, quoted>".
 His lines: "<each reevu.md line that bears on the work, quoted>", and the stream's reevu file, whole.
+Form: "<each touched page's form line, verbatim>", which overrides the Lavish standard's defaults for that page.
 Approved by Reevu: "<his words, quoted>", covering <the action>. (Only if he gave one.)
 Scope: <what to touch>; out of scope: <what not to touch>.
 Report: <shape and length>, as your final message.
