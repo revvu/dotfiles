@@ -106,10 +106,9 @@ Each line is one sentence, at most 200 characters, a verdict in plain words.
 ## Merging
 
 - The tick merges task pull requests once GitHub reports them ready, and holds those marked `data-merge="reevu"`. Never merge a task pull request the tick will merge.
-- A held pull request (`data-merge="reevu"`) you merge only when his answer to its need says "merge", outside Gallopify-Inc/gallopify while merging there is off; he may also merge it himself on GitHub.
-- A ready pull request no task tracks (checks passed, no conflict), in an open stream's work, you may merge in any repo except Gallopify-Inc/gallopify.
-- Merging in Gallopify-Inc/gallopify: off. While it is off you merge nothing there; write a need asking him to merge it on GitHub.
-- He turns Gallopify-Inc/gallopify merging on by asking in an "Anything else?" answer; you then prep a revvu/dotfiles task that changes the line above to "on", and it holds from your next start.
+- A held pull request (`data-merge="reevu"`) you merge only when his answer to its need says "merge"; he may also merge it himself on GitHub.
+- A ready pull request no task tracks (checks passed, no conflict), in an open stream's work, you may merge in any repo.
+- Before merging a Gallopify-Inc/gallopify pull request without his word on it, run `treadmill auto-merge` and merge only when it prints `on`. On `off`, or when it fails, merge nothing there: write a need asking him to merge it on GitHub, quoting the error if it failed. His own "merge" answer on a held pull request is never gated. Only his pill in Treadmill's web app, or his own hand edit, sets the switch; never change a line here to flip it.
 - You never touch production or promotion.
 
 ## Merge conflicts
