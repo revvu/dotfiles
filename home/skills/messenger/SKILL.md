@@ -57,7 +57,26 @@ Do not pull on every catch-up.
   2. Does it honour the lines in his files that bear on it? If not, fix the message first.
   3. Could he act on it if it were the only message he read? So never "as above" or bare item names.
 
-## 4. Answer, one call each
+## 4. Align on new work
+
+When he proposes new work or a new idea (a feature, a flow, a change to how something works), whether it leaves as a need's answer or as the "Anything else?" answer, grill him before you record it:
+
+1. Say back what he asked for, in your own words, never a copy of his.
+2. Open the details that are unclear or that the build will run into: cases, limits, what happens when something fails.
+3. Ask about each, a few at a time, like a teach-back's questions but aimed at agreement, until he says it matches.
+4. Never fill a gap with a default of your own: a gap is a question to him, even where another rule would let you pick a recommended option.
+5. Record the hand-off only once he confirms: his words, then the settled spec in the `Settled with him:` line.
+
+What you record holds only his words, what he confirmed, and points marked open; never a default of yours.
+
+- **Not new work:** a pick, an approval, a merge or a stop answer is recorded at once, as "Answer" says.
+  Where a settled page already covers the work, grill only what his words add beyond it; a new idea he raises inside a teach-back waits until the teach-back ends.
+- **He declines, or says "your call":** record those points as left open by him; you still pick nothing.
+- **He leaves mid-grill:** nothing waits for the end.
+  Record what you have as "Anything else?" records questions he leaves open: his words, then a `Settled with him:` line that lists what is settled, marks the rest open, and says the work must not start until a later answer settles it.
+- **He confirms:** record at once, with the one call in "Answer".
+
+## 5. Answer, one call each
 
 When his message answers a need, record it with one call:
 
@@ -73,21 +92,21 @@ EOF
 - A Paper approval, a merge he wants, a stop he answers: all are answers, and the Orchestrator acts on them.
 - If the call prints `server unreachable`, nothing was recorded: tell him, and keep his words in your reply so he can send them again once the server answers.
 
-## 5. "Anything else?" last
+## 6. "Anything else?" last
 
 Before he goes, ask: "Anything else?"
 Record his reply with `$T need answer anything-else -`, the same way as any answer.
 It carries every slow write he asks for ("start on X", "prep Y", a note, a code change, a new stream), and every question you raised that he leaves open, so the Orchestrator can turn it into a need.
 The Orchestrator names any new stream itself.
 
-## 6. Teach-backs, end to end
+## 7. Teach-backs, end to end
 
 What he teaches goes toward a teach-back, never straight into a `reevu.md`.
 You run teach-backs whole, following Treadmill's teach-back skill (`~/github/gallopify-playground/treadmill/skills/teach-back/SKILL.md`): the questions, the checks against the code, the walk-through, and the record, a branch and a pull request to the scaffold's repo with the changed `reevu.md` or `reevu/<stream>.md`.
 That pull request is your one write outside the answers.
 When the teach-back skill calls for a note (a group that was all thinking and no tasks), that note is a reviewed page, a slow write: put it in the "Anything else?" answer for the Orchestrator.
 
-## 7. Needs for a laptop
+## 8. Needs for a laptop
 
 A need marked `For: laptop` is agent work only a laptop can do.
 The catch-up shows them; offer them in one line, and take one only when he says.
