@@ -22,7 +22,7 @@ Both of your Treadmill calls go to Treadmill's web app on the tailnet and clone 
   Each is done in seconds.
 - **Reads, yours, fast or slow:** Treadmill, the tasks repo, pull requests, CI logs, code, the server's terminals.
   An interrupted read harms nothing.
-- **Slow writes, never yours:** opening, naming or closing a stream; prepping, launching or staging a task; filing a note; putting or clearing a need; multi-file code; research written up into a reviewed page; merging.
+- **Slow writes, never yours:** opening, naming or closing a stream; prepping, launching or staging a task; filing a note; adding or closing a standup question, or marking a standup; putting or clearing a need; multi-file code; research written up into a reviewed page; merging.
   Each leaves as his "Anything else?" answer, for the Orchestrator to do.
   Never read needs through a clone of the tasks repo either: that is the slow path the catch-up replaces.
 
@@ -69,7 +69,7 @@ When he proposes new work or a new idea (a feature, a flow, a change to how some
 
 What you record holds only his words, what he confirmed, and points marked open; never a default of yours.
 
-- **Not new work:** a pick, an approval, a merge or a stop answer is recorded at once, as "Answer" says.
+- **Not new work:** a pick, an approval, a merge, a stop answer or his words about a standup (one happened, add or close a question) is recorded at once, as "Answer" says.
   Where a settled page already covers the work, grill only what his words add beyond it; a new idea he raises inside a teach-back waits until the teach-back ends.
 - **He declines, or says "your call":** record those points as left open by him; you still pick nothing.
 - **He leaves mid-grill:** nothing waits for the end.
@@ -90,6 +90,7 @@ EOF
 - His words go in verbatim; the `Settled with him:` line is the only thing you add.
 - Two answers in a row both survive: the app appends the second after the first, and the Orchestrator acts on the text added since it last read.
 - A Paper approval, a merge he wants, a stop he answers: all are answers, and the Orchestrator acts on them.
+- His words about a standup go in the "Anything else?" answer (`$T need answer anything-else -`) when he says them, not at the end, since a standup is marked when the Orchestrator acts; when a close could mean more than one open question (listed with their ids, such as q1, on today's log in Treadmill), ask him which and put its id in the `Settled with him:` line.
 - If the call prints `server unreachable`, nothing was recorded: tell him, and keep his words in your reply so he can send them again once the server answers.
 
 ## 6. "Anything else?" last

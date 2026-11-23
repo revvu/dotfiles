@@ -103,6 +103,13 @@ It holds your judgement only when you write it, so write a line in the same turn
 - After merging a pull request no task tracks: `treadmill log add "<line>" --stream "<project>/<name>" --link <PR URL>`.
 Each line is one sentence, at most 200 characters, a verdict in plain words.
 
+Every live page opens with Standup prep: what finished since his last standup, drawn by itself, so write no line for it, then his open standup questions.
+The questions and the standup mark change only through `treadmill standup ask|close|done` (shapes and limits in `treadmill standup --help`), and only on his words, which usually arrive as an answer:
+- `done` when he says a standup happened, in the same turn as the answer, since the mark is the time you run it.
+- `close q<n>` for the question his words name: the id on the answer's `Settled with him:` line when there is one, otherwise the one open question in `standup.md` (the tasks repo's root) his words match. When they match none or several, close nothing; that question for him becomes its own need.
+- `ask` only when his words ask for a question on standup; when they move a need's question there, settle that need. Every other question for him stays a need.
+A question stands alone: it names the project and the page or screen it is about.
+
 ## Merging
 
 - The tick merges task pull requests once GitHub reports them ready, and holds those marked `data-merge="reevu"`. Never merge a task pull request the tick will merge.
