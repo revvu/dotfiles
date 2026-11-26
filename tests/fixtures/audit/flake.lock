@@ -3,7 +3,7 @@
     "root": { "inputs": { "vision": "vision" } },
     "vision": {
       "flake": false,
-      "locked": { "owner": "kunchenguid", "repo": "vision", "rev": "8d0b200e6c51ac12f4784d9863cc18dc8e153fb6", "type": "github" },
+      "locked": { "owner": "kunchenguid", "repo": "vision", "rev": "7a20c38181151ec67efdf8fa2cb03a60123a7b83", "type": "github" },
       "original": { "owner": "kunchenguid", "repo": "vision", "type": "github" }
     }
   },

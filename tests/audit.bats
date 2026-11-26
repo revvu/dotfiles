@@ -4,7 +4,8 @@
 # tests/fixtures/audit describes a machine with no-mistakes and claude-swap
 # behind releases older than four weeks (no-mistakes with breaking-change
 # notes), the codex cask and six npm globals behind, and a policy with one
-# path that resolves and one that does not.
+# path that resolves and one that does not; the vision skill pinned two upstream
+# commits behind main.
 
 setup() {
   BIN="$BATS_TEST_DIRNAME/../bin"
@@ -58,7 +59,7 @@ MD
   echo "$output" | jq -e '.versions[] | select(.name == "claude-swap") | .installed == "0.25.0" and .latest == "0.26.0" and .released == "2026-09-02T18:29:37Z"'
   echo "$output" | jq -e '.versions[] | select(.name == "codex") | .installed == "0.154.0" and .latest == "0.162.1" and .update == "brew upgrade --cask codex"'
   echo "$output" | jq -e '.versions[] | select(.name == "lavish-axi") | .installed == "0.1.63" and .latest == "0.1.87"'
-  echo "$output" | jq -e '.forks == [{name: "dotfiles", fork: "revvu/dotfiles", upstream: "kunchenguid/dotfiles", behind: 9, ahead: 29, merge_base: "2026-07-24T01:03:28Z"}, {name: "firstmate", fork: "revvu/firstmate", upstream: "kunchenguid/firstmate", behind: 344, ahead: 17, merge_base: "2026-09-07T19:41:14Z"}, {name: "vision", pin: "8d0b200e6c51ac12f4784d9863cc18dc8e153fb6", upstream: "kunchenguid/vision", behind: 1, ahead: 0, merge_base: "2026-11-17T17:24:20Z"}]'
+  echo "$output" | jq -e '.forks == [{name: "dotfiles", fork: "revvu/dotfiles", upstream: "kunchenguid/dotfiles", behind: 9, ahead: 29, merge_base: "2026-07-24T01:03:28Z"}, {name: "firstmate", fork: "revvu/firstmate", upstream: "kunchenguid/firstmate", behind: 344, ahead: 17, merge_base: "2026-09-07T19:41:14Z"}, {name: "vision", pin: "7a20c38181151ec67efdf8fa2cb03a60123a7b83", upstream: "kunchenguid/vision", behind: 2, ahead: 0, merge_base: "2026-09-02T06:55:07Z"}]'
   echo "$output" | jq -e '.policy.refs == [{ref: "~/gone/", kind: "path", ok: false}, {ref: "~/inbox/", kind: "path", ok: true}]'
   echo "$output" | jq -e '.date == "2026-11-01"'
 }
@@ -168,15 +169,15 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   page | grep -q '>missing<'
   page | grep -q '<p>Update no-mistakes first: its notes say breaking.</p>'
   page | grep -q '<p>The rest can wait.</p>'
-  page | grep -q '<tr><td><span class="font-mono">vision @ 8d0b200</span><div class="text-xs muted">pinned flake input, upstream kunchenguid/vision</div></td><td class="font-mono">1</td><td class="font-mono">0</td><td>2026-11-17 '
-  page | grep -q 'dotfiles 9, firstmate 344, vision 1, commits behind upstream'
+  page | grep -q '<tr><td><span class="font-mono">vision @ 7a20c38</span><div class="text-xs muted">pinned flake input, upstream kunchenguid/vision</div></td><td class="font-mono">2</td><td class="font-mono">0</td><td>2026-09-02 '
+  page | grep -q 'dotfiles 9, firstmate 344, vision 2, commits behind upstream'
 }
 
 @test "audit-page: pushes the page and replaces the older drift row in the README" {
   run "$BIN/audit-page"
   [ "$status" -eq 0 ]
   [ "$(grep -c '^| `drift/drift-' "$INBOX/README.md")" -eq 1 ]
-  grep -q '^| `drift/drift-2026-11-01.html` | Weekly drift audit from .*: 9 of 13 tools behind (2 more than four weeks, 1 with breaking or security notes), doctor clean, dotfiles 9, firstmate 344, vision 1, commits behind upstream. | Run the update lines' "$INBOX/README.md"
+  grep -q '^| `drift/drift-2026-11-01.html` | Weekly drift audit from .*: 9 of 13 tools behind (2 more than four weeks, 1 with breaking or security notes), doctor clean, dotfiles 9, firstmate 344, vision 2, commits behind upstream. | Run the update lines' "$INBOX/README.md"
   # The new row sits right after the last table row, before the prose.
   awk '/^\| `other.html`/ { getline; print }' "$INBOX/README.md" | grep -q '^| `drift/drift-2026-11-01.html`'
   git -C "$BATS_TEST_TMPDIR/bare" log --format=%s -1 | grep -q '^drift: weekly audit 2026-11-01 from '
