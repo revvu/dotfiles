@@ -65,6 +65,10 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   The compression comes after the check: his full answer and each claim's check go in the teach-back PR's description, so `git blame` on a line leads back to them.
 - Reevu names groups of tasks inside a project, up front or in hindsight.
   Teach-backs, in any project, follow Treadmill's teach-back skill, `treadmill/skills/teach-back/SKILL.md` in the workspace: read it for when to ask and how to run one.
+- A vision document is `VISION.md` at a repo's root on its default branch, one per repo: it answers whether a change should happen, and ends in two lines, when a change aligns and when it should be resisted.
+  The vision skill drafts it from the repo's merged pull requests; Reevu judges each case on its board and approves it, in a vision sitting the Messenger runs.
+  It is not a reader file: it enters by his approval in the repo it describes, not by a teach-back, and its approved text never enters a `reevu.md`.
+  The reasons he gives while judging it may enter one, as "his idea" lines, through a teach-back.
 
 ## Lavish skins
 
