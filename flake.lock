@@ -98,7 +98,24 @@
         "home-manager": "home-manager",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "vision": "vision"
+      }
+    },
+    "vision": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795397261,
+        "narHash": "sha256-nHweNF9lUhwbeC58XBSlgGfbVGZvJTfRoNAO/vLdkoQ=",
+        "owner": "kunchenguid",
+        "repo": "vision",
+        "rev": "acf4d656188e55ce9633774e4d0c848e9ae49a02",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kunchenguid",
+        "repo": "vision",
+        "type": "github"
       }
     }
   },

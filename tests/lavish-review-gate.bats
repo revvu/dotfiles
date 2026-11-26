@@ -72,6 +72,19 @@ denied() {
   echo "$output" | jq -e '.hookSpecificOutput.permissionDecisionReason | test("unreviewed.html")'
 }
 
+@test "lavish-axi: a vision board passes without the log; a markless page without its line is still refused" {
+  mkdir -p "$INBOX/.vision"
+  # The opening of upstream's skills/vision/assets/review-template.html, which every board keeps.
+  printf '<!doctype html>\n<!--\n  /vision review board TEMPLATE (ships as skills/vision/assets/review-template.html).\n\n  Agent instructions:\n-->\n<html><body><h1>Board</h1></body></html>\n' >"$INBOX/.vision/board.html"
+  run call "npx -y lavish-axi .vision/board.html"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+  printf '<!doctype html>\n<!-- a review board -->\n<html><body><h1>Board</h1></body></html>\n' >"$INBOX/.vision/other.html"
+  run call "npx -y lavish-axi .vision/other.html"
+  [ "$status" -eq 0 ]
+  denied
+}
+
 @test "lavish-axi share, from another directory through cd, is refused too" {
   run call "cd $INBOX/topic && lavish-axi share unreviewed.html --private" "$BATS_TEST_TMPDIR"
   [ "$status" -eq 0 ]

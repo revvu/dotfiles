@@ -33,6 +33,7 @@ The repo defines the environment and nothing else.
   The `lavish-page` skill (`home/skills/lavish-page`), which the policy names for every Lavish page, is symlinked into `~/.claude/skills/` and `~/.codex/skills/`.
   The `systems-breakdown` skill (`home/skills/systems-breakdown`), which the policy names for exploratory work on a new project, is linked the same way.
   The `messenger` skill (`home/skills/messenger`), which makes a laptop session a Messenger that catches up on and answers what needs Reevu, and the `catch-me-up` skill it runs, are symlinked into `~/.claude/skills/` only.
+  The `vision` skill, which drafts a repo's VISION.md, comes unmodified from upstream [kunchenguid/vision](https://github.com/kunchenguid/vision) (MIT) as a pinned, non-flake input in `flake.lock` (`nix flake update vision` moves it), linked read-only from the store into `~/.claude/skills/` only; the weekly audit's Forks table shows the upstream commits since the pin.
   The Orchestrator's role (`home/agents/orchestrator.md`), a Claude Code agent definition that Treadmill starts on the server with `claude --agent orchestrator`, is symlinked into `~/.claude/agents/`.
   Codex also gets a system-level base config at `/etc/codex/config.toml`.
 - **Small fixes.**
@@ -81,6 +82,7 @@ Its tests run with `bats tests`.
 ## The Lavish publish check (added by hand)
 
 `bin/lavish-review-gate` is a Claude Code PreToolUse hook: it refuses `lavish-axi <page>`, `lavish-axi share <page>` and `treadmill note <project> <page>` when the page has no Reader review, and a `git commit` in the agent inbox or the treadmill-tasks clone when a page the commit adds (a new file, such as a prepped task) has none; its refusal names the `lavish-page` skill.
+A vision board, which keeps the vision skill's template comment line, passes: it is a tool to answer on, not a page to review.
 A page carries its review as the review mark in its head, `<meta name="lavish-review" content="Nov 20 · 12 items, 7 claims">`, with the log itself off the page in `<page>.review.md` and the commit or PR that lands it; the older on-page `<summary>Reader review · N items, M claims · date</summary>` passes too.
 The pattern is a twin of Treadmill's `treadmill/review_log.py`, and `tests/fixtures/review-log/` holds the pages both answer alike.
 A commit that only modifies or moves an existing page passes, since both repos hold pages written before the review existed.
@@ -132,7 +134,7 @@ Every Sunday at 21:10 the server runs `bin/audit-page --scheduled`: it gathers w
 Every run collects fresh facts with `bin/audit`; saved JSON is not accepted as input.
 Each run that reaches publishing creates a commit, including reruns with identical output, then attempts to push.
 See `bin/audit-page --help` for publishing preconditions, failure handling and overrides.
-The page has what matters first, Claude's judgement of the week (what to update now, what can wait), then the facts: every tool against its latest release with its update line, the two forks against their upstreams, the doctor's report, and whether the global policy's paths and links still resolve.
+The page has what matters first, Claude's judgement of the week (what to update now, what can wait), then the facts: every tool against its latest release with its update line, the two forks and the pinned vision skill against their upstreams, the doctor's report, and whether the global policy's paths and links still resolve.
 The audit never installs, removes or updates tools; every update is a line on the page to run by hand.
 
 ```sh

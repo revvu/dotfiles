@@ -1,4 +1,4 @@
-{ config, lib, pkgs, user, ... }:
+{ config, lib, pkgs, user, vision, ... }:
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
@@ -283,6 +283,10 @@ in
   # Claude only, beside catch-me-up, which it runs.
   home.file.".claude/skills/messenger".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/skills/messenger";
+  # vision (kunchenguid/vision, MIT) drafts a repo's VISION.md in a sitting the
+  # Messenger runs; Claude only. Linked from the read-only store copy of the
+  # pinned flake input, so it stays unmodified: no fork to maintain.
+  home.file.".claude/skills/vision".source = "${vision}/skills/vision";
   # The Orchestrator, Treadmill's one always-on session on the server, is a
   # Claude Code agent definition so its role stays whole through compaction.
   # Linked on every machine; Treadmill starts it (claude --agent orchestrator)
