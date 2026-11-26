@@ -174,7 +174,7 @@ else
 fi
 
 # shellcheck disable=SC2016  # $now is jq's
-fork_rows="$(q '.forks[] | "<tr><td><span class=\"font-mono\">\(.fork | @html)</span><div class=\"text-xs muted\">upstream \(.upstream | @html)</div></td><td class=\"font-mono\">\(.behind // "?")</td><td class=\"font-mono\">\(.ahead // "?")</td><td>\(if .merge_base then (.merge_base | .[0:10]) + " <span class=\"muted text-xs\">" + (((($now - (.merge_base | fromdateiso8601)) / 86400) | floor | tostring)) + " d ago</span>" else "<span class=\"muted\">unknown</span>" end)</td></tr>"')"
+fork_rows="$(q '.forks[] | "<tr><td>\(if has("pin") then "<span class=\"font-mono\">\(.name | @html) @ \((.pin // "?")[0:7] | @html)</span><div class=\"text-xs muted\">pinned flake input, upstream \(.upstream | @html)</div>" else "<span class=\"font-mono\">\(.fork | @html)</span><div class=\"text-xs muted\">upstream \(.upstream | @html)</div>" end)</td><td class=\"font-mono\">\(.behind // "?")</td><td class=\"font-mono\">\(.ahead // "?")</td><td>\(if .merge_base then (.merge_base | .[0:10]) + " <span class=\"muted text-xs\">" + (((($now - (.merge_base | fromdateiso8601)) / 86400) | floor | tostring)) + " d ago</span>" else "<span class=\"muted\">unknown</span>" end)</td></tr>"')"
 
 policy_rows="$(q '.policy.refs[] | "<tr><td class=\"font-mono\">\(.ref | @html)</td><td>\(.kind)</td><td>\(if .ok then "<span class=\"badge badge-sm badge-success badge-outline\">resolves</span>" else "<span class=\"badge badge-sm badge-error\">missing</span>" end)</td></tr>"')"
 [ -n "$policy_rows" ] || policy_rows='<tr><td colspan="3" class="muted">The policy has no ~/ paths or https links.</td></tr>'
@@ -227,8 +227,8 @@ table.t td{vertical-align:top;padding:.4rem .5rem;border-top:1px solid var(--col
 $version_rows</tbody></table></section>
 <section class="mt-10"><h2 class="text-xl font-semibold">Update lines</h2>$updates_html</section>
 <section class="mt-10"><h2 class="text-xl font-semibold">Forks</h2>
-<p class="text-sm muted mt-1">Behind: upstream commits the fork lacks. Ahead: the fork's own commits. Merge base: the last commit both share.</p>
-<table class="t mt-3"><thead><tr><th>fork</th><th>behind</th><th>ahead</th><th>merge base</th></tr></thead><tbody>
+<p class="text-sm muted mt-1">Behind: upstream commits the fork lacks. Ahead: the fork's own commits. Merge base: the last commit both share. A pinned flake input reads the same way, with its pin from flake.lock as the fork; <code>nix flake update &lt;input&gt;</code> moves it.</p>
+<table class="t mt-3"><thead><tr><th>fork or pin</th><th>behind</th><th>ahead</th><th>merge base</th></tr></thead><tbody>
 $fork_rows</tbody></table>
 <p class="text-sm muted mt-2">$forks_word.</p></section>
 <section class="mt-10"><h2 class="text-xl font-semibold">Doctor</h2>

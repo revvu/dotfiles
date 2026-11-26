@@ -3,8 +3,8 @@
 #
 # Why this exists: nothing on a Mac reports, in one place, how far the tools an
 # agent session depends on have drifted: hand-installed CLIs behind their
-# releases, npm globals behind npm, the two forks behind their upstreams, and
-# policy paths that no longer resolve. This script collects exactly that and
+# releases, npm globals behind npm, the two forks and the pinned flake inputs
+# behind their upstreams, and policy paths that no longer resolve. This script collects exactly that and
 # nothing else: it is read-only, never installs, removes or updates anything,
 # and writes only to stdout. bin/audit-page turns the JSON into a page.
 #
@@ -16,7 +16,8 @@
 #             (npm), and cursor-agent and Paper (installed only: neither has
 #             a release feed; Paper updates itself on relaunch)
 #   forks     commits the dotfiles and firstmate forks lack from upstream, and
-#             the date they last shared a commit
+#             the date they last shared a commit; and for a pinned flake input
+#             (vision), its pin from flake.lock and the upstream commits since
 #   policy    every ~/ path and https link in the global agent policy, and
 #             whether it resolves
 #   errors    the sources that did not answer, one line each
@@ -28,6 +29,8 @@
 #   AUDIT_NOW       epoch seconds to stamp the document with
 #   AUDIT_POLICY    the policy file to check (default home/global-agents.md)
 #   AUDIT_HOME      what ~ expands to in policy paths (default $HOME)
+#   AUDIT_LOCK      the flake.lock to read pins from (default ../flake.lock);
+#                   with AUDIT_FIXTURES set, the fixture named flake.lock
 #
 # Exit 0 when every source answered, 1 when some did not (the JSON is still
 # complete, with nulls and an errors list), 2 when the output cannot be built.
@@ -44,6 +47,7 @@ fx="${AUDIT_FIXTURES:-}"
 now="${AUDIT_NOW:-$(date +%s)}"
 policy="${AUDIT_POLICY:-$here/../home/global-agents.md}"
 home="${AUDIT_HOME:-$HOME}"
+lock="${AUDIT_LOCK:-$here/../flake.lock}"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 : >"$tmp/versions"; : >"$tmp/forks"; : >"$tmp/policy"; : >"$tmp/errors"
@@ -158,9 +162,29 @@ else
   gap "npm-ls: npm ls -g gave nothing"
 fi
 
+# $1 = flake input, $2 = owner/repo of the upstream. The pin is flake.lock's
+# locked.rev, written nowhere else; behind is upstream main's commits since it.
+pinned() {
+  local rev json
+  rev="$(source_ flake.lock cat "$lock" | jq -r --arg i "$1" '.nodes[$i].locked.rev // empty' 2>/dev/null)" || rev=""
+  if [ -z "$rev" ]; then
+    gap "flake.lock: no locked rev for the input $1"
+  elif json="$(source_ "compare-$1" gh api "repos/$2/compare/$rev...main")" && [ -n "$json" ]; then
+    jq -c --arg name "$1" --arg pin "$rev" --arg upstream "$2" \
+      '{name: $name, pin: $pin, upstream: $upstream, behind: .ahead_by, ahead: .behind_by,
+        merge_base: .merge_base_commit.commit.committer.date}' <<<"$json" >>"$tmp/forks"
+    return
+  else
+    gap "compare-$1: no answer from the GitHub compare API for $2"
+  fi
+  jq -nc --arg name "$1" --arg pin "$rev" --arg upstream "$2" \
+    '{name: $name, pin: (if $pin == "" then null else $pin end), upstream: $upstream, behind: null, ahead: null, merge_base: null}' >>"$tmp/forks"
+}
+
 # --- forks ------------------------------------------------------------------
 fork dotfiles kunchenguid/dotfiles revvu
 fork firstmate kunchenguid/firstmate revvu
+pinned vision kunchenguid/vision
 
 # --- policy references ------------------------------------------------------
 if [ -r "$policy" ]; then

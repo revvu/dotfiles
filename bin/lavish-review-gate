@@ -30,6 +30,11 @@
 # The pattern is a twin of LOG_RE in revvu/treadmill's treadmill/review_log.py;
 # tests/fixtures/review-log holds the pages both answer alike. Keep them in step.
 #
+# A vision board passes too: the vision skill's review board, a tool Reevu
+# answers on rather than a page to review. The skill fills only marked slots of
+# its template, so every board keeps the template's opening comment line,
+#   /vision review board TEMPLATE (ships as skills/vision/assets/review-template.html)
+#
 # Input: the hook JSON on stdin (tool_input.command, cwd).
 # Output: a deny decision on stdout, or nothing (allow). Any error allows:
 # the hook never breaks a Bash call it cannot read.
@@ -62,6 +67,10 @@ expand() { # a path token -> absolute path, relative to $2
 
 has_log() {
   tr '\r\n' '  ' <"$1" | grep -Eqi '<summary[^>]*>[^<]*Reader review[^<]*[0-9]+ items?[^<]*[0-9]+ claims?|<meta[[:space:]]+name="lavish-review"[[:space:]]+content="[^"]*[0-9]+ items?[^"]*[0-9]+ claims?'
+}
+
+is_board() {
+  grep -qF '/vision review board TEMPLATE (ships as skills/vision/assets/review-template.html)' "$1"
 }
 
 # Directories the command may run in: the cwd, then every cd and git -C target.
@@ -147,7 +156,7 @@ for p in ${pages[@]+"${pages[@]}"}; do
   case "$seen" in *" $p "*) continue ;; esac
   seen="$seen$p "
   [ -f "$p" ] || continue
-  has_log "$p" || missing+=("$p")
+  has_log "$p" || is_board "$p" || missing+=("$p")
 done
 [ ${#missing[@]} -eq 0 ] && exit 0
 
