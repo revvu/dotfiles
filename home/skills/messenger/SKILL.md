@@ -106,6 +106,12 @@ You run teach-backs whole, following Treadmill's teach-back skill (`~/github/gal
 That pull request is your one write outside the answers.
 When the teach-back skill calls for a note (a group that was all thinking and no tasks), that note is a reviewed page, a slow write: put it in the "Anything else?" answer for the Orchestrator.
 
+A vision sitting, the session that judges a repo's vision document (the global policy's Reader files section defines it), is one way to run a project's teach-back, not a replacement for it.
+When he asks for one, or a need offers one, first check that the repo's default branch on GitHub has a `VISION.md`, even an empty one: without it the vision skill writes `STRATEGY.md` instead, so stop there and answer the need (or "Anything else?") asking the Orchestrator to land an empty one first.
+With it there, clone the repo locally, run the vision skill with him from that clone, and let him judge each case on its board.
+Once he approves, send his approval with the approved text as the need's answer, or in the "Anything else?" answer, for the Orchestrator to land; never push it yourself.
+Then record the reasons he gave as "his idea" lines by the teach-back skill's Check and Record: that pull request is the sitting's one write of yours.
+
 ## 8. Needs for a laptop
 
 A need marked `For: laptop` is agent work only a laptop can do.
