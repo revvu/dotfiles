@@ -77,7 +77,8 @@ On every line, read the task's state in the tasks repo first; on a done line, ch
 - **cancelled**: a need, unless the stream's pages say why it was stopped and what follows.
 - **done, done-notes**: check the claims (open the diff, run the check the outcome names). File a page the worker wrote for him as a note and stage it. Resolve with `treadmill resolve <slug>` an ask in needs-you/ that needs nothing more.
 - **resolved**: nothing, unless the stream's move named it.
-- **held wait=reevu-merge**: write a need "Check off and merge <PR>" (Merging, below).
+- **held wait=reevu-merge**: write a need whose Link is the pull request and whose body names the head commit's short sha, asking him to press Merge on it in Treadmill's web app or tell the Messenger (Merging, below).
+- **held wait=merge-refused**: the tick refused his Merge. Read the reason from the task's run record (`merge_refused.why` in `$TREADMILL_HOME/runs/<slug>/run.json`) and write a need naming the pull request, the commit he pressed Merge on and the reason, with the default the reason implies: for a moved head or a branch behind its base, press Merge again on the new head; for a failed check or a conflict, the fix first, then Merge again.
 - **held wait=merge or wait=task-pr**: read why the pull request is not ready (checks, conflicts, review) and drive the fix; when the tick has already sent it back twice and left it, a need.
 - **held wait=pr**: drive the named pull request when it is staged in an open stream; otherwise a need.
 - **held wait=task-idle**: launch or re-chain the named task when it is staged in an open stream; otherwise a need.
@@ -114,9 +115,9 @@ A question stands alone: it names the project and the page or screen it is about
 ## Merging
 
 - The tick merges task pull requests once GitHub reports them ready, and holds those marked `data-merge="reevu"`, those in a repo whose workspace's Auto-merge is off, and those whose project the registry marks `"merge": "reevu"`. Never merge a task pull request the tick will merge.
-- A held pull request (`data-merge="reevu"`) you merge only when his answer to its need says "merge"; he may also merge it himself on GitHub.
+- You never merge a held pull request. Its need's Link is the pull request URL, and its body names the head commit's short sha and asks him to press Merge on it in Treadmill's web app, tell the Messenger, or merge it himself on GitHub. On his Merge the tick merges exactly that commit once GitHub reports it ready. An answer reading `merge requested <short sha>` (the Messenger's record of the `treadmill merge` it sent for him) means the request is with the tick: settle the need with `need done`. A refused merge comes back as its own held line, `wait=merge-refused`.
 - A ready pull request no task tracks (checks passed, no conflict), in an open stream's work, you may merge in any repo where the switch command, below, prints `on`.
-- Each workspace (one GitHub owner in the registry's `workspaces`) has its own Auto-merge switch, and a repo follows its owner's. Before merging any pull request without his word on it, run `treadmill auto-merge <owner>/<name>` with its repo and merge only when it prints `on`; it prints `off` too for a project the registry marks `"merge": "reevu"`. On `off`, or when it fails, merge nothing there: write a need asking him to merge it on GitHub or turn that workspace's Auto-merge on, quoting the error if it failed. His own "merge" answer on a held pull request is never gated. Only his Auto-merge pill in Treadmill's web app, or his own hand edit, sets a switch; never change a line here to flip one.
+- Each workspace (one GitHub owner in the registry's `workspaces`) has its own Auto-merge switch, and a repo follows its owner's. Before merging any pull request without his word on it, run `treadmill auto-merge <owner>/<name>` with its repo and merge only when it prints `on`; it prints `off` too for a project the registry marks `"merge": "reevu"`. On `off`, or when it fails, merge nothing there: write a need asking him to merge it on GitHub or turn that workspace's Auto-merge on, quoting the error if it failed. Only his Auto-merge pill in Treadmill's web app, or his own hand edit, sets a switch; never change a line here to flip one.
 - You never touch production or promotion.
 
 ## Merge conflicts
