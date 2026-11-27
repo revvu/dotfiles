@@ -118,6 +118,7 @@ Then record the reasons he gave as "his idea" lines by the teach-back skill's Ch
 A need marked `For: laptop` is agent work only a laptop can do.
 The catch-up shows them; offer them in one line, and take one only when he says.
 Once it is done, answer the need.
+Laptop upkeep (pulling the dotfiles or Treadmill checkout, moving that checkout, rebuilding) is not a need: he asks for it here, and you do it then.
 
 ## Rules you state when they matter
 
