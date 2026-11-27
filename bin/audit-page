@@ -25,8 +25,9 @@
 #      Rerun commit behavior is documented in README.md's Weekly audit section.
 #
 # Every live input can be overridden, which is how the tests run it:
-#   AUDIT_INBOX           the inbox checkout (default ~/github/gallopify-playground/inbox)
-#   AUDIT_SKIN            the skin to inline (default the playground's .lavish-shared/lavish-skin.css)
+#   AUDIT_INBOX           the inbox checkout (default ~/github/inbox)
+#   AUDIT_SKIN            the skin to inline (default the plain skin, ~/github/.lavish-shared/lavish-skin.css,
+#                         since the page lands in the personal inbox)
 #   AUDIT_CLAUDE          the command asked for the judgement (default claude)
 #   AUDIT_CLAUDE_TIMEOUT  seconds to wait for it (default 120)
 #   AUDIT_HOST            the host that builds the page when --scheduled (default mac)
@@ -54,8 +55,8 @@ for arg in "$@"; do
   esac
 done
 
-inbox="${AUDIT_INBOX:-$HOME/github/gallopify-playground/inbox}"
-skin="${AUDIT_SKIN:-$HOME/github/gallopify-playground/.lavish-shared/lavish-skin.css}"
+inbox="${AUDIT_INBOX:-$HOME/github/inbox}"
+skin="${AUDIT_SKIN:-$HOME/github/.lavish-shared/lavish-skin.css}"
 claude="${AUDIT_CLAUDE:-claude}"
 claude_timeout="${AUDIT_CLAUDE_TIMEOUT:-120}"
 want_host="${AUDIT_HOST:-mac}"
@@ -190,7 +191,7 @@ generated_at="$(jq -r .generated_at "$json")"
 
 cat >"$tmp/page.html" <<EOF
 <!doctype html>
-<html lang="en" data-theme="gallopify">
+<html lang="en" data-theme="plain">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Drift audit $date</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/daisyui.css">

@@ -1,0 +1,51 @@
+/* Lavish skin: plain, for personal work.
+   theme-name: plain
+   Linked by home.nix to ~/github/.lavish-shared/lavish-skin.css, so every page
+   under ~/github that is outside the Gallopify playground finds it as its
+   nearest skin; the global policy's "Lavish skins" section says which pages wear it.
+   Usage: set <html lang="en" data-theme="plain"> and inline this entire file
+   into the page's <style> block, on the same runtime as the Gallopify skin
+   (DaisyUI 5 CSS from the CDN plus the Tailwind v4 browser build).
+   Light is DaisyUI's built-in light theme, which the CDN build puts on :root, so
+   this file adds no light colours. The CDN build has no automatic dark mode (its
+   dark theme answers only data-theme="dark"), so the dark block below repeats
+   the colours of DaisyUI 5.5's built-in dark theme under prefers-color-scheme.
+   Restyle it here later; no page needs to change. */
+
+[data-theme="plain"] {
+  color-scheme: light;
+  background-color: var(--color-base-100); /* the root paints the canvas too, so overscroll never flashes */
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="plain"] {
+    color-scheme: dark;
+    --color-base-100: oklch(25.33% .016 252.42);
+    --color-base-200: oklch(23.26% .014 253.1);
+    --color-base-300: oklch(21.15% .012 254.09);
+    --color-base-content: oklch(97.807% .029 256.847);
+    --color-primary: oklch(58% .233 277.117);
+    --color-primary-content: oklch(96% .018 272.314);
+    --color-secondary: oklch(65% .241 354.308);
+    --color-secondary-content: oklch(94% .028 342.258);
+    --color-accent: oklch(77% .152 181.912);
+    --color-accent-content: oklch(38% .063 188.416);
+    --color-neutral: oklch(14% .005 285.823);
+    --color-neutral-content: oklch(92% .004 286.32);
+    --color-info: oklch(74% .16 232.661);
+    --color-info-content: oklch(29% .066 243.157);
+    --color-success: oklch(76% .177 163.223);
+    --color-success-content: oklch(37% .077 168.94);
+    --color-warning: oklch(82% .189 84.429);
+    --color-warning-content: oklch(41% .112 45.904);
+    --color-error: oklch(71% .194 13.428);
+    --color-error-content: oklch(27% .105 12.094);
+  }
+}
+
+[data-theme="plain"] body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+}

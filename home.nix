@@ -305,6 +305,12 @@ in
   # absolute path (seeded on a fresh machine, added by hand elsewhere; README).
   home.file.".claude/hooks/lavish-review-gate".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/bin/lavish-review-gate";
+  # The plain Lavish skin for revvu projects' pages, the skin the policy's
+  # "Lavish skins" section names; linked at the top of the workspace so a page
+  # anywhere under ~/github outside the Gallopify playground finds it as its
+  # nearest skin. The playground keeps its own Gallopify skin.
+  home.file."github/.lavish-shared/lavish-skin.css".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/lavish/plain-skin.css";
 
   # bin/doctor compares the live machine with what this evaluation declared,
   # so the declared sets are written out by the same evaluation. Brew items

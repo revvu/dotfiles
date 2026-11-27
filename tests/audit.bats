@@ -153,7 +153,7 @@ page() { cat "$INBOX/drift/drift-2026-11-01.html"; }
   [ "$status" -eq 0 ]
   page | grep -q '<title>Drift audit 2026-11-01</title>'
   page | grep -q '\.k{color:red}'                      # the skin is inlined
-  page | grep -q 'data-theme="gallopify"'
+  page | grep -q 'data-theme="plain"'
   [ "$(page | grep -c '>overdue<')" -eq 2 ]            # no-mistakes, claude-swap
   [ "$(page | grep -c 'badge-warning">behind<')" -eq 7 ]             # codex and six npm globals
   [ "$(page | grep -c '>current<')" -eq 2 ]            # treehouse, claude-code@latest
