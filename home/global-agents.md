@@ -25,7 +25,7 @@
   If you hit a gap the plan did not anticipate, stop and raise it instead of patching around it.
 - Every Lavish page layers conceptually: the problem and who it is for, the core idea and its words, the core mechanisms, the general architecture and stack, each part in depth, risks and alternatives, decisions, the plan, the log.
   Each section uses only concepts introduced before it; push detail down to its layer and leave a short summary above.
-  `inbox/treadmill/treadmill.html` is the model.
+  `~/github/inbox/treadmill/treadmill.html` is the model.
 - Big-picture exploratory work on a new project or area (how it works end to end, what we must build) gets a mechanism-by-mechanism breakdown, written with the `systems-breakdown` skill.
 - Project work, and the Lavish pages that plan or explain it, live in Treadmill, not in the inbox or inside a project repo.
   A page that drives work is a task, written with the `treadmill-prep` skill; a page that drives no task (a plan, a glossary, a finding) is a note beside the project's tasks, added with `treadmill note <project> <file>`.
@@ -65,7 +65,7 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
   Split a line that holds two ideas.
   The compression comes after the check: his full answer and each claim's check go in the teach-back PR's description, so `git blame` on a line leads back to them.
 - Reevu names groups of tasks inside a project, up front or in hindsight.
-  Teach-backs, in any project, follow Treadmill's teach-back skill, `treadmill/skills/teach-back/SKILL.md` in the workspace: read it for when to ask and how to run one.
+  Teach-backs, in any project, follow Treadmill's teach-back skill, `~/github/treadmill/skills/teach-back/SKILL.md` in the workspace: read it for when to ask and how to run one.
 - A vision document is `VISION.md` at a repo's root on its default branch, one per repo: it answers whether a change should happen, and ends in two lines, when a change aligns and when it should be resisted.
   The vision skill drafts it from the repo's merged pull requests; Reevu judges each case on its board and approves it, in a vision sitting the Messenger runs.
   It is not a reader file: it enters by his approval in the repo it describes, not by a teach-back, and its approved text never enters a `reevu.md`.
@@ -93,7 +93,7 @@ A reader who sees only the top of a page knows what is being solved and what it 
 - Choose the body visuals by page type: a step track for builds and trackers, a diagram or clickable map for systems and bugs, decision cards with a recommended default for anything waiting on the user.
 - History, logs and evidence go in collapsed sections at the end or on a linked page.
 - Use motion freely wherever it explains something (work flowing, state changing, progress filling), and always honour reduced motion.
-- The reference examples are `inbox/lavish/page-styles.html` (the options tried), `inbox/firstmate/firstmate-resync.html` (the standard applied) and the Schwab Atlas, Treadmill note `schwab-map-atlas` in project `schwab` (overview first, detail on demand).
+- The reference examples are `~/github/inbox/lavish/page-styles.html` (the options tried), `~/github/inbox/firstmate/firstmate-resync.html` (the standard applied) and the Schwab Atlas, Treadmill note `schwab-map-atlas` in project `schwab` (overview first, detail on demand).
 - End every Lavish page with the `lavish-page` skill's review: a fresh agent playing Reevu lists what stops him acting, a fact judge checks the claims the page rests on, an agent reader checks that the folds carry enough to take the work forward, and the writer answers each item from evidence or marks it unknown.
   This covers every Lavish file, prepped tasks included.
   The review's log stays off the page: the page carries a one-line review mark, and the log lands in the commit or PR that lands the page.
