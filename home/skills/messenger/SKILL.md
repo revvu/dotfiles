@@ -69,7 +69,7 @@ When he proposes new work or a new idea (a feature, a flow, a change to how some
 
 What you record holds only his words, what he confirmed, and points marked open; never a default of yours.
 
-- **Not new work:** a pick, an approval, a merge, a stop answer or his words about a standup (one happened, add or close a question) is recorded at once, as "Answer" says.
+- **Not new work:** a pick, an approval, a merge, a stop answer or his words about a standup (one happened, add or close a question) is recorded at once, as "Answer" says (a merge is sent with `$T merge` there).
   Where a settled page already covers the work, grill only what his words add beyond it; a new idea he raises inside a teach-back waits until the teach-back ends.
 - **He declines, or says "your call":** record those points as left open by him; you still pick nothing.
 - **He leaves mid-grill:** nothing waits for the end.
@@ -89,7 +89,11 @@ EOF
 
 - His words go in verbatim; the `Settled with him:` line is the only thing you add.
 - Two answers in a row both survive: the app appends the second after the first, and the Orchestrator acts on the text added since it last read.
-- A Paper approval, a merge he wants, a stop he answers: all are answers, and the Orchestrator acts on them.
+- A Paper approval, a stop he answers: both are answers, and the Orchestrator acts on them.
+- A merge he wants on a pull request is not an answer but his Merge, sent at once with `$T merge <PR URL> --head <sha>` (`treadmill merge`), the short sha the need names; a need with none: show him the pull request's head commit with `gh pr view <PR URL> --json headRefOid` and confirm it first.
+  The call goes to Treadmill's web app, as his Merge button does, and prints `merge requested <slug> <owner/name#n> at <head 7>: <commit 12>`, or `treadmill: merge refused: <reason>`: show him the line.
+  Once it prints `merge requested`, record `merge requested <short sha>` as the need's answer with `$T need answer`, so the Orchestrator settles it; the tick merges that exact commit once GitHub reports it ready.
+  If `$T` has no `merge` command, the laptop's runner copy is older: say so, and ask him to pull it once (`git -C ~/github/treadmill-main pull --ff-only`), or to press Merge in Treadmill's web app.
 - His words about a standup go in the "Anything else?" answer (`$T need answer anything-else -`) when he says them, not at the end, since a standup is marked when the Orchestrator acts; when a close could mean more than one open question (listed with their ids, such as q1, on today's log in Treadmill), ask him which and put its id in the `Settled with him:` line.
 - If the call prints `server unreachable`, nothing was recorded: tell him, and keep his words in your reply so he can send them again once the server answers.
 
