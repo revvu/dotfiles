@@ -24,7 +24,7 @@ It covers every new Lavish file or rewrite, whoever writes it; an appended log l
 - What he holds is what those two files hold.
   The chat and the pages he was shown are names he may recognise, not concepts he understands: shown is not understood.
   A name coined in a scratch file, a subagent report or a task outcome is not even recognised; never use one bare.
-- Interim, until Lucidity's values are built into a proper system: read Lucidity's reader file, `lucidity-skills/reevu.md` in the workspace, and skim the notes in `treadmill-tasks/notes/lucidity/` for the values they list.
+- Interim, until Lucidity's values are built into a proper system: read Lucidity's reader file, `~/github/lucidity-skills/reevu.md` in the workspace, and skim the notes in `~/github/treadmill-tasks/notes/lucidity/` for the values they list.
   The notes are the source; this list only points at them, so when they disagree, the notes win.
   Every page applies these:
   - An ask earns his attention only for what his input uniquely provides; anything another source holds goes there first (`what-needs-you`).
@@ -83,9 +83,9 @@ Sources, one line each:
 
 - Information foraging: Pirolli and Card, "Information Foraging", Psychological Review, 1999.
 - The reader's question as the frame: Minto, "The Pyramid Principle", 1987, the top of the pyramid answers the question already in the reader's mind; Larkin and Simon, "Why a Diagram is (Sometimes) Worth Ten Thousand Words", Cognitive Science, 1987, a diagram indexes information by location, so what is used together is found together without search; Mayer, "Multimedia Learning", 2001, spatial contiguity, words placed beside the part of the picture they describe; Lucidity's `information-flow`, a record sits beside what it governs.
-- Bottom line first, situation before ask: the military BLUF convention; Minto's pyramid principle and its situation, complication, question, answer; Treadmill's information-economy page, `inbox/treadmill/treadmill-information-economy.html` (an ask arrives in one frame: what it is part of, what it unblocks).
+- Bottom line first, situation before ask: the military BLUF convention; Minto's pyramid principle and its situation, complication, question, answer; Treadmill's information-economy page, `~/github/inbox/treadmill/treadmill-information-economy.html` (an ask arrives in one frame: what it is part of, what it unblocks).
 - Concepts before use: Ausubel, 1968, "the most important single factor influencing learning is what the learner already knows"; Lucidity's `learning-in-treadmill` (every ask names the concepts it rests on, held, stale or open); Nielsen's heuristic 2, speak the users' language.
-- Blackbox to the decision: his own method, "Black-box the flow, then follow each byte process by process" (Jun 26 and Jul 6, 2026, in `inbox/reader/scratch/portrait/all/own-words.md`); Parnas, "On the Criteria To Be Used in Decomposing Systems into Modules", 1972 (information hiding); Hayek, 1945, "how little the individual participants need to know in order to be able to take the right action", as Lucidity's `information-flow` uses it.
+- Blackbox to the decision: his own method, "Black-box the flow, then follow each byte process by process" (Jun 26 and Jul 6, 2026, in `~/github/inbox/reader/scratch/portrait/all/own-words.md`); Parnas, "On the Criteria To Be Used in Decomposing Systems into Modules", 1972 (information hiding); Hayek, 1945, "how little the individual participants need to know in order to be able to take the right action", as Lucidity's `information-flow` uses it.
 - One level per layer: the C4 model's one zoom level per diagram; Bret Victor, "Up and Down the Ladder of Abstraction", 2011; depth by what he holds is the expertise reversal effect (Kalyuga, Ayres, Chandler and Sweller, 2003), as Lucidity's `maximize-learning` applies it.
 - Overview first: Shneiderman, "The Eyes Have It", 1996; Nielsen, "Progressive Disclosure", 2006, which caps it at two levels.
 - One home: DRY, "a single, authoritative representation" (Hunt and Thomas, 1999).
