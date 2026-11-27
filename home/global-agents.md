@@ -29,7 +29,7 @@
 - Big-picture exploratory work on a new project or area (how it works end to end, what we must build) gets a mechanism-by-mechanism breakdown, written with the `systems-breakdown` skill.
 - Project work, and the Lavish pages that plan or explain it, live in Treadmill, not in the inbox or inside a project repo.
   A page that drives work is a task, written with the `treadmill-prep` skill; a page that drives no task (a plan, a glossary, a finding) is a note beside the project's tasks, added with `treadmill note <project> <file>`.
-- The inbox, `~/github/gallopify-playground/inbox/`, is only for one-off work that belongs to no Treadmill project.
+- The inbox, `~/github/inbox/`, is only for one-off work that belongs to no Treadmill project.
   The inbox is its own private repo, `revvu/agent-inbox`, checked out at that path on every machine.
   Its `README.md` lists each page with its next step; keep that table current.
   Work sessions start by pulling and opening the inbox; commit and push after each page change, so the other machine can resume.
@@ -39,7 +39,8 @@
   The audit only reports: the axi tools, no-mistakes, treehouse, cursor-agent and the casks are updated by hand, when its page says a release is out; Paper has no feed, its row shows the installed version per machine, and a gap between the two machines closes with a relaunch from the app.
 - Each project has a scaffold repo (for example `atomic-skills`, `linear-skills`) that holds the skills and scripts agents use in that context.
   When an inbox page's work is done, remove its inbox row.
-- A workspace `CLAUDE.md` routes to the scaffolds.
+- Each checkout lives in its GitHub owner's folder: Gallopify-Inc repos in `~/github/gallopify-playground/`, revvu repos in `~/github/`.
+  `~/github` is the workspace, and its `CLAUDE.md` routes to every project's scaffold.
   Start project work from the scaffold directory so its rules and skills load.
 
 ## Reader files
@@ -72,8 +73,10 @@ Change it only with Reevu; a line stays only if it changes what a writer does.
 
 ## Lavish skins
 
-Every project has a Lavish skin: the nearest `.lavish-shared/lavish-skin.css` above the artifact's directory, a DaisyUI 5 theme on the Tailwind v4 browser + DaisyUI CDN runtime.
-Use it, and offer to create one where a project has none.
+A Lavish skin is a DaisyUI 5 theme on the Tailwind v4 browser + DaisyUI CDN runtime, in a `.lavish-shared/lavish-skin.css` file; inline it into the page.
+A page wears its project owner's skin: a Gallopify-Inc project's page the Gallopify skin, `~/github/gallopify-playground/.lavish-shared/lavish-skin.css`; a revvu project's page the plain skin, `~/github/.lavish-shared/lavish-skin.css`, which home-manager links from this repo's `home/lavish/plain-skin.css`.
+This holds wherever the page sits, Treadmill's tasks and notes included, since one tasks repo holds both owners' projects.
+A page outside any project wears the nearest `.lavish-shared/lavish-skin.css` above its directory; offer to create one where none fits.
 
 ## Lavish page standard
 

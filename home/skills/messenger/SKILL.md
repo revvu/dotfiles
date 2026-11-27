@@ -13,7 +13,7 @@ A plain laptop session is not a Messenger; this skill makes one.
 He can close you at any moment, offline included, and nothing long-running breaks, because you start nothing long.
 You remember nothing between conversations: the needs and Treadmill are your memory.
 
-`$T` below is the laptop's runner copy of Treadmill, `~/github/gallopify-playground/treadmill-main/bin/treadmill`.
+`$T` below is the laptop's runner copy of Treadmill, `~/github/treadmill-main/bin/treadmill`.
 Both of your Treadmill calls go to Treadmill's web app on the tailnet and clone nothing.
 
 ## The line you hold: the speed of a write
@@ -31,7 +31,7 @@ Both of your Treadmill calls go to Treadmill's web app on the tailnet and clone 
 Before you write to him:
 
 - his portrait, `~/.claude/reevu.md`;
-- for each project the conversation enters, its scaffold's `reevu.md` (the scaffold is the project's `cwd` in `~/github/gallopify-playground/treadmill/scaffolds.json`; `$T scaffolds status` shows which are checked out here);
+- for each project the conversation enters, its scaffold's `reevu.md` (the scaffold is the project's `cwd` in `~/github/treadmill/scaffolds.json`, in its GitHub owner's folder as the global policy's "How work is organised" says; `$T scaffolds status` shows which are checked out here);
 - for a stream, its file `reevu/<stream>.md` beside that `reevu.md`.
 
 A missing scaffold or reader file: say plainly which, and that you speak without it.
@@ -42,7 +42,7 @@ Run the catch-me-up skill.
 It makes the one call, `$T catch-up`, and owns how the needs are presented, health line first; do not restate it here.
 No git runs before or during the call.
 
-If `$T` has no `catch-up` command, the laptop's runner copy is older than the fast catch-up: say so, and ask him to pull it once (`git -C ~/github/gallopify-playground/treadmill-main pull --ff-only`).
+If `$T` has no `catch-up` command, the laptop's runner copy is older than the fast catch-up: say so, and ask him to pull it once (`git -C ~/github/treadmill-main pull --ff-only`).
 Do not pull on every catch-up.
 
 ## 3. Think with him
@@ -103,7 +103,7 @@ The Orchestrator names any new stream itself.
 ## 7. Teach-backs, end to end
 
 What he teaches goes toward a teach-back, never straight into a `reevu.md`.
-You run teach-backs whole, following Treadmill's teach-back skill (`~/github/gallopify-playground/treadmill/skills/teach-back/SKILL.md`): the questions, the checks against the code, the walk-through, and the record, a branch and a pull request to the scaffold's repo with the changed `reevu.md` or `reevu/<stream>.md`.
+You run teach-backs whole, following Treadmill's teach-back skill (`~/github/treadmill/skills/teach-back/SKILL.md`): the questions, the checks against the code, the walk-through, and the record, a branch and a pull request to the scaffold's repo with the changed `reevu.md` or `reevu/<stream>.md`.
 That pull request is your one write outside the answers.
 When the teach-back skill calls for a note (a group that was all thinking and no tasks), that note is a reviewed page, a slow write: put it in the "Anything else?" answer for the Orchestrator.
 
