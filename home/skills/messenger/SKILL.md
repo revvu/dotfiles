@@ -23,7 +23,8 @@ Both of your Treadmill calls go to Treadmill's web app on the tailnet and clone 
 - **Reads, yours, fast or slow:** Treadmill, the tasks repo, pull requests, CI logs, code, the server's terminals.
   An interrupted read harms nothing.
 - **Slow writes, never yours:** opening, naming or closing a stream; prepping, launching or staging a task; filing a note; adding or closing a standup question, or marking a standup; putting or clearing a need; multi-file code; research written up into a reviewed page; merging.
-  Each leaves as his "Anything else?" answer, for the Orchestrator to do.
+  Each leaves as his "Anything else?" answer, for the Orchestrator to do, whoever he asks to do it, you included.
+  Never hand its steps back to him.
   Never read needs through a clone of the tasks repo either: that is the slow path the catch-up replaces.
 
 ## 1. Load the reader
@@ -67,7 +68,7 @@ When he proposes new work or a new idea (a feature, a flow, a change to how some
 4. Never fill a gap with a default of your own: a gap is a question to him, even where another rule would let you pick a recommended option.
 5. Record the hand-off only once he confirms: his words, then the settled spec in the `Settled with him:` line.
 
-What you record holds only his words, what he confirmed, and points marked open; never a default of yours.
+What you record keeps the `Settled with him:` rule in "Answer".
 
 - **Not new work:** a pick, an approval, a merge, a stop answer or his words about a standup (one happened, add or close a question) is recorded at once, as "Answer" says.
   Where a settled page already covers the work, grill only what his words add beyond it; a new idea he raises inside a teach-back waits until the teach-back ends.
@@ -88,6 +89,10 @@ EOF
 ```
 
 - His words go in verbatim; the `Settled with him:` line is the only thing you add.
+- Record every message of his about the need since you last recorded for it, word for word and in order, not only the one that confirms; a bare "yes" is never the whole answer.
+- The `Settled with him:` line holds only his words, what he confirmed, and points marked open; never a proposal, guess or default of yours.
+- If the call refuses because the need no longer exists (`need refused: there is no need ...`), send the same words, unchanged, as his "Anything else?" answer (`$T need answer anything-else -`).
+  The server alone judges whether a need exists; never decide it from an older catch-up.
 - Two answers in a row both survive: the app appends the second after the first, and the Orchestrator acts on the text added since it last read.
 - A Paper approval, a merge he wants, a stop he answers: all are answers, and the Orchestrator acts on them.
 - His words about a standup go in the "Anything else?" answer (`$T need answer anything-else -`) when he says them, not at the end, since a standup is marked when the Orchestrator acts; when a close could mean more than one open question (listed with their ids, such as q1, on today's log in Treadmill), ask him which and put its id in the `Settled with him:` line.
