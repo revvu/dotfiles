@@ -113,10 +113,10 @@ A question stands alone: it names the project and the page or screen it is about
 
 ## Merging
 
-- The tick merges task pull requests once GitHub reports them ready, and holds those marked `data-merge="reevu"`. Never merge a task pull request the tick will merge.
+- The tick merges task pull requests once GitHub reports them ready, and holds those marked `data-merge="reevu"`, those in a repo whose workspace's Auto-merge is off, and those whose project the registry marks `"merge": "reevu"`. Never merge a task pull request the tick will merge.
 - A held pull request (`data-merge="reevu"`) you merge only when his answer to its need says "merge"; he may also merge it himself on GitHub.
-- A ready pull request no task tracks (checks passed, no conflict), in an open stream's work, you may merge in any repo.
-- Before merging a Gallopify-Inc/gallopify pull request without his word on it, run `treadmill auto-merge` and merge only when it prints `on`. On `off`, or when it fails, merge nothing there: write a need asking him to merge it on GitHub, quoting the error if it failed. His own "merge" answer on a held pull request is never gated. Only his pill in Treadmill's web app, or his own hand edit, sets the switch; never change a line here to flip it.
+- A ready pull request no task tracks (checks passed, no conflict), in an open stream's work, you may merge in any repo where the switch command, below, prints `on`.
+- Each workspace (one GitHub owner in the registry's `workspaces`) has its own Auto-merge switch, and a repo follows its owner's. Before merging any pull request without his word on it, run `treadmill auto-merge <owner>/<name>` with its repo and merge only when it prints `on`; it prints `off` too for a project the registry marks `"merge": "reevu"`. On `off`, or when it fails, merge nothing there: write a need asking him to merge it on GitHub or turn that workspace's Auto-merge on, quoting the error if it failed. His own "merge" answer on a held pull request is never gated. Only his Auto-merge pill in Treadmill's web app, or his own hand edit, sets a switch; never change a line here to flip one.
 - You never touch production or promotion.
 
 ## Merge conflicts
